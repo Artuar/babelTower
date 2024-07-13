@@ -4,10 +4,6 @@ from transformers import MarianMTModel, MarianTokenizer
 import soundfile as sf
 import torch
 
-# Функція для завантаження моделі Whisper
-def load_whisper_model(model_name="base"):
-    return whisper.load_model(model_name)
-
 # Функція для завантаження або завантаження та збереження моделі перекладу
 def load_or_download_translation_model(model_name='Helsinki-NLP/opus-mt-en-uk', local_dir='local_model'):
     if os.path.exists(local_dir):
@@ -21,11 +17,11 @@ def load_or_download_translation_model(model_name='Helsinki-NLP/opus-mt-en-uk', 
     return tokenizer, translation_model
 
 # Функція для завантаження або завантаження та збереження моделі Silero
-def load_or_download_silero_model(repo_or_dir='snakers4/silero-models', model_name='silero_tts', language='ua', speaker='v4_ua'):
+def load_silero_model(repo_or_dir='snakers4/silero-models', model_name='silero_tts', language='ua', speaker='v4_ua'):
     return torch.hub.load(repo_or_dir=repo_or_dir, model=model_name, language=language, speaker=speaker)
 
 # Завантаження моделі Whisper
-whisper_model = load_whisper_model("base")
+whisper_model = whisper.load_model("base")
 
 # Завантаження аудіо файлу та підготовка його для розпізнавання
 print("Loading original audio")
@@ -61,7 +57,8 @@ def translate_text(text, tokenizer, model):
 translated_text = translate_text(recognized_text, tokenizer, translation_model)
 print(f"Translated text: {translated_text}")
 
-model, example_text = load_or_download_silero_model()
+# Синтез голосу
+model, example_text = load_silero_model()
 
 device = torch.device('cpu')
 model.to(device)
