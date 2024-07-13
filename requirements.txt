@@ -2,3 +2,8 @@ transformers
 torch
 ffmpeg-python
 openai-whisper
+soundfile
+silero
+numba
+numpy
+llvmlite
