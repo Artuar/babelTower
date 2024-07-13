@@ -3,6 +3,12 @@ import whisper
 from transformers import MarianMTModel, MarianTokenizer
 import soundfile as sf
 import torch
+from datetime import datetime
+
+# Функція для виведення з позначками часу
+def print_with_timestamp(message):
+    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    print(f"[{current_time}] {message}")
 
 # Функція для завантаження або завантаження та збереження моделі перекладу
 def load_or_download_translation_model(model_name='Helsinki-NLP/opus-mt-en-uk', local_dir='local_model'):
@@ -24,7 +30,7 @@ def load_silero_model(repo_or_dir='snakers4/silero-models', model_name='silero_t
 whisper_model = whisper.load_model("base")
 
 # Завантаження аудіо файлу та підготовка його для розпізнавання
-print("Loading original audio")
+print_with_timestamp("Loading original audio")
 audio = whisper.load_audio("audio/audio.mp3")
 audio = whisper.pad_or_trim(audio)
 
@@ -33,7 +39,7 @@ mel = whisper.log_mel_spectrogram(audio).to(whisper_model.device)
 
 # Визначення мови
 _, probs = whisper_model.detect_language(mel)
-print(f"Detected language: {max(probs, key=probs.get)}")
+print_with_timestamp(f"Detected language: {max(probs, key=probs.get)}")
 
 # Розпізнавання аудіо
 options = whisper.DecodingOptions()
@@ -41,7 +47,7 @@ result = whisper.decode(whisper_model, mel, options)
 
 # Виведення розпізнаного тексту
 recognized_text = result.text
-print(f"Recognized text: {recognized_text}")
+print_with_timestamp(f"Recognized text: {recognized_text}")
 
 # Завантаження перекладацької моделі та токенізатора
 tokenizer, translation_model = load_or_download_translation_model()
@@ -55,7 +61,7 @@ def translate_text(text, tokenizer, model):
 
 # Переклад розпізнаного тексту
 translated_text = translate_text(recognized_text, tokenizer, translation_model)
-print(f"Translated text: {translated_text}")
+print_with_timestamp(f"Translated text: {translated_text}")
 
 # Синтез голосу
 model, example_text = load_silero_model()
@@ -65,7 +71,7 @@ model.to(device)
 audio = model.apply_tts(text=translated_text,
                         speaker='mykyta',
                         sample_rate=48000)
-print("Save translated audio")
+print_with_timestamp("Save translated audio")
 
 # Збереження аудіо у файл
 sf.write('audio/translated_audio.wav', audio, 48000)
