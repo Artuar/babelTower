@@ -27,11 +27,11 @@ def load_silero_model(repo_or_dir='snakers4/silero-models', model_name='silero_t
     return torch.hub.load(repo_or_dir=repo_or_dir, model=model_name, language=language, speaker=speaker)
 
 # Завантаження моделі Whisper
-whisper_model = whisper.load_model("base")
+whisper_model = whisper.load_model("tiny")
 
 # Завантаження аудіо файлу та підготовка його для розпізнавання
 print_with_timestamp("Loading original audio")
-audio = whisper.load_audio("audio/audio.mp3")
+audio = whisper.load_audio("audio/audio3sec.m4a")
 audio = whisper.pad_or_trim(audio)
 
 # Створення лог-Мел спектрограм та перенесення на той самий пристрій, що і модель
