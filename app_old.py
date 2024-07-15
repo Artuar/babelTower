@@ -63,11 +63,6 @@ def translate_text(text, tokenizer, model):
 translated_text = translate_text(recognized_text, tokenizer, translation_model)
 print_with_timestamp(f"Translated text: {translated_text}")
 
-
-# Функція для завантаження моделі Silero
-def load_silero_model(repo_or_dir='snakers4/silero-models', model_name='silero_tts', language='ua', speaker='v4_ua'):
-    return torch.hub.load(repo_or_dir=repo_or_dir, model=model_name, language=language, speaker=speaker)
-
 # Синтез голосу
 model, example_text = load_silero_model()
 

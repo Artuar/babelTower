@@ -45,8 +45,6 @@ def load_silero_model(repo_or_dir='snakers4/silero-models', model_name='silero_t
 
 # Завантаження моделі Silero
 silero_model = load_silero_model()
-device = torch.device('cpu')
-silero_model.to(device)
 
 # Settings and constants
 settings_file = "transcriber_settings.yaml"
@@ -71,9 +69,7 @@ data_queue = Queue()
 def transcribe_callback():
     global currently_transcribing, audio_model, loaded_audio_model, record_thread, run_record_thread
     if not currently_transcribing:
-        model = settings.get('speech_model', 'tiny')
-        if model != "large" and settings.get('language', 'Auto') == 'en':
-            model = model + ".en"
+        model = settings.get('speech_model', 'base')
 
         # Only re-load the audio model if it changed.
         if (not audio_model or not loaded_audio_model) or ((audio_model and loaded_audio_model) and loaded_audio_model != model):
@@ -110,7 +106,7 @@ def recording_thread(stream: pyaudio.Stream):
         energy = audioop.rms(data, pa.get_sample_size(pyaudio.paInt16))
         if energy > max_energy:
             max_energy = energy
-        data_queue.put(data)
+        data_queue.put((data, energy))
 
 next_transcribe_time = None
 transcribe_rate_seconds = float(settings.get('transcribe_rate', 0.5))
@@ -120,6 +116,8 @@ silence_time = settings.get('seconds_of_silence_between_lines', 0.5)
 last_sample = bytes()
 samples_with_silence = 0
 phrase_start_time = None
+total_energy = 0
+sample_count = 0
 
 def print_with_timestamp(text):
     date_now = datetime.now()
@@ -128,7 +126,7 @@ def print_with_timestamp(text):
         print(f"{timestamp}: {text}")
 
 def main():
-    global next_transcribe_time, last_sample, samples_with_silence, phrase_start_time
+    global next_transcribe_time, last_sample, samples_with_silence, phrase_start_time, total_energy, sample_count
     transcribe_callback()
     while currently_transcribing:
         if not data_queue.empty():
@@ -141,8 +139,9 @@ def main():
 
                 phrase_complete = False
                 while not data_queue.empty():
-                    data = data_queue.get()
-                    energy = audioop.rms(data, pa.get_sample_size(pyaudio.paInt16))
+                    data, energy = data_queue.get()
+                    total_energy += energy
+                    sample_count += 1
                     if energy < settings.get('volume_threshold', 300):
                         samples_with_silence += 1
                     else:
@@ -181,25 +180,32 @@ def main():
                 result = audio_model.transcribe(audio_normalised, language=language, task=task)
                 recognized_text = result['text'].strip()
 
-                print_with_timestamp(f"Recognized text: {recognized_text}")
+                average_energy = total_energy / sample_count if sample_count > 0 else 0
+                print_with_timestamp(f"Recognized text: {recognized_text} (Average volume: {average_energy:.2f})")
 
-                translated_text = translate_text(recognized_text, tokenizer, translation_model)
-                print_with_timestamp(f"Translated text: {translated_text}")
+                if average_energy > 100 and recognized_text:
+                    translated_text = translate_text(recognized_text, tokenizer, translation_model)
+                    print_with_timestamp(f"Translated text: {translated_text}")
 
-                # Синтез голосу
-                audio = silero_model.apply_tts(text=translated_text,
-                                               speaker='mykyta',
-                                               sample_rate=48000)
-                print_with_timestamp("Save translated audio")
+                    # Синтез голосу
+                    audio = silero_model.apply_tts(text=translated_text,
+                                                   speaker='mykyta',
+                                                   sample_rate=48000)
+                    print_with_timestamp("Save translated audio")
 
-                # Збереження аудіо у файл
-                timestamp_str = phrase_start_time.strftime("%Y%m%d%H%M%S")
-                os.makedirs('audio', exist_ok=True)
-                sf.write(f'audio/translated_audio_{timestamp_str}.wav', audio, 48000)
+                    # Збереження аудіо у файл
+                    if phrase_start_time:
+                        timestamp_str = phrase_start_time.strftime("%Y%m%d%H%M%S")
+                        os.makedirs('audio', exist_ok=True)
+                        sf.write(f'audio/translated_audio_{timestamp_str}.wav', audio, 48000)
 
                 audio_length_in_seconds = samples / float(sample_rate)
                 if audio_length_in_seconds > max_record_time:
                     last_sample = bytes()
+
+                # Reset energy counters
+                total_energy = 0
+                sample_count = 0
 
         sleep(0.1)
 
