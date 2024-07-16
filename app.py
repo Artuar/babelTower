@@ -69,7 +69,7 @@ data_queue = Queue()
 def transcribe_callback():
     global currently_transcribing, audio_model, loaded_audio_model, record_thread, run_record_thread
     if not currently_transcribing:
-        model = settings.get('speech_model', 'tiny')
+        model = settings.get('speech_model', 'medium')
 
         # Only re-load the audio model if it changed.
         if (not audio_model or not loaded_audio_model) or ((audio_model and loaded_audio_model) and loaded_audio_model != model):
