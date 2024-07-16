@@ -44,7 +44,7 @@ def load_silero_model(repo_or_dir='snakers4/silero-models', model_name='silero_t
     return model
 
 # Завантаження моделі Silero
-silero_model = load_silero_model()
+silero_model = load_silero_model(language='ru', speaker='v4_ru')
 
 # Settings and constants
 settings_file = "transcriber_settings.yaml"
@@ -69,7 +69,7 @@ data_queue = Queue()
 def transcribe_callback():
     global currently_transcribing, audio_model, loaded_audio_model, record_thread, run_record_thread
     if not currently_transcribing:
-        model = settings.get('speech_model', 'base')
+        model = settings.get('speech_model', 'tiny')
 
         # Only re-load the audio model if it changed.
         if (not audio_model or not loaded_audio_model) or ((audio_model and loaded_audio_model) and loaded_audio_model != model):
@@ -183,7 +183,7 @@ def main():
                 average_energy = total_energy / sample_count if sample_count > 0 else 0
                 print_with_timestamp(f"Recognized text: {recognized_text} (Average volume: {average_energy:.2f})")
 
-                if average_energy > 100 and recognized_text:
+                if average_energy > 50 and recognized_text and recognized_text != 'you':
                     translated_text = translate_text(recognized_text, tokenizer, translation_model)
                     print_with_timestamp(f"Translated text: {translated_text}")
 
