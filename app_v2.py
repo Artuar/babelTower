@@ -15,14 +15,14 @@ from sys import platform
 from transformers import MarianMTModel, MarianTokenizer
 
 lang_settings = {
-    'uk': {
-        'model': 'Helsinki-NLP/opus-mt-en-uk'
+    'ua': {
+        'translation_model': 'Helsinki-NLP/opus-mt-en-uk',
     },
     'ru': {
-        'model': 'Helsinki-NLP/opus-mt-en-ru'
+        'translation_model': 'Helsinki-NLP/opus-mt-en-ru'
     }
 }
-current_lang = 'uk'
+current_lang = 'ua'
 
 def main():
     parser = argparse.ArgumentParser()
@@ -162,8 +162,9 @@ def main():
     sf.write('audio/translated_audio.wav', np.array(audio_stream), 48000)
 
 # Function to load or download the translation model
-def load_or_download_translation_model(model_name=lang_settings[current_lang]['model'], local_dir='local_model'):
-    if os.path.exists(local_dir):
+def load_or_download_translation_model(model_name=lang_settings[current_lang]['translation_model']):
+    local_dir = f"local_model_{current_lang}"
+    if os.path.exists(f"{local_dir}{current_lang}"):
         tokenizer = MarianTokenizer.from_pretrained(local_dir)
         translation_model = MarianMTModel.from_pretrained(local_dir)
     else:
