@@ -6,6 +6,7 @@ import numpy as np
 import speech_recognition as sr
 import whisper
 import torch
+import soundfile as sf
 
 from datetime import datetime, timedelta
 from queue import Queue
@@ -98,6 +99,12 @@ def main():
     # Load translation model and tokenizer
     tokenizer, translation_model = load_or_download_translation_model()
 
+    # Load TTS model
+    tts_model, example_text = load_silero_model()
+    tts_model.to(torch.device('cpu'))
+
+    audio_stream = []
+
     while True:
         try:
             now = datetime.utcnow()
@@ -128,6 +135,10 @@ def main():
                     # Translate the text
                     translated_text = translate_text(text, tokenizer, translation_model)
 
+                    # Synthesize speech
+                    audio = tts_model.apply_tts(text=translated_text, speaker='mykyta', sample_rate=48000)
+                    audio_stream.extend(audio)
+
                     # If we detected a pause between recordings, add a new item to our transcription.
                     # Otherwise edit the existing one.
                     if phrase_complete:
@@ -141,6 +152,9 @@ def main():
                 sleep(0.25)
         except KeyboardInterrupt:
             break
+
+    # Save the audio stream to a file
+    sf.write('audio/translated_audio.wav', np.array(audio_stream), 48000)
 
 # Function to load or download the translation model
 def load_or_download_translation_model(model_name=lang_settings[current_lang]['model'], local_dir='local_model'):
@@ -160,6 +174,10 @@ def translate_text(text, tokenizer, model):
     translated = model.generate(**inputs)
     translated_text = tokenizer.decode(translated[0], skip_special_tokens=True)
     return translated_text
+
+# Function to load Silero TTS model
+def load_silero_model(repo_or_dir='snakers4/silero-models', model_name='silero_tts', language='ua', speaker='v4_ua'):
+    return torch.hub.load(repo_or_dir=repo_or_dir, model=model_name, language=language, speaker=speaker)
 
 if __name__ == "__main__":
     main()

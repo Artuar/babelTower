@@ -10,10 +10,6 @@ def print_with_timestamp(message):
     current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     print(f"[{current_time}] {message}")
 
-# Функція для завантаження або завантаження та збереження моделі Silero
-def load_silero_model(repo_or_dir='snakers4/silero-models', model_name='silero_tts', language='ua', speaker='v4_ua'):
-    return torch.hub.load(repo_or_dir=repo_or_dir, model=model_name, language=language, speaker=speaker)
-
 # Завантаження моделі Whisper
 whisper_model = whisper.load_model("base")
 
@@ -64,6 +60,10 @@ translated_text = translate_text(recognized_text, tokenizer, translation_model)
 print_with_timestamp(f"Translated text: {translated_text}")
 
 # Синтез голосу
+# Функція для завантаження або завантаження та збереження моделі Silero
+def load_silero_model(repo_or_dir='snakers4/silero-models', model_name='silero_tts', language='ua', speaker='v4_ua'):
+    return torch.hub.load(repo_or_dir=repo_or_dir, model=model_name, language=language, speaker=speaker)
+
 model, example_text = load_silero_model()
 
 device = torch.device('cpu')
@@ -71,7 +71,6 @@ model.to(device)
 audio = model.apply_tts(text=translated_text,
                         speaker='mykyta',
                         sample_rate=48000)
-print_with_timestamp("Save translated audio")
 
 # Збереження аудіо у файл
 sf.write('audio/translated_audio.wav', audio, 48000)
