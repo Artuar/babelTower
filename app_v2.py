@@ -17,16 +17,20 @@ from transformers import MarianMTModel, MarianTokenizer
 lang_settings = {
     'ua': {
         'translation_model': 'Helsinki-NLP/opus-mt-en-uk',
+        'speaker': 'v4_ua',
+        'speaker_name': 'mykyta'
     },
     'ru': {
-        'translation_model': 'Helsinki-NLP/opus-mt-en-ru'
+        'translation_model': 'Helsinki-NLP/opus-mt-en-ru',
+        'speaker': 'v4_ru',
+        'speaker_name': 'aidar'
     }
 }
-current_lang = 'ua'
+current_lang = 'ru'
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", default="base", help="Model to use",
+    parser.add_argument("--model", default="small", help="Model to use",
                         choices=["tiny", "base", "small", "medium", "large"])
     parser.add_argument("--energy_threshold", default=1000,
                         help="Energy level for mic to detect.", type=int)
@@ -100,7 +104,7 @@ def main():
     tokenizer, translation_model = load_or_download_translation_model()
 
     # Load TTS model
-    tts_model, example_text = load_silero_model()
+    tts_model, example_text = load_silero_model(language=current_lang, speaker=lang_settings[current_lang]['speaker'])
     tts_model.to(torch.device('cpu'))
 
     audio_stream = []
@@ -136,7 +140,7 @@ def main():
                     translated_text = translate_text(text, tokenizer, translation_model)
 
                     # Synthesize speech
-                    audio = tts_model.apply_tts(text=translated_text, speaker='mykyta', sample_rate=48000)
+                    audio = tts_model.apply_tts(text=translated_text, speaker=lang_settings[current_lang]['speaker_name'], sample_rate=48000)
                     synthesis_timestamp = datetime.utcnow()
                     synthesis_delay = (synthesis_timestamp - timestamp).total_seconds()
 
