@@ -84,9 +84,9 @@ def main():
         Threaded callback function to receive audio data when recordings finish.
         audio: An AudioData containing the recorded bytes.
         """
-        # Grab the raw bytes and push it into the thread safe queue.
-        data = audio.get_raw_data()
-        data_queue.put(data)
+        # Grab the raw bytes and push it into the thread safe queue with timestamp.
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        data_queue.put((timestamp, audio.get_raw_data()))
 
     # Create a background thread that will pass us raw audio bytes.
     # We could do this manually but SpeechRecognizer provides a nice helper.
@@ -112,8 +112,8 @@ def main():
                 phrase_time = now
 
                 # Combine audio data from queue
-                audio_data = b''.join(data_queue.queue)
-                data_queue.queue.clear()
+                timestamp, audio_data = data_queue.get()
+                audio_data = b''.join([audio_data])
 
                 # Convert in-ram buffer to something the model can use directly without needing a temp file.
                 # Convert data from 16 bit wide integers to floating point with a width of 32 bits.
@@ -135,7 +135,7 @@ def main():
                     else:
                         transcription[-1] = translated_text
 
-                    print(translated_text)
+                    print(f"[{timestamp}] {translated_text}")
             else:
                 # Infinite loops are bad for processors, must sleep.
                 sleep(0.25)
