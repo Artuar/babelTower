@@ -11,17 +11,27 @@ from datetime import datetime, timedelta
 from queue import Queue
 from time import sleep
 from sys import platform
+from transformers import MarianMTModel, MarianTokenizer
 
+lang_settings = {
+    'uk': {
+        'model': 'Helsinki-NLP/opus-mt-en-uk'
+    },
+    'ru': {
+        'model': 'Helsinki-NLP/opus-mt-en-ru'
+    }
+}
+current_lang = 'uk'
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", default="medium", help="Model to use",
+    parser.add_argument("--model", default="small", help="Model to use",
                         choices=["tiny", "base", "small", "medium", "large"])
     parser.add_argument("--energy_threshold", default=1000,
                         help="Energy level for mic to detect.", type=int)
     parser.add_argument("--record_timeout", default=2,
                         help="How real time the recording is in seconds.", type=float)
-    parser.add_argument("--phrase_timeout", default=3,
+    parser.add_argument("--phrase_timeout", default=2,
                         help="How much empty space between recordings before we "
                              "consider it a new line in the transcription.", type=float)
     if 'linux' in platform:
@@ -69,7 +79,7 @@ def main():
     with source:
         recorder.adjust_for_ambient_noise(source)
 
-    def record_callback(_, audio:sr.AudioData) -> None:
+    def record_callback(_, audio: sr.AudioData) -> None:
         """
         Threaded callback function to receive audio data when recordings finish.
         audio: An AudioData containing the recorded bytes.
@@ -84,6 +94,9 @@ def main():
 
     # Cue the user that we're ready to go.
     print("Model loaded.\n")
+
+    # Load translation model and tokenizer
+    tokenizer, translation_model = load_or_download_translation_model()
 
     while True:
         try:
@@ -111,29 +124,42 @@ def main():
                 result = audio_model.transcribe(audio_np, fp16=torch.cuda.is_available())
                 text = result['text'].strip()
 
-                # If we detected a pause between recordings, add a new item to our transcription.
-                # Otherwise edit the existing one.
-                if phrase_complete:
-                    transcription.append(text)
-                else:
-                    transcription[-1] = text
+                if text:
+                    # Translate the text
+                    translated_text = translate_text(text, tokenizer, translation_model)
 
-                # Clear the console to reprint the updated transcription.
-                os.system('cls' if os.name=='nt' else 'clear')
-                for line in transcription:
-                    print(line)
-                # Flush stdout.
-                print('', end='', flush=True)
+                    # If we detected a pause between recordings, add a new item to our transcription.
+                    # Otherwise edit the existing one.
+                    if phrase_complete:
+                        transcription.append(translated_text)
+                    else:
+                        transcription[-1] = translated_text
+
+                    print(translated_text)
             else:
                 # Infinite loops are bad for processors, must sleep.
                 sleep(0.25)
         except KeyboardInterrupt:
             break
 
-    print("\n\nTranscription:")
-    for line in transcription:
-        print(line)
+# Function to load or download the translation model
+def load_or_download_translation_model(model_name=lang_settings[current_lang]['model'], local_dir='local_model'):
+    if os.path.exists(local_dir):
+        tokenizer = MarianTokenizer.from_pretrained(local_dir)
+        translation_model = MarianMTModel.from_pretrained(local_dir)
+    else:
+        tokenizer = MarianTokenizer.from_pretrained(model_name)
+        translation_model = MarianMTModel.from_pretrained(model_name)
+        tokenizer.save_pretrained(local_dir)
+        translation_model.save_pretrained(local_dir)
+    return tokenizer, translation_model
 
+# Function to translate text
+def translate_text(text, tokenizer, model):
+    inputs = tokenizer(text, return_tensors="pt", padding=True)
+    translated = model.generate(**inputs)
+    translated_text = tokenizer.decode(translated[0], skip_special_tokens=True)
+    return translated_text
 
 if __name__ == "__main__":
     main()
