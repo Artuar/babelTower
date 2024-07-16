@@ -26,7 +26,7 @@ current_lang = 'uk'
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", default="small", help="Model to use",
+    parser.add_argument("--model", default="base", help="Model to use",
                         choices=["tiny", "base", "small", "medium", "large"])
     parser.add_argument("--energy_threshold", default=1000,
                         help="Energy level for mic to detect.", type=int)
@@ -86,7 +86,7 @@ def main():
         audio: An AudioData containing the recorded bytes.
         """
         # Grab the raw bytes and push it into the thread safe queue with timestamp.
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        timestamp = datetime.utcnow()
         data_queue.put((timestamp, audio.get_raw_data()))
 
     # Create a background thread that will pass us raw audio bytes.
@@ -137,6 +137,9 @@ def main():
 
                     # Synthesize speech
                     audio = tts_model.apply_tts(text=translated_text, speaker='mykyta', sample_rate=48000)
+                    synthesis_timestamp = datetime.utcnow()
+                    synthesis_delay = (synthesis_timestamp - timestamp).total_seconds()
+
                     audio_stream.extend(audio)
 
                     # If we detected a pause between recordings, add a new item to our transcription.
@@ -146,7 +149,8 @@ def main():
                     else:
                         transcription[-1] = translated_text
 
-                    print(f"[{timestamp}] {translated_text}")
+                    print(f"[{timestamp.strftime('%Y-%m-%d %H:%M:%S')}] {translated_text}")
+                    print(f"Synthesis delay: {synthesis_delay:.2f} seconds")
             else:
                 # Infinite loops are bad for processors, must sleep.
                 sleep(0.25)
@@ -154,6 +158,7 @@ def main():
             break
 
     # Save the audio stream to a file
+    os.makedirs('audio', exist_ok=True)
     sf.write('audio/translated_audio.wav', np.array(audio_stream), 48000)
 
 # Function to load or download the translation model
