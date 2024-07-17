@@ -30,7 +30,7 @@ current_lang = 'ru'
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", default="small", help="Model to use",
+    parser.add_argument("--model", default="tiny.en", help="Model to use",
                         choices=["tiny", "base", "small", "medium", "large"])
     parser.add_argument("--energy_threshold", default=1000,
                         help="Energy level for mic to detect.", type=int)
@@ -153,7 +153,7 @@ def main():
                     else:
                         transcription[-1] = translated_text
 
-                    print(f"[{timestamp.strftime('%Y-%m-%d %H:%M:%S')}] {translated_text}")
+                    print(f"[{timestamp.strftime('%Y-%m-%d %H:%M:%S')}] {translated_text} ({text})")
                     print(f"Synthesis delay: {synthesis_delay:.2f} seconds")
             else:
                 # Infinite loops are bad for processors, must sleep.
