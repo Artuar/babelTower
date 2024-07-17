@@ -9,6 +9,7 @@ import threading
 from queue import Queue, Empty
 import signal
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Initialize the model
 processor = AutoProcessor.from_pretrained("facebook/seamless-m4t-v2-large")
@@ -40,43 +41,64 @@ frames = []
 all_frames = []
 translated_frames = []
 queue = Queue()
+waiting_queue = {}
+last_handled_index = -1
 terminate_flag = threading.Event()
 
 def is_silent(data_chunk):
     return np.mean(np.abs(np.frombuffer(data_chunk, dtype=np.int16))) < SILENCE_THRESHOLD
 
-def process_audio(queue, terminate_flag):
-    while not terminate_flag.is_set():
-        try:
-            audio_data, timestamp = queue.get(timeout=1)
-            print(f"Audio taken from queue. Timestamp: {timestamp}")
-        except Empty:
-            continue
+def process_audio(audio_data, timestamp, index):
+    start_process_time = time.time()
+    audio_array = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32)
 
-        if audio_data is None:
-            break
+    if len(audio_array) < 3:
+        print("Audio data is too short to process.")
+        return None, index
 
-        start_process_time = time.time()
-        audio_array = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32)
+    audio_tensor = torch.tensor(audio_array).unsqueeze(0)
+    audio_tensor = torchaudio.functional.resample(audio_tensor, orig_freq=RATE, new_freq=16000)
 
-        if len(audio_array) < 3:
-            print("Audio data is too short to process.")
-            continue
+    audio_inputs = processor(audios=audio_tensor, return_tensors="pt", sampling_rate=16000)
+    audio_array_from_audio = model.generate(**audio_inputs, tgt_lang="ukr")[0].cpu().numpy().squeeze()
 
-        audio_tensor = torch.tensor(audio_array).unsqueeze(0)
-        audio_tensor = torchaudio.functional.resample(audio_tensor, orig_freq=RATE, new_freq=16000)
+    print(f"Generated translation for the audio. Timestamp: {timestamp}")
+    end_process_time = time.time()
+    delay = end_process_time - timestamp
+    print(f"Translation added to the translation stream. Timestamp: {timestamp}. Delay: {delay} seconds")
+    return audio_array_from_audio, index
 
-        audio_inputs = processor(audios=audio_tensor, return_tensors="pt", sampling_rate=16000)
-        audio_array_from_audio = model.generate(**audio_inputs, tgt_lang="ukr")[0].cpu().numpy().squeeze()
+def process_audio_queue(queue, terminate_flag):
+    global last_handled_index
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        futures = []
+        while not terminate_flag.is_set():
+            try:
+                audio_data, timestamp, index = queue.get(timeout=1)
+                print(f"Audio taken from queue. Index: {index}, Timestamp: {timestamp}")
+                futures.append(executor.submit(process_audio, audio_data, timestamp, index))
+            except Empty:
+                continue
 
-        print(f"Generated translation for the audio. Timestamp: {timestamp}")
-        translated_frames.append(audio_array_from_audio)
-        end_process_time = time.time()
-        delay = end_process_time - timestamp
-        print(f"Translation added to the translation stream. Timestamp: {timestamp}. Delay: {delay} seconds")
+            for future in as_completed(futures):
+                result, result_index = future.result()
+                if result is not None:
+                    if result_index == last_handled_index + 1:
+                        translated_frames.append(result)
+                        last_handled_index = result_index
+                        print(f"Added index {result_index} to translation stream.")
+
+                        # Check for the next waiting index
+                        while last_handled_index + 1 in waiting_queue:
+                            next_result = waiting_queue.pop(last_handled_index + 1)
+                            translated_frames.append(next_result)
+                            last_handled_index += 1
+                            print(f"Added waiting index {last_handled_index} to translation stream.")
+                    else:
+                        waiting_queue[result_index] = result
 
 # Start audio processing thread
-processing_thread = threading.Thread(target=process_audio, args=(queue, terminate_flag))
+processing_thread = threading.Thread(target=process_audio_queue, args=(queue, terminate_flag))
 processing_thread.start()
 
 def signal_handler(sig, frame):
@@ -85,7 +107,7 @@ def signal_handler(sig, frame):
     stream.stop_stream()
     stream.close()
     p.terminate()
-    queue.put((None, None))
+    queue.put((None, None, None))
     processing_thread.join()
 
     # Save all translated audio to a file upon program termination
@@ -99,6 +121,8 @@ def signal_handler(sig, frame):
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
+
+index_counter = 0
 
 try:
     while True:
@@ -119,7 +143,8 @@ try:
                     timestamp = time.time()
                     print(f"Audio added to queue. Timestamp: {timestamp}")
                     audio_data = b''.join(frames)
-                    queue.put((audio_data, timestamp))
+                    queue.put((audio_data, timestamp, index_counter))
+                    index_counter += 1
                 frames = []
 except KeyboardInterrupt:
     signal_handler(None, None)
