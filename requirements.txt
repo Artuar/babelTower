@@ -7,3 +7,6 @@ soundfile
 pydub
 transformers
 scipy
+
+torchaudio
+pyaudio
