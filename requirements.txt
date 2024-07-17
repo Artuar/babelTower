@@ -1,9 +1,9 @@
-transformers
-torch
-ffmpeg-python
-openai-whisper
-soundfile
-silero
-numba
+argparse
 numpy
-llvmlite
+speechrecognition
+openai-whisper
+torch
+soundfile
+pydub
+transformers
+scipy

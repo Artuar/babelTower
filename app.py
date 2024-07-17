@@ -1,23 +1,37 @@
-import sys
-import audioop
-import io
+#! python3.7
+
+import argparse
 import os
-import numpy
-import pyaudio
-import torch
-import wave
+import numpy as np
+import speech_recognition as sr
 import whisper
-import yaml
+import torch
 import soundfile as sf
+from pydub import AudioSegment
+
 from datetime import datetime, timedelta
 from queue import Queue
-from threading import Thread
 from time import sleep
-from whisper.tokenizer import LANGUAGES
+from sys import platform
 from transformers import MarianMTModel, MarianTokenizer
 
-# Функція для завантаження або завантаження та збереження моделі перекладу
-def load_or_download_translation_model(model_name='Helsinki-NLP/opus-mt-en-uk', local_dir='local_model'):
+lang_settings = {
+    'ua': {
+        'translation_model': 'Helsinki-NLP/opus-mt-en-uk',
+        'speaker': 'v4_ua',
+        'speaker_name': 'mykyta'
+    },
+    'ru': {
+        'translation_model': 'Helsinki-NLP/opus-mt-en-ru',
+        'speaker': 'v4_ru',
+        'speaker_name': 'aidar'
+    }
+}
+current_lang = 'ru'
+
+
+def load_or_download_translation_model(model_name):
+    local_dir = f"local_model_{current_lang}"
     if os.path.exists(local_dir):
         tokenizer = MarianTokenizer.from_pretrained(local_dir)
         translation_model = MarianMTModel.from_pretrained(local_dir)
@@ -28,194 +42,131 @@ def load_or_download_translation_model(model_name='Helsinki-NLP/opus-mt-en-uk', 
         translation_model.save_pretrained(local_dir)
     return tokenizer, translation_model
 
-# Завантаження перекладацької моделі та токенізатора
-tokenizer, translation_model = load_or_download_translation_model()
 
-# Функція для перекладу тексту
 def translate_text(text, tokenizer, model):
     inputs = tokenizer(text, return_tensors="pt", padding=True)
     translated = model.generate(**inputs)
     translated_text = tokenizer.decode(translated[0], skip_special_tokens=True)
     return translated_text
 
-# Функція для завантаження моделі Silero TTS
+
 def load_silero_model(repo_or_dir='snakers4/silero-models', model_name='silero_tts', language='ua', speaker='v4_ua'):
-    model, example_text = torch.hub.load(repo_or_dir=repo_or_dir, model=model_name, language=language, speaker=speaker)
-    return model
+    return torch.hub.load(repo_or_dir=repo_or_dir, model=model_name, language=language, speaker=speaker)
 
-# Завантаження моделі Silero
-silero_model = load_silero_model(language='ru', speaker='v4_ru')
 
-# Settings and constants
-settings_file = "transcriber_settings.yaml"
-settings = {}
-if os.path.exists(settings_file):
-    with open(settings_file, 'r') as f:
-        settings = yaml.safe_load(f)
-if settings is None:
-    settings = {}
+def configure_microphone(default_microphone=None):
+    if 'linux' in platform:
+        mic_name = default_microphone or 'pulse'
+        if mic_name == 'list':
+            print("Available microphone devices are: ")
+            for index, name in enumerate(sr.Microphone.list_microphone_names()):
+                print(f"Microphone with name \"{name}\" found")
+            return None
+        else:
+            for index, name in enumerate(sr.Microphone.list_microphone_names()):
+                if mic_name in name:
+                    return sr.Microphone(sample_rate=16000, device_index=index)
+    return sr.Microphone(sample_rate=16000)
 
-max_energy = 5000
-sample_rate = 16000
-chunk_size = 1024
-max_int16 = 2**15
-
-audio_model = None
-loaded_audio_model = None
-currently_transcribing = False
-record_thread = None
-data_queue = Queue()
-
-def transcribe_callback():
-    global currently_transcribing, audio_model, loaded_audio_model, record_thread, run_record_thread
-    if not currently_transcribing:
-        model = settings.get('speech_model', 'medium')
-
-        # Only re-load the audio model if it changed.
-        if (not audio_model or not loaded_audio_model) or ((audio_model and loaded_audio_model) and loaded_audio_model != model):
-            device = 'cpu'
-            if torch.cuda.is_available():
-                device = "cuda"
-            audio_model = whisper.load_model(model, device)
-            loaded_audio_model = model
-
-        device_index = int(settings.get('microphone_index', pyaudio.PyAudio().get_default_input_device_info()['index']))
-        if not record_thread:
-            stream = pa.open(format=pyaudio.paInt16,
-                             channels=1,
-                             rate=sample_rate,
-                             input=True,
-                             frames_per_buffer=chunk_size,
-                             input_device_index=device_index)
-            record_thread = Thread(target=recording_thread, args=[stream])
-            run_record_thread = True
-            record_thread.start()
-
-        currently_transcribing = True
-    else:
-        if record_thread:
-            run_record_thread = False
-            record_thread.join()
-            record_thread = None
-        currently_transcribing = False
-
-def recording_thread(stream: pyaudio.Stream):
-    global max_energy
-    while run_record_thread:
-        data = stream.read(chunk_size)
-        energy = audioop.rms(data, pa.get_sample_size(pyaudio.paInt16))
-        if energy > max_energy:
-            max_energy = energy
-        data_queue.put((data, energy))
-
-next_transcribe_time = None
-transcribe_rate_seconds = float(settings.get('transcribe_rate', 0.5))
-transcribe_rate = timedelta(seconds=transcribe_rate_seconds)
-max_record_time = settings.get('max_record_time', 30)
-silence_time = settings.get('seconds_of_silence_between_lines', 0.5)
-last_sample = bytes()
-samples_with_silence = 0
-phrase_start_time = None
-total_energy = 0
-sample_count = 0
-
-def print_with_timestamp(text):
-    date_now = datetime.now()
-    if date_now is not None:
-        timestamp = date_now.strftime("%Y-%m-%d %H:%M:%S")
-        print(f"{timestamp}: {text}")
 
 def main():
-    global next_transcribe_time, last_sample, samples_with_silence, phrase_start_time, total_energy, sample_count
-    transcribe_callback()
-    while currently_transcribing:
-        if not data_queue.empty():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model", default="tiny.en", help="Model to use",
+                        choices=["tiny", "base", "small", "medium", "large"])
+    parser.add_argument("--energy_threshold", default=1000,
+                        help="Energy level for mic to detect.", type=int)
+    parser.add_argument("--record_timeout", default=2,
+                        help="How real time the recording is in seconds.", type=float)
+    parser.add_argument("--phrase_timeout", default=2,
+                        help="How much empty space between recordings before we "
+                             "consider it a new line in the transcription.", type=float)
+    parser.add_argument("--default_microphone", default='pulse',
+                        help="Default microphone name for SpeechRecognition. "
+                             "Run this with 'list' to view available Microphones.", type=str)
+    args = parser.parse_args()
+
+    phrase_time = None
+    data_queue = Queue()
+    recorder = sr.Recognizer()
+    recorder.energy_threshold = args.energy_threshold
+    recorder.dynamic_energy_threshold = False
+
+    source = configure_microphone(args.default_microphone)
+    if source is None:
+        return
+
+    model = args.model
+    audio_model = whisper.load_model(model)
+    record_timeout = args.record_timeout
+    phrase_timeout = args.phrase_timeout
+
+    transcription = ['']
+
+    with source:
+        recorder.adjust_for_ambient_noise(source)
+
+    def record_callback(_, audio: sr.AudioData) -> None:
+        timestamp = datetime.utcnow()
+        data_queue.put((timestamp, audio.get_raw_data()))
+
+    recorder.listen_in_background(source, record_callback, phrase_time_limit=record_timeout)
+
+    print("Model loaded.\n")
+
+    tokenizer, translation_model = load_or_download_translation_model(lang_settings[current_lang]['translation_model'])
+    tts_model, example_text = load_silero_model(language=current_lang, speaker=lang_settings[current_lang]['speaker'])
+    tts_model.to(torch.device('cpu'))
+
+    audio_stream = []
+
+    while True:
+        try:
             now = datetime.utcnow()
-            if not next_transcribe_time:
-                next_transcribe_time = now + transcribe_rate
-
-            if now > next_transcribe_time:
-                next_transcribe_time = now + transcribe_rate
-
+            if not data_queue.empty():
                 phrase_complete = False
-                while not data_queue.empty():
-                    data, energy = data_queue.get()
-                    total_energy += energy
-                    sample_count += 1
-                    if energy < settings.get('volume_threshold', 300):
-                        samples_with_silence += 1
+                if phrase_time and now - phrase_time > timedelta(seconds=phrase_timeout):
+                    phrase_complete = True
+                phrase_time = now
+
+                timestamp, audio_data = data_queue.get()
+                audio_data = b''.join([audio_data])
+
+                audio_segment = AudioSegment(
+                    data=audio_data,
+                    sample_width=2,
+                    frame_rate=16000,
+                    channels=1
+                )
+                audio_segment = audio_segment.normalize()
+                samples = np.array(audio_segment.get_array_of_samples())
+                audio_np = samples.astype(np.float32) / 32768.0
+
+                result = audio_model.transcribe(audio_np, fp16=torch.cuda.is_available())
+                text = result['text'].strip()
+
+                if text:
+                    translated_text = translate_text(text, tokenizer, translation_model)
+                    audio = tts_model.apply_tts(text=translated_text, speaker=lang_settings[current_lang]['speaker_name'], sample_rate=48000)
+                    synthesis_timestamp = datetime.utcnow()
+                    synthesis_delay = (synthesis_timestamp - timestamp).total_seconds()
+
+                    audio_stream.extend(audio)
+
+                    if phrase_complete:
+                        transcription.append(translated_text)
                     else:
-                        samples_with_silence = 0
+                        transcription[-1] = translated_text
 
-                    if samples_with_silence > sample_rate / chunk_size * silence_time:
-                        phrase_complete = True
-                        last_sample = bytes()
-                        phrase_start_time = datetime.utcnow()
-                    last_sample += data
+                    print(f"[{timestamp.strftime('%Y-%m-%d %H:%M:%S')}] {translated_text} ({text})")
+                    print(f"Synthesis delay: {synthesis_delay:.2f} seconds")
+            else:
+                sleep(0.25)
+        except KeyboardInterrupt:
+            break
 
-                wav_file = io.BytesIO()
-                wav_writer: wave.Wave_write = wave.open(wav_file, "wb")
-                wav_writer.setframerate(sample_rate)
-                wav_writer.setsampwidth(pa.get_sample_size(pyaudio.paInt16))
-                wav_writer.setnchannels(1)
-                wav_writer.writeframes(last_sample)
-                wav_writer.close()
+    os.makedirs('audio', exist_ok=True)
+    sf.write('audio/translated_audio.wav', np.array(audio_stream), 48000)
 
-                wav_file.seek(0)
-                wav_reader: wave.Wave_read = wave.open(wav_file)
-                samples = wav_reader.getnframes()
-                audio = wav_reader.readframes(samples)
-                wav_reader.close()
-
-                audio_as_np_int16 = numpy.frombuffer(audio, dtype=numpy.int16)
-                audio_as_np_float32 = audio_as_np_int16.astype(numpy.float32)
-                audio_normalised = audio_as_np_float32 / max_int16
-
-                language = None
-                if settings.get('language', 'Auto') != 'Auto':
-                    language = settings.get('language', 'Auto')
-
-                task = 'transcribe'
-
-                result = audio_model.transcribe(audio_normalised, language=language, task=task)
-                recognized_text = result['text'].strip()
-
-                average_energy = total_energy / sample_count if sample_count > 0 else 0
-                print_with_timestamp(f"Recognized text: {recognized_text} (Average volume: {average_energy:.2f})")
-
-                if average_energy > 50 and recognized_text and recognized_text != 'you':
-                    translated_text = translate_text(recognized_text, tokenizer, translation_model)
-                    print_with_timestamp(f"Translated text: {translated_text}")
-
-                    # Синтез голосу
-                    audio = silero_model.apply_tts(text=translated_text,
-                                                   speaker='mykyta',
-                                                   sample_rate=48000)
-                    print_with_timestamp("Save translated audio")
-
-                    # Збереження аудіо у файл
-                    if phrase_start_time:
-                        timestamp_str = phrase_start_time.strftime("%Y%m%d%H%M%S")
-                        os.makedirs('audio', exist_ok=True)
-                        sf.write(f'audio/translated_audio_{timestamp_str}.wav', audio, 48000)
-
-                audio_length_in_seconds = samples / float(sample_rate)
-                if audio_length_in_seconds > max_record_time:
-                    last_sample = bytes()
-
-                # Reset energy counters
-                total_energy = 0
-                sample_count = 0
-
-        sleep(0.1)
 
 if __name__ == "__main__":
-    pa = pyaudio.PyAudio()
-    try:
-        main()
-    except KeyboardInterrupt:
-        transcribe_callback()
-    finally:
-        if record_thread:
-            run_record_thread = False
-            record_thread.join()
+    main()
