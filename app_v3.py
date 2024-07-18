@@ -11,20 +11,40 @@ from queue import Queue
 from time import sleep
 from sys import platform
 from transformers import MarianMTModel, MarianTokenizer
-from gtts import gTTS
-from io import BytesIO
 
 lang_settings = {
     'ua': {
-        'translation_model': 'Helsinki-NLP/opus-mt-en-uk',
-        'voice_generation_key': 'uk',
+        'translation_key': 'uk',
+        'speaker': 'v4_ua',
+        'speaker_name': 'mykyta'
     },
     'ru': {
-        'translation_model': 'Helsinki-NLP/opus-mt-en-ru',
-        'voice_generation_key': 'ru',
+        'translation_key': 'ru',
+        'speaker': 'v4_ru',
+        'speaker_name': 'aidar'
+    },
+    'fr': {
+        'translation_key': 'fr',
+        'speaker': 'v3_fr',
+        'speaker_name': 'fr_0'
+    },
+    'de': {
+        'translation_key': 'de',
+        'speaker': 'v3_de',
+        'speaker_name': 'karlsson'
+    },
+    'es': {
+        'translation_key': 'es',
+        'speaker': 'v3_es',
+        'speaker_name': 'es_0'
+    },
+    'en': {
+        'translation_key': 'en',
+        'speaker': 'v3_en',
+        'speaker_name': 'en_0'
     }
 }
-current_lang = 'ru'
+current_lang = 'ua'
 
 def load_or_download_translation_model(model_name):
     local_dir = f"local_model_{current_lang}"
@@ -44,13 +64,12 @@ def translate_text(text, tokenizer, model):
     translated_text = tokenizer.batch_decode(translated, skip_special_tokens=True)
     return translated_text[0]
 
-def synthesize_speech(text, lang='uk'):
-    tts = gTTS(text=text, lang=lang)
-    tts_io = BytesIO()
-    tts.write_to_fp(tts_io)
-    tts_io.seek(0)
-    segment_audio = AudioSegment.from_file(tts_io, format="mp3")
-    return segment_audio
+def load_silero_model(repo_or_dir='snakers4/silero-models', model_name='silero_tts', language='ua', speaker='v4_ua'):
+    return torch.hub.load(repo_or_dir=repo_or_dir, model=model_name, language=language, speaker=speaker)
+
+def synthesize_speech(text, model, sample_rate=24000):
+    audio = model.apply_tts(text=text, sample_rate=sample_rate, speaker=lang_settings[current_lang]['speaker_name'])
+    return audio
 
 def configure_microphone(default_microphone=None):
     if 'linux' in platform:
@@ -68,7 +87,7 @@ def configure_microphone(default_microphone=None):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", default="small.en", help="Model to use",
+    parser.add_argument("--model", default="small", help="Model to use",
                         choices=["tiny", "base", "small", "medium", "large"])
     parser.add_argument("--energy_threshold", default=1000,
                         help="Energy level for mic to detect.", type=int)
@@ -110,7 +129,11 @@ def main():
 
     print("Model loaded.\n")
 
-    tokenizer, translation_model = load_or_download_translation_model(lang_settings[current_lang]['translation_model'])
+    tokenizer, translation_model = load_or_download_translation_model(
+        f"Helsinki-NLP/opus-mt-en-{lang_settings[current_lang]['translation_key']}"
+    )
+    tts_model, example_text = load_silero_model(language=current_lang, speaker=lang_settings[current_lang]['speaker'])
+    tts_model.to(torch.device('cpu'))
 
     audio_stream = []
 
@@ -148,18 +171,18 @@ def main():
                         'text': translated_text
                     })
 
-                final_audio = AudioSegment.silent(duration=0)
+                final_audio = np.array([])
                 for segment in translated_segments:
-                    synthesized_segment = synthesize_speech(segment['text'], lang=lang_settings[current_lang]['voice_generation_key'])
-                    silence_duration = (segment['start'] * 1000) - len(final_audio)
+                    synthesized_segment = synthesize_speech(segment['text'], model=tts_model)
+                    silence_duration = int((segment['start'] * 24000) - len(final_audio))
                     if silence_duration > 0:
-                        final_audio += AudioSegment.silent(duration=silence_duration)
-                    final_audio += synthesized_segment
+                        final_audio = np.pad(final_audio, (0, silence_duration), 'constant')
+                    final_audio = np.concatenate((final_audio, synthesized_segment), axis=None)
 
                 synthesis_timestamp = datetime.utcnow()
                 synthesis_delay = (synthesis_timestamp - timestamp).total_seconds()
 
-                audio_stream.extend(np.array(final_audio.get_array_of_samples()))
+                audio_stream.extend(final_audio)
 
                 if phrase_complete:
                     transcription.append(translated_segments[-1]['text'])
