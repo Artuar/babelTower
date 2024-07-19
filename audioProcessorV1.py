@@ -5,7 +5,7 @@ import torch
 from pydub import AudioSegment
 from datetime import datetime
 from transformers import MarianMTModel, MarianTokenizer
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Optional
 
 lang_settings = {
     'ua': {
@@ -64,7 +64,7 @@ def load_or_download_translation_model(language: str) -> Tuple[MarianTokenizer, 
     return tokenizer, translation_model
 
 
-def load_silero_model(language: str) -> Tuple[torch.nn.Module, str]:
+def load_silero_model(language: str) -> torch.nn.Module:
     """
     Load the Silero TTS model for the specified language.
 
@@ -72,7 +72,7 @@ def load_silero_model(language: str) -> Tuple[torch.nn.Module, str]:
         language (str): The language code. Possible values: 'en', 'ua', 'ru', 'fr', 'de', 'es'.
 
     Returns:
-        Tuple[torch.nn.Module, str]: The TTS model and example text.
+        torch.nn.Module: The TTS model.
     """
     return torch.hub.load(repo_or_dir='snakers4/silero-models', model='silero_tts', language=language, speaker=lang_settings[language]['speaker'])
 
@@ -145,7 +145,7 @@ class AudioProcessor:
         result = self.audio_model.transcribe(audio_np, fp16=torch.cuda.is_available())
         return result['segments']
 
-    def process_audio(self, timestamp: datetime, audio_data: bytes) -> Tuple[np.ndarray, Dict[str, str]]:
+    def process_audio(self, timestamp: datetime, audio_data: bytes) -> Tuple[np.ndarray, Optional[Dict[str, str]]]:
         """
         Process the audio data by recognizing speech, translating text, and synthesizing speech.
 
@@ -154,9 +154,17 @@ class AudioProcessor:
             audio_data (bytes): The audio data to process.
 
         Returns:
-            Tuple[np.ndarray, Dict[str, str]]: The final audio and log data.
+            Tuple[np.ndarray, Optional[Dict[str, str]]]: The final audio and log data.
         """
         segments = self.recognize_speech(audio_data)
+
+        if not segments:
+            return np.array(audio_data), {
+                "timestamp": timestamp,
+                "original_text": '',
+                "translated_text": '',
+                "synthesis_delay": 0
+            }
 
         translated_segments = []
         for segment in segments:
@@ -170,7 +178,7 @@ class AudioProcessor:
         final_audio = np.array([])
         for segment in translated_segments:
             synthesized_segment = self.synthesize_speech(segment['text'])
-            silence_duration = int((segment['start'] * self.sample_rate)) - len(final_audio)
+            silence_duration = int(segment['start'] * self.sample_rate) - len(final_audio)
             if silence_duration > 0:
                 final_audio = np.pad(final_audio, (0, silence_duration), 'constant')
             final_audio = np.concatenate((final_audio, synthesized_segment), axis=None)
