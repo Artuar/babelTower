@@ -77,7 +77,7 @@ class AudioProcessor:
         audio = self.tts_model.apply_tts(text=text, sample_rate=self.sample_rate, speaker=lang_settings[self.language]['speaker_name'])
         return audio
 
-    def process_audio(self, timestamp, audio_data):
+    def recognize_speech(self, audio_data):
         audio_segment = AudioSegment(
             data=audio_data,
             sample_width=2,
@@ -89,7 +89,10 @@ class AudioProcessor:
         audio_np = samples.astype(np.float32) / 32768.0
 
         result = self.audio_model.transcribe(audio_np, fp16=torch.cuda.is_available())
-        segments = result['segments']
+        return result['segments']
+
+    def process_audio(self, timestamp, audio_data):
+        segments = self.recognize_speech(audio_data)
 
         translated_segments = []
         for segment in segments:
