@@ -5,6 +5,7 @@ import torch
 from pydub import AudioSegment
 from datetime import datetime
 from transformers import MarianMTModel, MarianTokenizer
+from typing import List, Dict, Tuple
 
 lang_settings = {
     'ua': {
@@ -40,7 +41,16 @@ lang_settings = {
 }
 
 
-def load_or_download_translation_model(language):
+def load_or_download_translation_model(language: str) -> Tuple[MarianTokenizer, MarianMTModel]:
+    """
+    Load or download the translation model for the specified language.
+
+    Args:
+        language (str): The language code. Possible values: 'en', 'ua', 'ru', 'fr', 'de', 'es'.
+
+    Returns:
+        Tuple[MarianTokenizer, MarianMTModel]: The tokenizer and translation model.
+    """
     model_name = f"Helsinki-NLP/opus-mt-en-{lang_settings[language]['translation_key']}"
     local_dir = f"local_model_{language}"
     if os.path.exists(local_dir):
@@ -54,12 +64,29 @@ def load_or_download_translation_model(language):
     return tokenizer, translation_model
 
 
-def load_silero_model(language):
+def load_silero_model(language: str) -> Tuple[torch.nn.Module, str]:
+    """
+    Load the Silero TTS model for the specified language.
+
+    Args:
+        language (str): The language code. Possible values: 'en', 'ua', 'ru', 'fr', 'de', 'es'.
+
+    Returns:
+        Tuple[torch.nn.Module, str]: The TTS model and example text.
+    """
     return torch.hub.load(repo_or_dir='snakers4/silero-models', model='silero_tts', language=language, speaker=lang_settings[language]['speaker'])
 
 
 class AudioProcessor:
-    def __init__(self, language, model_name, sample_rate=24000):
+    def __init__(self, language: str, model_name: str, sample_rate: int = 24000):
+        """
+        Initialize the AudioProcessor with the specified language, Whisper model, and sample rate.
+
+        Args:
+            language (str): The language code. Possible values: 'en', 'ua', 'ru', 'fr', 'de', 'es'.
+            model_name (str): The Whisper model to use. Possible values: 'tiny', 'base', 'small', 'medium', 'large'.
+            sample_rate (int): The sample rate for audio processing.
+        """
         self.language = language
         self.sample_rate = sample_rate
         self.audio_model = whisper.load_model(model_name)
@@ -67,17 +94,44 @@ class AudioProcessor:
         self.tts_model, self.example_text = load_silero_model(language)
         self.tts_model.to(torch.device('cpu'))
 
-    def translate_text(self, text):
+    def translate_text(self, text: str) -> str:
+        """
+        Translate the given text to the target language.
+
+        Args:
+            text (str): The text to translate.
+
+        Returns:
+            str: The translated text.
+        """
         inputs = self.tokenizer(text, return_tensors="pt", padding=True)
         translated = self.translation_model.generate(**inputs)
         translated_text = self.tokenizer.batch_decode(translated, skip_special_tokens=True)
         return translated_text[0]
 
-    def synthesize_speech(self, text):
+    def synthesize_speech(self, text: str) -> np.ndarray:
+        """
+        Synthesize speech from the given text.
+
+        Args:
+            text (str): The text to synthesize.
+
+        Returns:
+            np.ndarray: The synthesized speech audio.
+        """
         audio = self.tts_model.apply_tts(text=text, sample_rate=self.sample_rate, speaker=lang_settings[self.language]['speaker_name'])
         return audio
 
-    def recognize_speech(self, audio_data):
+    def recognize_speech(self, audio_data: bytes) -> List[Dict[str, str]]:
+        """
+        Recognize speech from the given audio data.
+
+        Args:
+            audio_data (bytes): The audio data to recognize.
+
+        Returns:
+            List[Dict[str, str]]: The recognized segments with text.
+        """
         audio_segment = AudioSegment(
             data=audio_data,
             sample_width=2,
@@ -91,7 +145,17 @@ class AudioProcessor:
         result = self.audio_model.transcribe(audio_np, fp16=torch.cuda.is_available())
         return result['segments']
 
-    def process_audio(self, timestamp, audio_data):
+    def process_audio(self, timestamp: datetime, audio_data: bytes) -> Tuple[np.ndarray, Dict[str, str]]:
+        """
+        Process the audio data by recognizing speech, translating text, and synthesizing speech.
+
+        Args:
+            timestamp (datetime): The timestamp of the audio data.
+            audio_data (bytes): The audio data to process.
+
+        Returns:
+            Tuple[np.ndarray, Dict[str, str]]: The final audio and log data.
+        """
         segments = self.recognize_speech(audio_data)
 
         translated_segments = []
@@ -106,7 +170,7 @@ class AudioProcessor:
         final_audio = np.array([])
         for segment in translated_segments:
             synthesized_segment = self.synthesize_speech(segment['text'])
-            silence_duration = int((segment['start'] * self.sample_rate) - len(final_audio))
+            silence_duration = int((segment['start'] * self.sample_rate)) - len(final_audio)
             if silence_duration > 0:
                 final_audio = np.pad(final_audio, (0, silence_duration), 'constant')
             final_audio = np.concatenate((final_audio, synthesized_segment), axis=None)
