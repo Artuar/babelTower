@@ -8,7 +8,7 @@ from queue import Queue
 from time import sleep
 from sys import platform
 
-from audioProcessorV1 import AudioProcessor
+from babylon_sts import AudioProcessor
 
 def configure_microphone(default_microphone=None):
     if 'linux' in platform:
