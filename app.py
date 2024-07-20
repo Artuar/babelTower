@@ -26,7 +26,7 @@ def configure_microphone(default_microphone=None):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", default="small", help="Model to use",
+    parser.add_argument("--model", default="base", help="Model to use",
                         choices=["tiny", "base", "small", "medium", "large"])
     parser.add_argument("--language", default="ua", help="Output language",
                         choices=["en", "ua", "ru", "fr", "de", "es"])
