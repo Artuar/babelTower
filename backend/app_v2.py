@@ -114,7 +114,7 @@ def signal_handler(sig, frame):
     if translated_frames:
         print("Saving all translated audio...")
         translated_audio = np.concatenate(translated_frames)
-        scipy.io.wavfile.write("audio/translated_audio.wav", rate=16000, data=translated_audio)
+        scipy.io.wavfile.write("../audio/translated_audio.wav", rate=16000, data=translated_audio)
     else:
         print("No translated audio to save.")
 

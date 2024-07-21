@@ -1,29 +1,68 @@
-# Speech-to-Text Translation and Synthesis
+# Babylon Tower
 
-This project uses the `whisper`, `transformers`, and `silero` libraries for speech recognition, translation, and synthesis.
+Babylon Tower is a comprehensive solution for speech recognition and synthesis, offering various features such as audio file translation, speech recognition via microphone, walkie-talkie translation, and real-time translation during audio calls.
 
-## Requirements
+## Features
 
-Make sure you have Python 3.7 or newer installed.
+1. **Audio File Translation**: Upload an audio file and receive an audio file with the translation.
+2. **Speech Recognition via Microphone**: Recognize speech directly through your microphone.
+3. **Walkie-Talkie with Translation**: Real-time speech translation in a walkie-talkie style.
+4. **Real-time Audio Call Translation**: Make audio calls with on-the-fly speech translation.
 
-## Installation
+## Getting Started
 
-1. Clone the repository:
+### Prerequisites
 
-    ```bash
-    git clone <URL of your repository>
-    cd <name of your repository>
-    ```
+- Python 3.8 or higher
+- Node.js 20 or higher
+- npm 10 or higher
 
-2. Install the required dependencies:
+### Backend Setup
 
-    ```bash
-    pip install -r requirements.txt
-    ```
+1. Navigate to the backend directory:
 
-## Usage
+```sh
+cd backend
+```
 
-Run the script using the following command:
+2. Install the required Python packages:
 
-```bash
-python3 app.py
+```sh
+pip install -r requirements.txt
+```
+
+3. Start the Flask server:
+
+```sh
+python app.py
+```
+
+### Frontend Setup
+
+1. Navigate to the frontend directory:
+
+```sh
+cd frontend
+```
+
+2. Install the required npm packages:
+
+```sh
+npm install
+```
+
+3. Start the Next.js development server:
+
+```sh
+npm run dev
+```
+
+## Access the Application
+The backend will be running on http://localhost:5000
+The frontend will be running on http://localhost:3000
+
+License
+This project is licensed under the MIT License.
+
+Contact
+If you have any questions or need further assistance, please contact [artuar1990@gmail.com].

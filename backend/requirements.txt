@@ -1,3 +1,6 @@
+Flask
+Flask-Cors
+
 argparse
 numpy
 speechrecognition
