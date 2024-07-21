@@ -61,8 +61,8 @@ npm run dev
 The backend will be running on http://localhost:5000
 The frontend will be running on http://localhost:3000
 
-License
+## License
 This project is licensed under the MIT License.
 
-Contact
+## Contact
 If you have any questions or need further assistance, please contact [artuar1990@gmail.com].
