@@ -3,6 +3,7 @@ import { Box, Container, Grid, MenuItem, Select, Typography, CircularProgress, B
 import Layout from '../layout';
 import { FeatureArticle } from "../../components/FeatureArticle";
 import { TranslationModel } from "./types";
+import { FILE_MAX_SIZE, FILE_TYPE } from "./constants";
 
 const AudioTranslationContent: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -14,7 +15,7 @@ const AudioTranslationContent: React.FC = () => {
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file && file.size <= 100 * 1024 * 1024 && file.type === 'audio/mpeg') {
+    if (file && file.size <= FILE_MAX_SIZE && file.type === FILE_TYPE) {
       setSelectedFile(file);
 
       setUploading(true);
