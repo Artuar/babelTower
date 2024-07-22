@@ -2,7 +2,7 @@ import numpy as np
 import soundfile as sf
 from datetime import datetime
 from pydub import AudioSegment
-from babylon_sts.processor import AudioProcessor
+from babylon_sts import AudioProcessor
 
 def process_local_audio(input_file: str, output_file: str, language: str = 'ru', model_name: str = 'small', sample_rate: int = 24000):
     # Using pydub to read the MP3 file
@@ -29,4 +29,4 @@ def process_local_audio(input_file: str, output_file: str, language: str = 'ru',
         print(f"Error during synthesis: {e}")
 
 # Calling the function to process the local file
-process_local_audio('../audio/taken.mp3', 'audio/translated_audio.wav')
+process_local_audio('../audio/taken.mp3', '../audio/translated_audio.wav')

@@ -16,3 +16,5 @@ pyaudio==0.2.14
 
 sentencepiece==0.2.0
 protobuf==5.27.2
+
+git+https://github.com/Artuar/babylon_sts.git
