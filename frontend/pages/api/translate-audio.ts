@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { createRouter } from 'next-connect';
 import formidable from 'formidable';
 import fs from 'fs';
-import path from 'path';
+import fetch from 'node-fetch';
 
 const apiRoute = createRouter<NextApiRequest, NextApiResponse>();
 
@@ -11,6 +11,7 @@ apiRoute.use((req, res, next) => {
 
   form.parse(req, (err, fields, files) => {
     if (err) {
+      console.error('Error parsing the files:', err);
       res.status(500).json({ error: 'Error parsing the files' });
       return;
     }
@@ -21,22 +22,44 @@ apiRoute.use((req, res, next) => {
 });
 
 apiRoute.post(async (req: any, res: NextApiResponse) => {
-  const file = req.files.file[0];
-  const language = req.body.language;
+  try {
+    const file = req.files.file[0];
+    const language = req.body.language;
 
-  if (!file || !file.filepath) {
-    res.status(400).json({ error: 'File not provided or invalid' });
-    return;
+    if (!file || !file.filepath) {
+      res.status(400).json({ error: 'File not provided or invalid' });
+      return;
+    }
+
+    // Read the file as base64
+    const fileData = fs.readFileSync(file.filepath, { encoding: 'base64' });
+
+    // Send the file to the Flask server
+    const response = await fetch('http://127.0.0.1:5000/api/translate-audio', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ file: `data:audio/mpeg;base64,${fileData}`, language }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error from Flask server:', errorData);
+      res.status(500).json({ error: 'Error processing the file' });
+      return;
+    }
+
+    const data = await response.json();
+
+    res.status(200).json({ translatedAudio: data.translatedAudio });
+  } catch (error) {
+    console.error('Error processing the request:', error);
+    res.status(500).json({ error: 'Error processing the request' });
+  } finally {
+    // Clean up the temporary file
+    if (req.files.file && req.files.file[0] && req.files.file[0].filepath) {
+      fs.unlinkSync(req.files.file[0].filepath);
+    }
   }
-
-  const data = fs.readFileSync(file.filepath, { encoding: 'base64' });
-  const translatedFilePath = path.join(process.cwd(), 'public', `translated_${file.newFilename}.mp3`);
-
-  // Simulate processing and translation
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-  fs.writeFileSync(translatedFilePath, data, 'base64');
-
-  res.status(200).json({ translatedAudio: `/translated_${file.newFilename}.mp3` });
 });
 
 export const config = {

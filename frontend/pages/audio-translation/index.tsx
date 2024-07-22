@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useMemo, useState} from 'react';
 import { Box, Container, Grid, MenuItem, Select, Typography, CircularProgress, Button } from '@mui/material';
 import Layout from '../layout';
 import { FeatureArticle } from "../../components/FeatureArticle";
@@ -8,12 +8,12 @@ const AudioTranslationContent: React.FC = () => {
   const [language, setLanguage] = useState('en');
   const [uploading, setUploading] = useState(false);
   const [translatedAudio, setTranslatedAudio] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && file.size <= 100 * 1024 * 1024 && file.type === 'audio/mpeg') {
       setSelectedFile(file);
-      setTranslatedAudio(null);
 
       setUploading(true);
       const formData = new FormData();
@@ -26,9 +26,14 @@ const AudioTranslationContent: React.FC = () => {
           body: formData,
         });
         const data = await response.json();
-        setTranslatedAudio(data.translatedAudio);
+        if (response.ok) {
+          setTranslatedAudio(data.translatedAudio);
+        } else {
+          setError(data.error || 'Error uploading file');
+        }
       } catch (error) {
         console.error('Error uploading file:', error);
+        setError('Error uploading file');
       } finally {
         setUploading(false);
       }
@@ -49,9 +54,28 @@ const AudioTranslationContent: React.FC = () => {
   };
 
   const discard = () => {
-    setUploading(null)
-    setTranslatedAudio(null)
+    setSelectedFile(null);
+    setUploading(false);
   };
+
+  useMemo(() => {
+    setTranslatedAudio(null);
+    setError(null);
+  }, [selectedFile])
+
+  if (error) {
+    return <Box mt={4} alignItems="center" flexDirection="column" display="flex">
+      <Box mt={4} textAlign="center" color="error.main">
+        <Typography variant="body2">{error}</Typography>
+      </Box>
+      <Button
+        sx={{ mt: 2, cursor: 'pointer', color: 'secondary.main', textDecoration: 'underline', border: 'none', background: 'none' }}
+        onClick={discard}
+      >
+        Try new file
+      </Button>
+    </Box>
+  }
 
   if (!uploading && !translatedAudio) {
       return <>
