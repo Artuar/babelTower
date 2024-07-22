@@ -25,6 +25,7 @@ apiRoute.post(async (req: any, res: NextApiResponse) => {
   try {
     const file = req.files.file[0];
     const language = req.body.language;
+    const model_name = req.body.model_name;
 
     if (!file || !file.filepath) {
       res.status(400).json({ error: 'File not provided or invalid' });
@@ -38,7 +39,7 @@ apiRoute.post(async (req: any, res: NextApiResponse) => {
     const response = await fetch('http://127.0.0.1:5000/api/translate-audio', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ file: `data:audio/mpeg;base64,${fileData}`, language }),
+      body: JSON.stringify({ file: `data:audio/mpeg;base64,${fileData}`, language, model_name }),
     });
 
     if (!response.ok) {

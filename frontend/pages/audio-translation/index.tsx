@@ -2,10 +2,12 @@ import {useMemo, useState} from 'react';
 import { Box, Container, Grid, MenuItem, Select, Typography, CircularProgress, Button } from '@mui/material';
 import Layout from '../layout';
 import { FeatureArticle } from "../../components/FeatureArticle";
+import { TranslationModel } from "./types";
 
 const AudioTranslationContent: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [language, setLanguage] = useState('en');
+  const [modelName, setModelName] = useState<TranslationModel>('small');
   const [uploading, setUploading] = useState(false);
   const [translatedAudio, setTranslatedAudio] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -19,6 +21,7 @@ const AudioTranslationContent: React.FC = () => {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('language', language);
+      formData.append('model_name', modelName);
 
       try {
         const response = await fetch('/api/translate-audio', {
@@ -79,23 +82,41 @@ const AudioTranslationContent: React.FC = () => {
 
   if (!uploading && !translatedAudio) {
       return <>
-        <Grid container display="flex">
-          <Typography variant="h6" gutterBottom>
-            Translation Language
-          </Typography>
-          <Select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value as string)}
-            fullWidth
-          >
-            <MenuItem value={'en'}>English</MenuItem>
-            <MenuItem value={'ua'}>Українська</MenuItem>
-            <MenuItem value={'ru'}>Русский</MenuItem>
-            <MenuItem value={'fr'}>Français</MenuItem>
-            <MenuItem value={'de'}>Deutsch</MenuItem>
-            <MenuItem value={'es'}>Español</MenuItem>
-            <MenuItem value={'hi'}>हिन्दी</MenuItem>
-          </Select>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={6}>
+            <Typography variant="h6" gutterBottom>
+              Translation Language
+            </Typography>
+            <Select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value as string)}
+              fullWidth
+            >
+              <MenuItem value={'en'}>English</MenuItem>
+              <MenuItem value={'ua'}>Українська</MenuItem>
+              <MenuItem value={'ru'}>Русский</MenuItem>
+              <MenuItem value={'fr'}>Français</MenuItem>
+              <MenuItem value={'de'}>Deutsch</MenuItem>
+              <MenuItem value={'es'}>Español</MenuItem>
+              <MenuItem value={'hi'}>हिन्दी</MenuItem>
+            </Select>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="h6" gutterBottom>
+              Translation Model
+            </Typography>
+            <Select
+              value={modelName}
+              onChange={(e) => setModelName(e.target.value as TranslationModel)}
+              fullWidth
+            >
+              <MenuItem value={'tiny'}>tiny</MenuItem>
+              <MenuItem value={'base'}>base</MenuItem>
+              <MenuItem value={'small'}>small</MenuItem>
+              <MenuItem value={'medium'}>medium</MenuItem>
+              <MenuItem value={'large'}>large</MenuItem>
+            </Select>
+          </Grid>
         </Grid>
         <Grid container paddingY={4}>
           <Grid item xs={12}>
