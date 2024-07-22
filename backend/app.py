@@ -46,13 +46,13 @@ def translate_audio():
 
             final_audio, log_data = audio_processor.process_audio(timestamp, audio_data)
             output_io = BytesIO()
-            sf.write(output_io, final_audio, sample_rate, format='wav')
+            sf.write(output_io, final_audio, sample_rate, format='mp3')
             processed_file_base64 = base64.b64encode(output_io.getvalue()).decode('utf-8')
         except ValueError as e:
             print(f"Error during synthesis: {e}")
             return jsonify({"error": f"Error during synthesis: {e}"}), 500
 
-        return jsonify({"translatedAudio": f"data:audio/wav;base64,{processed_file_base64}"}), 200
+        return jsonify({"translatedAudio": f"data:audio/mpeg;base64,{processed_file_base64}"}), 200
 
     except Exception as e:
         print('Error:', str(e))
