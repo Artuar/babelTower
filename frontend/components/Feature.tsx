@@ -31,9 +31,12 @@ export const Feature: React.FC<FeatureProps> = ({ imagePath, title, description,
                 <Typography variant="body2" color="text.secondary">
                   {description}
                 </Typography>
-                <CardActions sx={{ paddingX: 0 }}>
-                  <Button size="small" href={link}>Learn More</Button>
-                </CardActions>
+                {
+                  link &&
+                  <CardActions sx={{ paddingX: 0 }}>
+                    <Button size="small" href={link}>Try now</Button>
+                  </CardActions>
+                }
               </Grid>
             </Grid>
           </CardContent>

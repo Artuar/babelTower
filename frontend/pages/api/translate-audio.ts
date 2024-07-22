@@ -44,9 +44,9 @@ apiRoute.post(async (req: any, res: NextApiResponse) => {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = await response.json() as { error: string };
       console.error('Error from Flask server:', errorData);
-      res.status(500).json({ error: 'Error processing the file' });
+      res.status(500).json({ error: errorData?.error || 'Error processing the file' });
       return;
     }
 

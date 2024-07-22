@@ -32,17 +32,18 @@ def translate_audio():
         audio_data = np.array(audio_segment.get_array_of_samples())
         audio_data = audio_data.tobytes()
 
-        # Creating an instance of AudioProcessor with the necessary parameters
-        audio_processor = AudioProcessor(
-            language_to=language_to[0],
-            language_from=language_from[0],
-            model_name=model_name[0],
-            sample_rate=sample_rate
-        )
         timestamp = datetime.utcnow()
 
         # Processing the audio data
         try:
+            # Creating an instance of AudioProcessor with the necessary parameters
+            audio_processor = AudioProcessor(
+                language_to=language_to[0],
+                language_from=language_from[0],
+                model_name=model_name[0],
+                sample_rate=sample_rate
+            )
+
             final_audio, log_data = audio_processor.process_audio(timestamp, audio_data)
             output_io = BytesIO()
             sf.write(output_io, final_audio, sample_rate, format='wav')

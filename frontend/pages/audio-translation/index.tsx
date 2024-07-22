@@ -88,11 +88,11 @@ const AudioTranslationContent: React.FC = () => {
         <Grid container spacing={2}>
           <Grid item xs={12} md={4}>
             <Typography variant="h6" gutterBottom>
-              Translation to
+              Translation from
             </Typography>
             <Select
-              value={languageTo}
-              onChange={(e) => setLanguageTo(e.target.value as string)}
+              value={languageFrom}
+              onChange={(e) => setLanguageFrom(e.target.value as string)}
               fullWidth
             >
               <MenuItem value={'en'}>English</MenuItem>
@@ -106,11 +106,11 @@ const AudioTranslationContent: React.FC = () => {
           </Grid>
           <Grid item xs={12} md={4}>
             <Typography variant="h6" gutterBottom>
-              Translation from
+              Translation to
             </Typography>
             <Select
-              value={languageFrom}
-              onChange={(e) => setLanguageFrom(e.target.value as string)}
+              value={languageTo}
+              onChange={(e) => setLanguageTo(e.target.value as string)}
               fullWidth
             >
               <MenuItem value={'en'}>English</MenuItem>
