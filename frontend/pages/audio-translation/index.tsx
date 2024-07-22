@@ -85,7 +85,7 @@ const AudioTranslationContent: React.FC = () => {
         <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
             <Typography variant="h6" gutterBottom>
-              Translation Language
+              Translation to
             </Typography>
             <Select
               value={language}
