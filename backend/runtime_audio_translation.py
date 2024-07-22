@@ -49,7 +49,7 @@ def main():
     if source is None:
         return
 
-    audio_processor = AudioProcessor(language=args.language, model_name=args.model, sample_rate=args.sample_rate)
+    audio_processor = AudioProcessor(language_to=args.language, language_from='en', model_name=args.model, sample_rate=args.sample_rate)
     record_timeout = args.record_timeout
 
     with source:

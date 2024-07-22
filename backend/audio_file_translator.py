@@ -4,7 +4,14 @@ from datetime import datetime
 from pydub import AudioSegment
 from babylon_sts import AudioProcessor
 
-def process_local_audio(input_file: str, output_file: str, language: str = 'ru', model_name: str = 'small', sample_rate: int = 24000):
+def process_local_audio(
+        input_file: str,
+        output_file: str,
+        language_to: str = 'ru',
+        language_from: str = 'en',
+        model_name: str = 'small',
+        sample_rate: int = 24000
+):
     # Using pydub to read the MP3 file
     audio_segment = AudioSegment.from_file(input_file)
 
@@ -14,7 +21,7 @@ def process_local_audio(input_file: str, output_file: str, language: str = 'ru',
     audio_data = audio_data.tobytes()  # Converting data to bytes
 
     # Creating an instance of AudioProcessor with the necessary parameters
-    audio_processor = AudioProcessor(language=language, model_name=model_name, sample_rate=sample_rate)
+    audio_processor = AudioProcessor(language_to=language_to, language_from=language_from, model_name=model_name, sample_rate=sample_rate)
 
     # Current time as a timestamp for processing
     timestamp = datetime.utcnow()

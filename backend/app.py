@@ -17,12 +17,13 @@ def translate_audio():
     try:
         data = request.json
         file_base64 = data.get('file')
-        language = data.get('language')
+        language_to = data.get('language_to')
+        language_from = data.get('language_from')
         model_name = data.get('model_name')
         sample_rate = 24000
 
-        if not file_base64 or not language:
-            return jsonify({"error": "File and language are required"}), 400
+        if not file_base64 or not language_to or not language_from:
+            return jsonify({"error": "File, language_from and language_to are required"}), 400
 
         # Decode base64 file
         file_data = base64.b64decode(file_base64.split(';base64,')[-1])
@@ -32,7 +33,12 @@ def translate_audio():
         audio_data = audio_data.tobytes()
 
         # Creating an instance of AudioProcessor with the necessary parameters
-        audio_processor = AudioProcessor(language=language[0], model_name=model_name[0], sample_rate=sample_rate)
+        audio_processor = AudioProcessor(
+            language_to=language_to[0],
+            language_from=language_from[0],
+            model_name=model_name[0],
+            sample_rate=sample_rate
+        )
         timestamp = datetime.utcnow()
 
         # Processing the audio data
