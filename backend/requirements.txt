@@ -1,15 +1,18 @@
-Flask
-Flask-Cors
+Flask==3.0.3
+Flask-Cors==4.0.1
 
-argparse
-numpy
-speechrecognition
-openai-whisper
-torch
-soundfile
-pydub
-transformers
-scipy
+argparse==1.4.0
+numpy==1.26.4
+speechrecognition==3.10.4
+openai-whisper==20231117
+torch==2.3.1
+soundfile==0.12.1
+pydub==0.25.1
+transformers==4.42.4
+scipy==1.14.0
 
-torchaudio
-pyaudio
+torchaudio==2.3.1
+pyaudio==0.2.14
+
+sentencepiece==0.2.0
+protobuf==5.27.2

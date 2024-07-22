@@ -25,6 +25,10 @@ Babylon Tower is a comprehensive solution for speech recognition and synthesis, 
 cd backend
 ```
 
+2. a. `Ubuntu`:  
+```sh
+sudo apt-get install portaudio19-dev python3-pyaudio
+```
 2. Install the required Python packages:
 
 ```sh
