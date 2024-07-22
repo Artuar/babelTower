@@ -6,9 +6,10 @@ interface FeatureProps {
   imagePath: string;
   title: string;
   description: string;
+  link?: string;
 }
 
-export const Feature: React.FC<FeatureProps> = ({ imagePath, title, description }) => {
+export const Feature: React.FC<FeatureProps> = ({ imagePath, title, description, link }) => {
   return (
     <Grid item xs={12}>
       <motion.div
@@ -30,8 +31,8 @@ export const Feature: React.FC<FeatureProps> = ({ imagePath, title, description 
                 <Typography variant="body2" color="text.secondary">
                   {description}
                 </Typography>
-                <CardActions>
-                  <Button size="small">Learn More</Button>
+                <CardActions sx={{ paddingX: 0 }}>
+                  <Button size="small" href={link}>Learn More</Button>
                 </CardActions>
               </Grid>
             </Grid>

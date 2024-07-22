@@ -1,4 +1,4 @@
-import {AppBar, Button, MenuItem, Select, Toolbar, Typography} from "@mui/material";
+import {AppBar, Button, MenuItem, Select, Toolbar, Typography, Link } from "@mui/material";
 import Image from "next/image";
 import {useState} from "react";
 
@@ -13,7 +13,9 @@ export const Header: React.FC = () => {
     <Toolbar>
       <Image src="/logo_light.png" alt="Babylon Tower Logo" width={40} height={40} />
       <Typography variant="h6" style={{ flexGrow: 1, marginLeft: 8 }}>
-        Babylon Tower
+        <a href="/" style={{ color: 'inherit', textDecoration: 'none' }}>
+          Babylon Tower
+        </a>
       </Typography>
       <Select
         value={language}
