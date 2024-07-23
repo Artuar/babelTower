@@ -185,7 +185,7 @@ const AudioTranslationContent: React.FC = () => {
   if (uploading) {
     return  <Box mt={4} textAlign="center">
       <CircularProgress />
-      <Typography variant="body2" mt={2}>
+      <Typography variant="h6" mt={2}>
         Uploading and translating...
       </Typography>
     </Box>
@@ -194,6 +194,12 @@ const AudioTranslationContent: React.FC = () => {
   if (translatedAudio) {
     return <Box mt={4} alignItems="center" flexDirection="column" display="flex">
       <Typography variant="h6" gutterBottom>
+        Original Audio
+      </Typography>
+      {selectedFile && (
+        <audio controls src={URL.createObjectURL(selectedFile)}></audio>
+      )}
+      <Typography variant="h6" gutterBottom sx={{mt: 2}}>
         Translated Audio
       </Typography>
       <audio controls src={translatedAudio}></audio>
