@@ -7,16 +7,16 @@ const VoiceRecorder = () => {
   const [recording, setRecording] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const isContinue = useRef(false);
-  const [translatedText, setTranslatedText] = useState('');
-  const [originalText, setOriginalText] = useState('');
+  const [translatedText, setTranslatedText] = useState<string[]>([]);
+  const [originalText, setOriginalText] = useState<string[]>([]);
   const [audioURL, setAudioURL] = useState('');
   const mediaRecorderRef = useRef(null);
   const streamRef = useRef(null);
 
   useEffect(() => {
     socket.on('audio_processed', (data) => {
-      setTranslatedText(data.translated_text);
-      setOriginalText(data.original_text);
+      setTranslatedText((current) => ([...current, data.translated_text]));
+      setOriginalText((current) => ([...current, data.original_text]));
       const audioBlob = new Blob([Uint8Array.from(atob(data.audio), c => c.charCodeAt(0))], { type: 'audio/wav' });
       setAudioURL(URL.createObjectURL(audioBlob));
     });
@@ -94,9 +94,9 @@ const VoiceRecorder = () => {
 
   const initializeProcessor = () => {
     socket.emit('initialize', {
-      language_to: 'ua',
+      language_to: 'ru',
       language_from: 'en',
-      model_name: 'base'
+      model_name: 'small'
     });
   };
 
@@ -111,9 +111,9 @@ const VoiceRecorder = () => {
         Stop Recording
       </button>
       <h2>Original Text</h2>
-      <p>{originalText}</p>
+      <div>{originalText.map(text => <p>{text}</p>)}</div>
       <h2>Translated Text</h2>
-      <p>{translatedText}</p>
+      <div>{translatedText.map(text => <p>{text}</p>)}</div>
       <h2>Translated Audio</h2>
       <audio controls src={audioURL}></audio>
     </div>

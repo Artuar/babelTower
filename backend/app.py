@@ -104,23 +104,24 @@ def handle_audio_data(data):
     buffered_audio.append(raw_audio_data)
     combined_audio = b''.join(buffered_audio)
 
+    last_timestamp = datetime.utcnow()
+
     # Check the last 0.5 seconds of audio for silence
     frame_rate = 24000
     last_half_second_duration = int(0.5 * frame_rate * 2 * 1)
     if len(combined_audio) >= last_half_second_duration:
         last_half_second = combined_audio[-last_half_second_duration:]
         if is_silent(last_half_second):
-            process_buffered_audio()
+            process_buffered_audio(base64_audio)
 
-    last_timestamp = datetime.utcnow()
 
 def is_silent(data_chunk):
     audio_samples = np.frombuffer(data_chunk, dtype=np.int16)
     print(np.mean(np.abs(audio_samples)), SILENCE_THRESHOLD)
     return np.mean(np.abs(audio_samples)) < SILENCE_THRESHOLD
 
-def process_buffered_audio():
-    print("PROCESS AUDIO")
+
+def process_buffered_audio(base64_audio: str):
     global audio_processor, buffered_audio, audio_stream
 
     if not buffered_audio:
@@ -131,6 +132,13 @@ def process_buffered_audio():
 
     if is_silent(combined_audio):
         print("Ignoring quiet audio segment")
+        emit('audio_processed', {
+            "timestamp": last_timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            "original_text": "",
+            "translated_text": "",
+            "synthesis_delay": 0,
+            "audio": base64_audio
+        }, broadcast=True)
         return
 
     timestamp = datetime.utcnow()
