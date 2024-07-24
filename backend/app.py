@@ -142,18 +142,20 @@ def process_buffered_audio(base64_audio: str):
         return
 
     timestamp = datetime.utcnow()
-    save_raw_audio_to_file(combined_audio, f"combined_audio{timestamp}.wav", format='WAV')
+    # save_raw_audio_to_file(combined_audio, f"combined_audio{timestamp}.wav", format='WAV')
 
     final_audio, log_data = audio_processor.process_audio(timestamp, combined_audio)
     audio_stream.extend(final_audio)
-    final_audio_base64 = base64.b64encode(np.array(final_audio)).decode('utf-8')
+    output_io = BytesIO()
+    sf.write(output_io, final_audio, 24000, format='mp3')
+    processed_file_base64 = base64.b64encode(output_io.getvalue()).decode('utf-8')
 
     emit('audio_processed', {
         "timestamp": log_data['timestamp'].strftime('%Y-%m-%d %H:%M:%S'),
         "original_text": log_data['original_text'],
         "translated_text": log_data['translated_text'],
         "synthesis_delay": log_data['synthesis_delay'],
-        "audio": final_audio_base64
+        "audio": processed_file_base64
     }, broadcast=True)
 
 def save_raw_audio_to_file(audio_data, filename, format='WAV'):

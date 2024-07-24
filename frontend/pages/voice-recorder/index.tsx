@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
+import { ProcessedData } from "./types";
 
 const socket = io('http://127.0.0.1:5000');
 
@@ -7,18 +8,13 @@ const VoiceRecorder = () => {
   const [recording, setRecording] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const isContinue = useRef(false);
-  const [translatedText, setTranslatedText] = useState<string[]>([]);
-  const [originalText, setOriginalText] = useState<string[]>([]);
-  const [audioURL, setAudioURL] = useState('');
+  const [processedData, setProcessedData] = useState<ProcessedData[]>([]);
   const mediaRecorderRef = useRef(null);
   const streamRef = useRef(null);
 
   useEffect(() => {
     socket.on('audio_processed', (data) => {
-      setTranslatedText((current) => ([...current, data.translated_text]));
-      setOriginalText((current) => ([...current, data.original_text]));
-      const audioBlob = new Blob([Uint8Array.from(atob(data.audio), c => c.charCodeAt(0))], { type: 'audio/wav' });
-      setAudioURL(URL.createObjectURL(audioBlob));
+      setProcessedData((current) => ([...current, data]));
     });
 
     socket.on('error', (data) => {
@@ -109,12 +105,16 @@ const VoiceRecorder = () => {
       <button onClick={stopRecording} disabled={!recording}>
         Stop Recording
       </button>
-      <h2>Original Text</h2>
-      <div>{originalText.map((text, index) => <p key={index}>{text}</p>)}</div>
-      <h2>Translated Text</h2>
-      <div>{translatedText.map((text, index) => <p key={index}>{text}</p>)}</div>
-      <h2>Translated Audio</h2>
-      <audio controls src={audioURL}></audio>
+      <h2>Processed Data</h2>
+      <div>{processedData.map((data, index) =>
+        <div key={index}>
+          <p>{data.timestamp}</p>
+          <p>{data.synthesis_delay}</p>
+          <p>{data.original_text}</p>
+          <p>{data.translated_text}</p>
+          <audio controls src={`data:audio/mp3;base64,${data.audio}`}></audio>
+        </div>
+      )}</div>
     </div>
   );
 };
