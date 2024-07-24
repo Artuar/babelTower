@@ -7,6 +7,7 @@ import { FeatureArticle } from "../../components/FeatureArticle";
 import { InitialisationForm } from "../../components/InitialisationForm";
 import { TranslationModel } from "../audio-translation/types";
 import { Loading } from "../../components/Loading";
+import { Console } from "./Console";
 
 const socket = io('http://127.0.0.1:5000');
 
@@ -111,8 +112,8 @@ const VoiceRecorderContent = () => {
 
   const initializeModels = useCallback(() => {
     socket.emit('initialize', {
-      language_to: languageFrom,
-      language_from: languageTo,
+      language_to: languageTo,
+      language_from: languageFrom,
       model_name: modelName
     });
     setLoading(true);
@@ -155,19 +156,10 @@ const VoiceRecorderContent = () => {
           sx={{ mt: 2, cursor: 'pointer', color: 'primary.main', textDecoration: 'underline', border: 'none', background: 'none' }}
           onClick={recording ? stopRecording : startRecording}
         >
-          {recording ? 'Recording...' : 'Start Recording'}
+          {recording ? 'Stop recording' : 'Start Recording'}
         </Button>
       </Box>
-      <h2>Processed Data</h2>
-      <div>{processedData.map((data, index) =>
-        <div key={index}>
-          <p>{data.timestamp}</p>
-          <p>{data.synthesis_delay}</p>
-          <p>{data.original_text}</p>
-          <p>{data.translated_text}</p>
-          <audio controls src={`data:audio/mp3;base64,${data.audio}`}></audio>
-        </div>
-      )}</div>
+      <Console processedDataList={processedData} recording={recording} />
     </>
   );
 };
