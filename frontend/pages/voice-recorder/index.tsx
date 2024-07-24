@@ -17,6 +17,8 @@ const VoiceRecorder = () => {
     socket.on('audio_processed', (data) => {
       setTranslatedText((current) => ([...current, data.translated_text]));
       setOriginalText((current) => ([...current, data.original_text]));
+      const audioBlob = new Blob([Uint8Array.from(atob(data.audio), c => c.charCodeAt(0))], { type: 'audio/wav' });
+      setAudioURL(URL.createObjectURL(audioBlob));
     });
 
     socket.on('error', (data) => {
