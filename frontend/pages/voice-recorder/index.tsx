@@ -1,10 +1,21 @@
-import { useState, useEffect, useRef } from 'react';
+import {useState, useEffect, useRef, useCallback} from 'react';
 import io from 'socket.io-client';
 import { ProcessedData } from "./types";
+import Layout from "../layout";
+import {Box, Button, CircularProgress, Container, Typography} from "@mui/material";
+import {FeatureArticle} from "../../components/FeatureArticle";
+import {InitialisationForm} from "../../components/InitialisationForm";
+import {TranslationModel} from "../audio-translation/types";
 
 const socket = io('http://127.0.0.1:5000');
 
-const VoiceRecorder = () => {
+const VoiceRecorderContent = () => {
+  const [languageTo, setLanguageTo] = useState('ua');
+  const [languageFrom, setLanguageFrom] = useState('en');
+  const [modelName, setModelName] = useState<TranslationModel>('small');
+
+  const [loading, setLoading] = useState(false);
+
   const [recording, setRecording] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const isContinue = useRef(false);
@@ -50,6 +61,7 @@ const VoiceRecorder = () => {
       };
 
       setIsInitialized(true);
+      setLoading(false);
     });
 
     return () => {
@@ -64,7 +76,7 @@ const VoiceRecorder = () => {
     mediaRecorder.start();
     setTimeout(() => {
       mediaRecorder.stop();
-    }, 500); // Record for 0.25 seconds
+    }, 500);
   };
 
   useEffect(() => {
@@ -87,24 +99,69 @@ const VoiceRecorder = () => {
     setRecording(false);
   };
 
-  const initializeProcessor = () => {
+  const discard = () => {
+    setRecording(false)
+    setIsInitialized(null)
+    isContinue.current = false
+    setProcessedData([])
+    mediaRecorderRef.current = null
+    streamRef.current = null
+  }
+
+  const initializeModels = useCallback(() => {
     socket.emit('initialize', {
-      language_to: 'ru',
-      language_from: 'en',
-      model_name: 'small'
+      language_to: languageFrom,
+      language_from: languageTo,
+      model_name: modelName
     });
-  };
+    setLoading(true);
+  }, [languageFrom, languageTo, modelName]);
+
+  if (loading) {
+    return  <Box mt={4} textAlign="center">
+      <CircularProgress />
+      <Typography variant="h6" mt={2}>
+        Models Initialisation...
+      </Typography>
+    </Box>
+  }
+
+  if (!isInitialized) {
+    return <>
+      <InitialisationForm
+        languageFrom={languageFrom}
+        setLanguageFrom={setLanguageFrom}
+        languageTo={languageTo}
+        setLanguageTo={setLanguageTo}
+        modelName={modelName}
+        setModelName={setModelName}
+      />
+      <Button
+        sx={{ mt: 2, cursor: 'pointer', color: 'primary.main', textDecoration: 'underline', border: 'none', background: 'none' }}
+        onClick={initializeModels}
+        fullWidth
+      >
+        Initialize Models
+      </Button>
+    </>
+  }
 
   return (
-    <div>
-      <h1>Real-time Audio Translation with WebRTC</h1>
-      <button onClick={initializeProcessor}>Initialize Processor</button>
-      <button onClick={startRecording} disabled={recording || !isInitialized}>
-        {recording ? 'Recording...' : 'Start Recording'}
-      </button>
-      <button onClick={stopRecording} disabled={!recording}>
-        Stop Recording
-      </button>
+    <>
+      <Box display="flex" justifyContent="space-between">
+        <Button
+          sx={{ mt: 2, cursor: 'pointer', color: 'secondary.main', textDecoration: 'underline', border: 'none', background: 'none' }}
+          onClick={discard}
+        >
+          Restart
+        </Button>
+        <Button
+          sx={{ mt: 2, cursor: 'pointer', color: 'primary.main', textDecoration: 'underline', border: 'none', background: 'none' }}
+          onClick={recording ? stopRecording : startRecording}
+        >
+          {recording ? 'Recording...' : 'Start Recording'}
+        </Button>
+      </Box>
       <h2>Processed Data</h2>
       <div>{processedData.map((data, index) =>
         <div key={index}>
@@ -115,7 +172,25 @@ const VoiceRecorder = () => {
           <audio controls src={`data:audio/mp3;base64,${data.audio}`}></audio>
         </div>
       )}</div>
-    </div>
+    </>
+  );
+};
+
+const VoiceRecorder = () => {
+  return (
+    <Layout>
+      <Container>
+        <FeatureArticle
+          title="Speak and Translate Instantly"
+          descriptions={[
+            "Dictate your message and receive immediate translations along with audio synthesis in your chosen language. Perfect for on-the-go conversations."
+          ]}
+          imagePath="/record.png"
+        />
+
+        <VoiceRecorderContent />
+      </Container>
+    </Layout>
   );
 };
 

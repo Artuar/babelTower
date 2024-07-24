@@ -4,6 +4,7 @@ import Layout from '../layout';
 import { FeatureArticle } from "../../components/FeatureArticle";
 import { TranslationModel } from "./types";
 import { FILE_MAX_SIZE, FILE_TYPE } from "./constants";
+import {InitialisationForm} from "../../components/InitialisationForm";
 
 const AudioTranslationContent: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -85,60 +86,14 @@ const AudioTranslationContent: React.FC = () => {
 
   if (!uploading && !translatedAudio) {
       return <>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={4}>
-            <Typography variant="h6" gutterBottom>
-              Translation from
-            </Typography>
-            <Select
-              value={languageFrom}
-              onChange={(e) => setLanguageFrom(e.target.value as string)}
-              fullWidth
-            >
-              <MenuItem value={'en'}>English</MenuItem>
-              <MenuItem value={'ua'}>Українська</MenuItem>
-              <MenuItem value={'ru'}>Русский</MenuItem>
-              <MenuItem value={'fr'}>Français</MenuItem>
-              <MenuItem value={'de'}>Deutsch</MenuItem>
-              <MenuItem value={'es'}>Español</MenuItem>
-              <MenuItem value={'hi'}>हिन्दी</MenuItem>
-            </Select>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Typography variant="h6" gutterBottom>
-              Translation to
-            </Typography>
-            <Select
-              value={languageTo}
-              onChange={(e) => setLanguageTo(e.target.value as string)}
-              fullWidth
-            >
-              <MenuItem value={'en'}>English</MenuItem>
-              <MenuItem value={'ua'}>Українська</MenuItem>
-              <MenuItem value={'ru'}>Русский</MenuItem>
-              <MenuItem value={'fr'}>Français</MenuItem>
-              <MenuItem value={'de'}>Deutsch</MenuItem>
-              <MenuItem value={'es'}>Español</MenuItem>
-              <MenuItem value={'hi'}>हिन्दी</MenuItem>
-            </Select>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Typography variant="h6" gutterBottom>
-              Translation Model
-            </Typography>
-            <Select
-              value={modelName}
-              onChange={(e) => setModelName(e.target.value as TranslationModel)}
-              fullWidth
-            >
-              <MenuItem value={'tiny'}>tiny</MenuItem>
-              <MenuItem value={'base'}>base</MenuItem>
-              <MenuItem value={'small'}>small</MenuItem>
-              <MenuItem value={'medium'}>medium</MenuItem>
-              <MenuItem value={'large'}>large</MenuItem>
-            </Select>
-          </Grid>
-        </Grid>
+        <InitialisationForm
+          languageFrom={languageFrom}
+          setLanguageFrom={setLanguageFrom}
+          languageTo={languageTo}
+          setLanguageTo={setLanguageTo}
+          modelName={modelName}
+          setModelName={setModelName}
+        />
         <Grid container paddingY={4}>
           <Grid item xs={12}>
             <Box
