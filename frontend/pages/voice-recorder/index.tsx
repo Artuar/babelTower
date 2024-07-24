@@ -113,6 +113,8 @@ const VoiceRecorder = () => {
       <div>{originalText.map((text, index) => <p key={index}>{text}</p>)}</div>
       <h2>Translated Text</h2>
       <div>{translatedText.map((text, index) => <p key={index}>{text}</p>)}</div>
+      <h2>Translated Audio</h2>
+      <audio controls src={audioURL}></audio>
     </div>
   );
 };
