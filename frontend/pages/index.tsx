@@ -23,6 +23,12 @@ const Home: React.FC = () => {
           link="/audio-translation"
         />
         <Feature
+          imagePath="/record.png"
+          title="Speak and Translate Instantly"
+          description="Dictate your message and receive immediate translations along with audio synthesis in your chosen language. Perfect for on-the-go conversations."
+          link="/voice-recorder"
+        />
+        <Feature
           imagePath="/conversation.png"
           title="Global Conversations Made Easy"
           description="Connect with anyone, anywhere. Make real-time audio calls with automatic translation, allowing you to talk effortlessly without language barriers or delays."
@@ -31,11 +37,6 @@ const Home: React.FC = () => {
           imagePath="/walkytalky.png"
           title="Instant Voice Messaging"
           description="Send and receive short voice messages with real-time translation. Experience seamless communication as your messages are instantly translated to your preferred language."
-        />
-        <Feature
-          imagePath="/record.png"
-          title="Speak and Translate Instantly"
-          description="Dictate your message and receive immediate translations along with audio synthesis in your chosen language. Perfect for on-the-go conversations."
         />
       </Grid>
     </Layout>

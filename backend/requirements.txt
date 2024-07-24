@@ -1,5 +1,6 @@
 Flask==3.0.3
 Flask-Cors==4.0.1
+flask-socketio==5.3.6
 
 argparse==1.4.0
 numpy==1.26.4
@@ -16,5 +17,7 @@ pyaudio==0.2.14
 
 sentencepiece==0.2.0
 protobuf==5.27.2
+
+ffmpeg-python==0.2.0
 
 git+https://github.com/Artuar/babylon_sts.git
