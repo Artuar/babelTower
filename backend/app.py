@@ -1,4 +1,3 @@
-import ffmpeg
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import base64
@@ -71,7 +70,7 @@ def translate_audio():
 @socketio.on('initialize')
 def handle_initialize(data):
     global audio_processor
-    language_to = data.get('language_to', 'ua')
+    language_to = data.get('language_to', 'ru')
     language_from = data.get('language_from', 'en')
     model_name = data.get('model_name', 'small')
     sample_rate = 24000
@@ -91,21 +90,15 @@ def handle_audio_data(data):
     base64_audio = audio_data_base64.split(",")[1]
     audio_data = base64.b64decode(base64_audio)
 
-    # Convert audio/webm to raw PCM using ffmpeg
     try:
-        process = (
-            ffmpeg
-            .input('pipe:0')
-            .output('pipe:1', format='wav', acodec='pcm_s16le', ac=1, ar='24k')
-            .run_async(pipe_stdin=True, pipe_stdout=True, pipe_stderr=True)
-        )
-        out, _ = process.communicate(input=audio_data)
-    except ffmpeg.Error as e:
-        print(f"ffmpeg error: {e.stderr.decode('utf8')}")
+        audio_segment = AudioSegment.from_file(BytesIO(audio_data), format='webm')
+        raw_audio_data = audio_segment.set_frame_rate(24000).set_channels(1).set_sample_width(2).raw_data
+    except Exception as e:
+        print(f"Conversion error: {e}")
         emit('error', {"error": "Failed to convert audio"})
         return
 
-    raw_audio_data = np.frombuffer(out, dtype=np.int16).tobytes()
+    raw_audio_data = np.frombuffer(raw_audio_data, dtype=np.int16).tobytes()
 
     # Append new audio data to buffer
     buffered_audio.append(raw_audio_data)
