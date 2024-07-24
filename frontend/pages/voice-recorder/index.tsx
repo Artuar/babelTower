@@ -61,7 +61,7 @@ const VoiceRecorder = () => {
     mediaRecorder.start();
     setTimeout(() => {
       mediaRecorder.stop();
-    }, 2000); // Record for 2 seconds
+    }, 250); // Record for 0.25 seconds
   };
 
   useEffect(() => {

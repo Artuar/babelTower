@@ -73,7 +73,7 @@ def handle_initialize(data):
     global audio_processor
     language_to = data.get('language_to', 'ua')
     language_from = data.get('language_from', 'en')
-    model_name = data.get('model_name', 'base')
+    model_name = data.get('model_name', 'small')
     sample_rate = 24000
 
     audio_processor = AudioProcessor(language_to=language_to, language_from=language_from, model_name=model_name, sample_rate=sample_rate)
@@ -106,9 +106,6 @@ def handle_audio_data(data):
         return
 
     raw_audio_data = np.frombuffer(out, dtype=np.int16).tobytes()
-
-    timestamp = datetime.utcnow()
-    save_raw_audio_to_file(out, f"converted_audio{timestamp}.wav", format='WAV')
 
     # Append new audio data to buffer
     buffered_audio.append(raw_audio_data)
@@ -143,7 +140,10 @@ def process_buffered_audio():
         print("Ignoring quiet audio segment")
         return
 
-    final_audio, log_data = audio_processor.process_audio(datetime.utcnow(), combined_audio)
+    timestamp = datetime.utcnow()
+    save_raw_audio_to_file(combined_audio, f"combined_audio{timestamp}.wav", format='WAV')
+
+    final_audio, log_data = audio_processor.process_audio(timestamp, combined_audio)
     audio_stream.extend(final_audio)
     final_audio_base64 = base64.b64encode(np.array(final_audio)).decode('utf-8')
 
