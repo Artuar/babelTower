@@ -17,8 +17,6 @@ const VoiceRecorder = () => {
     socket.on('audio_processed', (data) => {
       setTranslatedText((current) => ([...current, data.translated_text]));
       setOriginalText((current) => ([...current, data.original_text]));
-      const audioBlob = new Blob([Uint8Array.from(atob(data.audio), c => c.charCodeAt(0))], { type: 'audio/wav' });
-      setAudioURL(URL.createObjectURL(audioBlob));
     });
 
     socket.on('error', (data) => {
@@ -53,7 +51,7 @@ const VoiceRecorder = () => {
         }
       };
 
-      setIsInitialized(true)
+      setIsInitialized(true);
     });
 
     return () => {
@@ -65,11 +63,10 @@ const VoiceRecorder = () => {
 
   const startRecordingSegment = () => {
     const mediaRecorder = mediaRecorderRef.current;
-
     mediaRecorder.start();
     setTimeout(() => {
       mediaRecorder.stop();
-    }, 250); // Record for 0.25 seconds
+    }, 500); // Record for 0.25 seconds
   };
 
   useEffect(() => {
@@ -111,11 +108,9 @@ const VoiceRecorder = () => {
         Stop Recording
       </button>
       <h2>Original Text</h2>
-      <div>{originalText.map(text => <p>{text}</p>)}</div>
+      <div>{originalText.map((text, index) => <p key={index}>{text}</p>)}</div>
       <h2>Translated Text</h2>
-      <div>{translatedText.map(text => <p>{text}</p>)}</div>
-      <h2>Translated Audio</h2>
-      <audio controls src={audioURL}></audio>
+      <div>{translatedText.map((text, index) => <p key={index}>{text}</p>)}</div>
     </div>
   );
 };
