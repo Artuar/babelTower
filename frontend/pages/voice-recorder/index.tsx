@@ -1,11 +1,12 @@
-import {useState, useEffect, useRef, useCallback} from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import io from 'socket.io-client';
 import { ProcessedData } from "./types";
 import Layout from "../layout";
-import {Box, Button, CircularProgress, Container, Typography} from "@mui/material";
-import {FeatureArticle} from "../../components/FeatureArticle";
-import {InitialisationForm} from "../../components/InitialisationForm";
-import {TranslationModel} from "../audio-translation/types";
+import { Box, Button , Container } from "@mui/material";
+import { FeatureArticle } from "../../components/FeatureArticle";
+import { InitialisationForm } from "../../components/InitialisationForm";
+import { TranslationModel } from "../audio-translation/types";
+import { Loading } from "../../components/Loading";
 
 const socket = io('http://127.0.0.1:5000');
 
@@ -118,12 +119,7 @@ const VoiceRecorderContent = () => {
   }, [languageFrom, languageTo, modelName]);
 
   if (loading) {
-    return  <Box mt={4} textAlign="center">
-      <CircularProgress />
-      <Typography variant="h6" mt={2}>
-        Models Initialisation...
-      </Typography>
-    </Box>
+    return  <Loading text="Recorder preparing" />
   }
 
   if (!isInitialized) {
@@ -183,7 +179,7 @@ const VoiceRecorder = () => {
         <FeatureArticle
           title="Speak and Translate Instantly"
           descriptions={[
-            "Dictate your message and receive immediate translations along with audio synthesis in your chosen language. Perfect for on-the-go conversations."
+            "Enhance your note-taking and subtitling process with our cutting-edge feature. Dictate your messages using your voice and instantly receive both translated text and synthesized audio in your chosen language. Perfect for creating notes or subtitles on the go, this feature ensures you capture and translate your thoughts quickly and accurately. Speak, translate, and listen with ease, making your workflow more efficient and effective."
           ]}
           imagePath="/record.png"
         />

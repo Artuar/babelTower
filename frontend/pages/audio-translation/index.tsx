@@ -1,10 +1,11 @@
 import {useMemo, useState} from 'react';
-import { Box, Container, Grid, MenuItem, Select, Typography, CircularProgress, Button } from '@mui/material';
+import { Box, Container, Grid, Typography, Button } from '@mui/material';
 import Layout from '../layout';
 import { FeatureArticle } from "../../components/FeatureArticle";
 import { TranslationModel } from "./types";
 import { FILE_MAX_SIZE, FILE_TYPE } from "./constants";
-import {InitialisationForm} from "../../components/InitialisationForm";
+import { InitialisationForm } from "../../components/InitialisationForm";
+import { Loading } from "../../components/Loading";
 
 const AudioTranslationContent: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -138,12 +139,7 @@ const AudioTranslationContent: React.FC = () => {
   }
 
   if (uploading) {
-    return  <Box mt={4} textAlign="center">
-      <CircularProgress />
-      <Typography variant="h6" mt={2}>
-        Uploading and translating...
-      </Typography>
-    </Box>
+    return  <Loading text="Uploading and translating" />
   }
 
   if (translatedAudio) {
