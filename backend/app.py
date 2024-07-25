@@ -117,7 +117,6 @@ def handle_audio_data(data):
 
 def is_silent(data_chunk):
     audio_samples = np.frombuffer(data_chunk, dtype=np.int16)
-    print(np.mean(np.abs(audio_samples)), SILENCE_THRESHOLD)
     return np.mean(np.abs(audio_samples)) < SILENCE_THRESHOLD
 
 
@@ -131,7 +130,6 @@ def process_buffered_audio(base64_audio: str):
     buffered_audio = []
 
     if is_silent(combined_audio):
-        print("Ignoring quiet audio segment")
         emit('audio_processed', {
             "timestamp": last_timestamp.strftime('%Y-%m-%d %H:%M:%S'),
             "original_text": "",

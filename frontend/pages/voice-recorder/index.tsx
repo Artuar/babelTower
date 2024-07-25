@@ -2,12 +2,13 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import io from 'socket.io-client';
 import { ProcessedData } from "./types";
 import Layout from "../layout";
-import { Box, Button , Container } from "@mui/material";
+import { Box , Container } from "@mui/material";
 import { FeatureArticle } from "../../components/FeatureArticle";
 import { InitialisationForm } from "../../components/InitialisationForm";
 import { TranslationModel } from "../audio-translation/types";
 import { Loading } from "../../components/Loading";
 import { Console } from "./Console";
+import { Button } from "../../components/Button";
 
 const socket = io('http://127.0.0.1:5000');
 
@@ -27,7 +28,7 @@ const VoiceRecorderContent = () => {
 
   useEffect(() => {
     socket.on('audio_processed', (data) => {
-      setProcessedData((current) => ([...current, data]));
+      setProcessedData((current) => ([data, ...current]));
     });
 
     socket.on('error', (data) => {
@@ -133,12 +134,8 @@ const VoiceRecorderContent = () => {
         modelName={modelName}
         setModelName={setModelName}
       />
-      <Button
-        sx={{ mt: 2, cursor: 'pointer', color: 'primary.main', textDecoration: 'underline', border: 'none', background: 'none' }}
-        onClick={initializeModels}
-        fullWidth
-      >
-        Initialize Models
+      <Button onClick={initializeModels} fullWidth>
+        Initialize recorder
       </Button>
     </>
   }
@@ -146,16 +143,10 @@ const VoiceRecorderContent = () => {
   return (
     <>
       <Box display="flex" justifyContent="space-between">
-        <Button
-          sx={{ mt: 2, cursor: 'pointer', color: 'secondary.main', textDecoration: 'underline', border: 'none', background: 'none' }}
-          onClick={discard}
-        >
+        <Button onClick={discard} color="secondary">
           Restart
         </Button>
-        <Button
-          sx={{ mt: 2, cursor: 'pointer', color: 'primary.main', textDecoration: 'underline', border: 'none', background: 'none' }}
-          onClick={recording ? stopRecording : startRecording}
-        >
+        <Button onClick={recording ? stopRecording : startRecording}>
           {recording ? 'Stop recording' : 'Start Recording'}
         </Button>
       </Box>

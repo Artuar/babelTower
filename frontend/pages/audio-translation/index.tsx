@@ -1,11 +1,12 @@
 import {useMemo, useState} from 'react';
-import { Box, Container, Grid, Typography, Button } from '@mui/material';
+import { Box, Container, Grid, Typography } from '@mui/material';
 import Layout from '../layout';
 import { FeatureArticle } from "../../components/FeatureArticle";
 import { TranslationModel } from "./types";
 import { FILE_MAX_SIZE, FILE_TYPE } from "./constants";
 import { InitialisationForm } from "../../components/InitialisationForm";
 import { Loading } from "../../components/Loading";
+import {Button} from "../../components/Button";
 
 const AudioTranslationContent: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -76,10 +77,7 @@ const AudioTranslationContent: React.FC = () => {
       <Box mt={4} textAlign="center" color="error.main">
         <Typography variant="body2">{error}</Typography>
       </Box>
-      <Button
-        sx={{ mt: 2, cursor: 'pointer', color: 'secondary.main', textDecoration: 'underline', border: 'none', background: 'none' }}
-        onClick={discard}
-      >
+      <Button color="secondary" onClick={discard}>
         Try new file
       </Button>
     </Box>
@@ -154,16 +152,10 @@ const AudioTranslationContent: React.FC = () => {
         Translated Audio
       </Typography>
       <audio controls src={translatedAudio}></audio>
-      <Button
-        sx={{ mt: 2, cursor: 'pointer', color: 'primary.main', textDecoration: 'underline', border: 'none', background: 'none' }}
-        onClick={handleDownload}
-      >
+      <Button onClick={handleDownload}>
         Download Translated Audio
       </Button>
-      <Button
-        sx={{ mt: 2, cursor: 'pointer', color: 'secondary.main', textDecoration: 'underline', border: 'none', background: 'none' }}
-        onClick={discard}
-      >
+      <Button color="secondary" onClick={discard}>
         Try new file
       </Button>
     </Box>

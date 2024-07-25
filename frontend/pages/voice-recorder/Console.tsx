@@ -18,7 +18,7 @@ export const Console: React.FC<ConsoleProps> = ({ processedDataList, recording }
         borderRadius: 1,
       }}
     >
-      <Box sx={{ color: '#c5b128', paddingY: 1 }}>{recording ? "..." : "Recording is turned off"}</Box>
+      <Box sx={{ color: '#c5b128', paddingY: 1, fontWeight: "bold" }}>{recording ? "Recording..." : "Recording is turned off"}</Box>
       {processedDataList.map((data, index) => {
         if (data.translated_text === "") {
           return <></>
