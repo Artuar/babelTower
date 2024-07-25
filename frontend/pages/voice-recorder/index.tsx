@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import io from 'socket.io-client';
 import { ProcessedData } from "./types";
 import Layout from "../layout";
-import { Box , Container } from "@mui/material";
+import { Box, Container } from "@mui/material";
 import { FeatureArticle } from "../../components/FeatureArticle";
 import { InitialisationForm } from "../../components/InitialisationForm";
 import { TranslationModel } from "../audio-translation/types";
@@ -16,15 +16,13 @@ const VoiceRecorderContent = () => {
   const [languageTo, setLanguageTo] = useState('ua');
   const [languageFrom, setLanguageFrom] = useState('en');
   const [modelName, setModelName] = useState<TranslationModel>('small');
-
   const [loading, setLoading] = useState(false);
-
   const [recording, setRecording] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const isContinue = useRef(false);
   const [processedData, setProcessedData] = useState<ProcessedData[]>([]);
-  const mediaRecorderRef = useRef(null);
-  const streamRef = useRef(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
     socket.on('audio_processed', (data) => {
@@ -36,6 +34,20 @@ const VoiceRecorderContent = () => {
     });
 
     socket.on('initialized', async () => {
+      await initializeMediaRecorder();
+      setIsInitialized(true);
+      setLoading(false);
+    });
+
+    return () => {
+      socket.off('audio_processed');
+      socket.off('error');
+      socket.off('initialized');
+    };
+  }, []);
+
+  const initializeMediaRecorder = async () => {
+    try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
 
@@ -54,32 +66,31 @@ const VoiceRecorderContent = () => {
 
       mediaRecorder.onstop = () => {
         if (isContinue.current) {
-          startRecordingSegment(); // Restart recording
+          startRecordingSegment();
         } else {
-          // Stop all tracks when recording stops
-          if (streamRef.current) {
-            streamRef.current.getTracks().forEach(track => track.stop());
-          }
+          stopAllTracks();
         }
       };
+    } catch (err) {
+      console.error("Error initializing media recorder", err);
+    }
+  };
 
-      setIsInitialized(true);
-      setLoading(false);
-    });
-
-    return () => {
-      socket.off('audio_processed');
-      socket.off('error');
-      socket.off('initialized');
-    };
-  }, []);
+  const stopAllTracks = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+    }
+  };
 
   const startRecordingSegment = () => {
-    const mediaRecorder = mediaRecorderRef.current;
-    mediaRecorder.start();
-    setTimeout(() => {
-      mediaRecorder.stop();
-    }, 500);
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.start();
+      setTimeout(() => {
+        if (mediaRecorderRef.current) {
+          mediaRecorderRef.current.stop();
+        }
+      }, 500);
+    }
   };
 
   useEffect(() => {
@@ -93,7 +104,8 @@ const VoiceRecorderContent = () => {
     }
   }, [recording]);
 
-  const startRecording = () => {
+  const startRecording = async () => {
+    await initializeMediaRecorder();
     setRecording(true);
     isContinue.current = true;
   };
@@ -103,13 +115,17 @@ const VoiceRecorderContent = () => {
   };
 
   const discard = () => {
-    setRecording(false)
-    setIsInitialized(null)
-    isContinue.current = false
-    setProcessedData([])
-    mediaRecorderRef.current = null
-    streamRef.current = null
-  }
+    setRecording(false);
+    setIsInitialized(false);
+    isContinue.current = false;
+    setProcessedData([]);
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
+    mediaRecorderRef.current = null;
+    stopAllTracks();
+    streamRef.current = null;
+  };
 
   const initializeModels = useCallback(() => {
     socket.emit('initialize', {
@@ -121,23 +137,25 @@ const VoiceRecorderContent = () => {
   }, [languageFrom, languageTo, modelName]);
 
   if (loading) {
-    return  <Loading text="Recorder preparing" />
+    return <Loading text="Recorder preparing" />;
   }
 
   if (!isInitialized) {
-    return <>
-      <InitialisationForm
-        languageFrom={languageFrom}
-        setLanguageFrom={setLanguageFrom}
-        languageTo={languageTo}
-        setLanguageTo={setLanguageTo}
-        modelName={modelName}
-        setModelName={setModelName}
-      />
-      <Button onClick={initializeModels} fullWidth>
-        Initialize recorder
-      </Button>
-    </>
+    return (
+      <>
+        <InitialisationForm
+          languageFrom={languageFrom}
+          setLanguageFrom={setLanguageFrom}
+          languageTo={languageTo}
+          setLanguageTo={setLanguageTo}
+          modelName={modelName}
+          setModelName={setModelName}
+        />
+        <Button onClick={initializeModels} fullWidth>
+          Initialize recorder
+        </Button>
+      </>
+    );
   }
 
   return (
@@ -166,7 +184,6 @@ const VoiceRecorder = () => {
           ]}
           imagePath="/record.png"
         />
-
         <VoiceRecorderContent />
       </Container>
     </Layout>
