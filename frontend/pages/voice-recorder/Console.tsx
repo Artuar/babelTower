@@ -48,12 +48,15 @@ export const Console: React.FC<ConsoleProps> = ({ processedDataList, recording }
                 display: 'grid',
                 gridTemplateColumns: '1fr 1fr auto',
                 gap: 1,
-                paddingTop: 1,
+                paddingY: 1,
                 borderBottom: '1px solid #444',
                 '&:hover': {
                   backgroundColor: '#444',
                 },
                 position: 'relative',
+                '&:hover .audio-control': {
+                  opacity: 1,
+                },
               }}
             >
               <Box sx={{ color: '#999' }}>
@@ -61,14 +64,15 @@ export const Console: React.FC<ConsoleProps> = ({ processedDataList, recording }
                 <div>delay: {data.synthesis_delay}</div>
               </Box>
               <Box>
-                <div style={{ color: '#fff' }}>{data.translated_text}</div>
+                <div style={{ color: '#fff', fontWeight: "bold" }}>{data.translated_text}</div>
                 <div style={{ color: '#999' }}>{data.original_text}</div>
               </Box>
               <Box
+                className="audio-control"
                 sx={{
                   alignSelf: 'end',
                   opacity: 0,
-                  '&:hover': { opacity: 1 },
+                  transition: 'opacity 0.3s',
                 }}
               >
                 <audio controls src={`data:audio/mp3;base64,${data.audio}`}></audio>

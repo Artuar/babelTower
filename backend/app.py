@@ -75,6 +75,9 @@ def handle_initialize(data):
     model_name = data.get('model_name', 'small')
     sample_rate = 24000
 
+    if language_from == 'en' and model_name != 'large':
+        model_name = f"{model_name}.en"
+
     audio_processor = AudioProcessor(language_to=language_to, language_from=language_from, model_name=model_name, sample_rate=sample_rate)
     emit('initialized', {"message": "Audio processor initialized"})
 
