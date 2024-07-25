@@ -19,13 +19,13 @@ export const Console: React.FC<ConsoleProps> = ({ processedDataList, recording }
       }}
     >
       <Box sx={{ color: '#c5b128', paddingY: 1, fontWeight: "bold" }}>{recording ? "Recording..." : "Recording is turned off"}</Box>
-      {processedDataList.map((data, index) => {
+      {processedDataList.map((data) => {
         if (data.translated_text === "") {
           return <></>
         }
 
         return <Box
-          key={index}
+          key={data.timestamp}
           sx={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr auto',
