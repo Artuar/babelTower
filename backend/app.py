@@ -19,7 +19,7 @@ audio_stream = []
 buffered_audio = []
 last_timestamp = None
 
-SILENCE_THRESHOLD = 300  # Adjust this value based on your requirements
+SILENCE_THRESHOLD = 500  # Adjust this value based on your requirements
 
 @app.route('/api/translate-audio', methods=['POST'])
 def translate_audio():

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
-import { Button, Card, CardActions, CardContent, Grid, Typography } from '@mui/material';
+import { Card, CardActions, CardContent, Grid, Typography } from '@mui/material';
 import Image from 'next/image';
+import {Button} from "./Button";
 
 interface FeatureProps {
   imagePath: string;
@@ -31,12 +32,13 @@ export const Feature: React.FC<FeatureProps> = ({ imagePath, title, description,
                 <Typography variant="body2" color="text.secondary">
                   {description}
                 </Typography>
-                {
-                  link &&
-                  <CardActions sx={{ paddingX: 0 }}>
-                    <Button size="small" href={link}>Try now</Button>
-                  </CardActions>
-                }
+                <CardActions sx={{ paddingX: 0 }}>
+                  {
+                    link ?
+                      <Button size="small" href={link}>Try now</Button> :
+                      <Typography variant="body2" color="secondary" mt={2}>IN PROGRESS...</Typography>
+                  }
+                </CardActions>
               </Grid>
             </Grid>
           </CardContent>

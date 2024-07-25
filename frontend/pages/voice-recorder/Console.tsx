@@ -9,7 +9,7 @@ interface ConsoleProps {
 // Define keyframes for pulsating animation
 const pulseAnimation = keyframes`
   0% { opacity: 1; }
-  50% { opacity: 0.5; }
+  50% { opacity: 0.2; }
   100% { opacity: 1; }
 `;
 
@@ -37,8 +37,8 @@ export const Console: React.FC<ConsoleProps> = ({ processedDataList, recording }
           {recording ? "Recording..." : "Recording is turned off"}
         </Box>
         {processedDataList.map((data) => {
-          if (data.translated_text === "") {
-            return <></>;
+          if (data.original_text === "") {
+            return null;
           }
 
           return (
@@ -72,7 +72,7 @@ export const Console: React.FC<ConsoleProps> = ({ processedDataList, recording }
                 sx={{
                   alignSelf: 'end',
                   opacity: 0,
-                  transition: 'opacity 0.3s',
+                  transition: 'opacity 0.5s',
                 }}
               >
                 <audio controls src={`data:audio/mp3;base64,${data.audio}`}></audio>

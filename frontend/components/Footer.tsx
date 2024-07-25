@@ -21,10 +21,10 @@ export const Footer: React.FC = () => {
             Features
           </Typography>
           <Typography variant="body2">
-            <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Global Conversations Made Easy</a><br />
+            <a href="/audio-translation" style={{ color: 'inherit', textDecoration: 'none' }}>Effortless Audio Translations</a>
+            <a href="/voice-recorder" style={{ color: 'inherit', textDecoration: 'none' }}>Speak and Translate Instantly</a><br />
             <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Instant Voice Messaging</a><br />
-            <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Speak and Translate Instantly</a><br />
-            <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Effortless Audio Translations</a>
+            <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Global Conversations Made Easy</a><br />
           </Typography>
         </Grid>
         <Grid item xs={12} md={4}>
