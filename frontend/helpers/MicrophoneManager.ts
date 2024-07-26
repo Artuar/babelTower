@@ -58,9 +58,7 @@ export class MicrophoneManager {
   }
 
   async startRecording() {
-    if (!this.stream || !this.mediaRecorder) {
-      throw Error("MicrophoneManager is not initialized")
-    }
+    await this.initialize();
     this.isRecording = true;
     this.isContinue = true;
     this.startRecordingSegment();

@@ -36,7 +36,6 @@ const VoiceRecorderContent = () => {
       micManagerRef.current = new MicrophoneManager((audio) => {
         socket.emit('audio_data', { audio });
       });
-      await micManagerRef.current.initialize();
       setIsInitialized(true);
       setLoading(false);
     });
