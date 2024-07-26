@@ -9,6 +9,7 @@ import { TranslationModel } from "../audio-translation/types";
 import { Loading } from "../../components/Loading";
 import { Console } from "./Console";
 import { Button } from "../../components/Button";
+import { MicrophoneManager } from '../../helpers/MicrophoneManager';
 
 const socket = io('http://127.0.0.1:5000');
 
@@ -19,10 +20,8 @@ const VoiceRecorderContent = () => {
   const [loading, setLoading] = useState(false);
   const [recording, setRecording] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
-  const isContinue = useRef(false);
   const [processedData, setProcessedData] = useState<ProcessedData[]>([]);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
+  const micManagerRef = useRef<MicrophoneManager | null>(null);
 
   useEffect(() => {
     socket.on('audio_processed', (data) => {
@@ -34,7 +33,10 @@ const VoiceRecorderContent = () => {
     });
 
     socket.on('initialized', async () => {
-      await initializeMediaRecorder();
+      micManagerRef.current = new MicrophoneManager((audio) => {
+        socket.emit('audio_data', { audio });
+      });
+      await micManagerRef.current.initialize();
       setIsInitialized(true);
       setLoading(false);
     });
@@ -46,85 +48,22 @@ const VoiceRecorderContent = () => {
     };
   }, []);
 
-  const initializeMediaRecorder = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      streamRef.current = stream;
-
-      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-      mediaRecorderRef.current = mediaRecorder;
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          const reader = new FileReader();
-          reader.readAsDataURL(event.data);
-          reader.onloadend = () => {
-            socket.emit('audio_data', { audio: reader.result });
-          };
-        }
-      };
-
-      mediaRecorder.onstop = () => {
-        if (isContinue.current) {
-          startRecordingSegment();
-        } else {
-          stopAllTracks();
-        }
-      };
-    } catch (err) {
-      console.error("Error initializing media recorder", err);
-    }
-  };
-
-  const stopAllTracks = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-    }
-  };
-
-  const startRecordingSegment = () => {
-    if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.start();
-      setTimeout(() => {
-        if (mediaRecorderRef.current) {
-          mediaRecorderRef.current.stop();
-        }
-      }, 500);
-    }
-  };
-
-  useEffect(() => {
-    if (recording) {
-      startRecordingSegment();
-    } else {
-      isContinue.current = false;
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-        mediaRecorderRef.current.stop();
-      }
-    }
-  }, [recording]);
-
   const startRecording = async () => {
-    await initializeMediaRecorder();
+    await micManagerRef.current.startRecording();
     setRecording(true);
-    isContinue.current = true;
   };
 
   const stopRecording = () => {
+    micManagerRef.current.stopRecording();
     setRecording(false);
   };
 
   const discard = () => {
+    micManagerRef.current.destroy();
+    micManagerRef.current = null;
     setRecording(false);
     setIsInitialized(false);
-    isContinue.current = false;
     setProcessedData([]);
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      mediaRecorderRef.current.stop();
-    }
-    mediaRecorderRef.current = null;
-    stopAllTracks();
-    streamRef.current = null;
   };
 
   const initializeModels = useCallback(() => {

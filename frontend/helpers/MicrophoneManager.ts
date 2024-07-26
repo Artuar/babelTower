@@ -1,0 +1,83 @@
+type MicrophoneManagerCallback = (data: string | ArrayBuffer) => void;
+
+export class MicrophoneManager {
+  private mediaRecorder: MediaRecorder | null = null;
+  private stream: MediaStream | null = null;
+  private isRecording: boolean = false;
+  private isContinue: boolean = false;
+  private readonly callback: MicrophoneManagerCallback;
+  private readonly segmentTimeout: number;
+
+  constructor(callback: MicrophoneManagerCallback, segmentTimeout = 500) {
+    this.callback = callback;
+    this.segmentTimeout = segmentTimeout;
+  }
+
+  async initialize() {
+    try {
+      this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this.mediaRecorder = new MediaRecorder(this.stream, { mimeType: 'audio/webm' });
+
+      this.mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          const reader = new FileReader();
+          reader.readAsDataURL(event.data);
+          reader.onloadend = () => {
+            this.callback(reader.result);
+          };
+        }
+      };
+
+      this.mediaRecorder.onstop = () => {
+        if (this.isContinue) {
+          this.startRecordingSegment();
+        } else {
+          this.stopAllTracks();
+        }
+      };
+    } catch (err) {
+      console.error("Error initializing media recorder", err);
+    }
+  }
+
+  private stopAllTracks() {
+    if (this.stream) {
+      this.stream.getTracks().forEach(track => track.stop());
+    }
+  }
+
+  private startRecordingSegment() {
+    if (this.mediaRecorder) {
+      this.mediaRecorder.start();
+      setTimeout(() => {
+        if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+          this.mediaRecorder.stop();
+        }
+      }, this.segmentTimeout);
+    }
+  }
+
+  async startRecording() {
+    if (!this.stream || !this.mediaRecorder) {
+      throw Error("MicrophoneManager is not initialized")
+    }
+    this.isRecording = true;
+    this.isContinue = true;
+    this.startRecordingSegment();
+  }
+
+  stopRecording() {
+    this.isRecording = false;
+    this.isContinue = false;
+    if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+      this.mediaRecorder.stop();
+    }
+  }
+
+  destroy() {
+    this.stopRecording();
+    this.mediaRecorder = null;
+    this.stopAllTracks();
+    this.stream = null;
+  }
+}
