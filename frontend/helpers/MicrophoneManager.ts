@@ -7,10 +7,12 @@ export class MicrophoneManager {
   private isContinue: boolean = false;
   private readonly callback: MicrophoneManagerCallback;
   private readonly segmentTimeout: number;
+  private reader: FileReader;
 
   constructor(callback: MicrophoneManagerCallback, segmentTimeout = 500) {
     this.callback = callback;
     this.segmentTimeout = segmentTimeout;
+    this.reader = new FileReader();
   }
 
   async initialize() {
@@ -20,10 +22,9 @@ export class MicrophoneManager {
 
       this.mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
-          const reader = new FileReader();
-          reader.readAsDataURL(event.data);
-          reader.onloadend = () => {
-            this.callback(reader.result);
+          this.reader.readAsDataURL(event.data);
+          this.reader.onloadend = () => {
+            this.callback(this.reader.result);
           };
         }
       };
