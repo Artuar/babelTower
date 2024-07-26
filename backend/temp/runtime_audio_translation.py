@@ -80,8 +80,8 @@ def main():
         except KeyboardInterrupt:
             break
 
-    os.makedirs('../audio', exist_ok=True)
-    sf.write('../audio/translated_audio.wav', np.array(audio_stream), args.sample_rate)
+    os.makedirs('../../audio', exist_ok=True)
+    sf.write('../../audio/translated_audio.wav', np.array(audio_stream), args.sample_rate)
 
 if __name__ == "__main__":
     main()

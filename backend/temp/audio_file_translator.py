@@ -36,4 +36,4 @@ def process_local_audio(
         print(f"Error during synthesis: {e}")
 
 # Calling the function to process the local file
-process_local_audio('../audio/taken.mp3', '../audio/translated_audio.wav')
+process_local_audio('../../audio/taken.mp3', '../audio/translated_audio.wav')
