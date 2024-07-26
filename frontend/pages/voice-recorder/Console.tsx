@@ -36,11 +36,10 @@ export const Console: React.FC<ConsoleProps> = ({ processedDataList, recording }
         >
           {recording ? "Recording..." : "Recording is turned off"}
         </Box>
-        {processedDataList.map((data) => {
-          if (data.original_text === "") {
-            return null;
-          }
-
+        {processedDataList
+          .filter((data => data.original_text !== ""))
+          .sort((a, b) => a.timestamp < b.timestamp ? 1 : -1)
+          .map((data) => {
           return (
             <Box
               key={data.timestamp}
