@@ -3,10 +3,12 @@ from flask_cors import CORS
 import base64
 import numpy as np
 from pydub import AudioSegment
-from datetime import datetime, timedelta
+from datetime import datetime
 import soundfile as sf
 from io import BytesIO
 from flask_socketio import SocketIO, emit
+from pyngrok import ngrok, conf
+import argparse
 
 from babylon_sts import AudioProcessor
 
@@ -165,5 +167,24 @@ def save_raw_audio_to_file(audio_data, filename, format='WAV'):
     sf.write(filename, audio_array, sample_rate, format=format)
 
 if __name__ == '__main__':
-    app.run(debug=True)
-    socketio.run(app, debug=True)
+    parser = argparse.ArgumentParser(description='Run Babylon Tower application.')
+    parser.add_argument('--port', type=int, default=5000, help='Port number')
+    parser.add_argument('--ngrok_token', type=str, default="", help='NGROK token')
+    parser.add_argument('--is_debug', type=int, default=1, help='Use debug mode')
+    args = parser.parse_args()
+
+    PORT = args.port
+    NGROK_TOKEN = args.ngrok_token
+    IS_DEBUG = args.is_debug
+
+    if NGROK_TOKEN:
+        conf.get_default().auth_token = NGROK_TOKEN
+        # Close existing tunnels to avoid error
+        for tunnel in ngrok.get_tunnels():
+            ngrok.disconnect(tunnel.public_url)
+        # run ngrok tunnel
+        public_url = ngrok.connect(PORT)
+        print(" * ngrok URL:", public_url)
+
+    app.run(debug=IS_DEBUG, port=PORT)
+    socketio.run(app, debug=IS_DEBUG, port=PORT)

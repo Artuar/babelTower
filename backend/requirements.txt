@@ -4,7 +4,6 @@ flask-socketio==5.3.6
 
 argparse==1.4.0
 numpy==1.26.4
-speechrecognition==3.10.4
 openai-whisper==20231117
 torch==2.3.1
 soundfile==0.12.1
@@ -17,5 +16,7 @@ pyaudio==0.2.14
 
 sentencepiece==0.2.0
 protobuf==5.27.2
+
+ngrok==7.2.0
 
 git+https://github.com/Artuar/babylon_sts.git
