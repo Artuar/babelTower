@@ -1,5 +1,5 @@
 import { Box, keyframes } from "@mui/material";
-import { ProcessedData } from "./types";
+import { ProcessedData } from "../types/types";
 
 interface ConsoleProps {
   processedDataList: ProcessedData[];

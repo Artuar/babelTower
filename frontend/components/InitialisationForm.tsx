@@ -1,5 +1,5 @@
 import {Grid, Input, MenuItem, Select, Typography} from "@mui/material";
-import { TranslationModel } from "../pages/audio-translation/types";
+import { TranslationModel } from "../types/types";
 
 interface InitialisationFormProps {
   languageFrom: string
