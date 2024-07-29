@@ -7,7 +7,7 @@ from datetime import datetime
 import soundfile as sf
 from io import BytesIO
 from flask_socketio import SocketIO, emit
-from pyngrok import ngrok, conf
+from pyngrok import ngrok
 import argparse
 
 from babylon_sts import AudioProcessor
@@ -178,7 +178,7 @@ if __name__ == '__main__':
     IS_DEBUG = args.is_debug
 
     if NGROK_TOKEN:
-        conf.get_default().auth_token = NGROK_TOKEN
+        ngrok.set_auth_token(NGROK_TOKEN)
         # Close existing tunnels to avoid error
         for tunnel in ngrok.get_tunnels():
             ngrok.disconnect(tunnel.public_url)
