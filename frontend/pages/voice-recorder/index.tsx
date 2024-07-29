@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import io from 'socket.io-client';
 import { ProcessedData } from "./types";
 import Layout from "../layout";
 import { Box, Container } from "@mui/material";
@@ -11,7 +10,7 @@ import { Console } from "./Console";
 import { Button } from "../../components/Button";
 import { MicrophoneManager } from '../../helpers/MicrophoneManager';
 
-const socket = io('http://127.0.0.1:5000');
+const wsUrl = 'ws://127.0.0.1:5000/ws';
 
 const VoiceRecorderContent = () => {
   const [languageTo, setLanguageTo] = useState('ua');
@@ -22,43 +21,51 @@ const VoiceRecorderContent = () => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [processedData, setProcessedData] = useState<ProcessedData[]>([]);
   const micManagerRef = useRef<MicrophoneManager | null>(null);
+  const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    socket.on('audio_processed', (data) => {
-      setProcessedData((current) => ([data, ...current]));
-    });
+    socketRef.current = new WebSocket(wsUrl);
 
-    socket.on('error', (data) => {
-      console.error(data.error);
-    });
+    socketRef.current.onopen = function(event) {
+      console.log("Connected to WebSocket server.");
+    };
 
-    socket.on('initialized', async () => {
-      micManagerRef.current = new MicrophoneManager((audio) => {
-        socket.emit('audio_data', { audio });
-      });
-      setIsInitialized(true);
-      setLoading(false);
-    });
+    socketRef.current.onmessage = function(event) {
+      const data = JSON.parse(event.data);
+      if (data.type === 'audio_processed') {
+        setProcessedData((current) => ([data.payload, ...current]));
+      } else if (data.type === 'error') {
+        console.error(data.payload.error);
+      } else if (data.type === 'initialized') {
+        micManagerRef.current = new MicrophoneManager((audio) => {
+          socketRef.current?.send(JSON.stringify({ type: 'audio_data', payload: { audio } }));
+        });
+        setIsInitialized(true);
+        setLoading(false);
+      }
+    };
+
+    socketRef.current.onclose = function(event) {
+      console.log("Disconnected from WebSocket server.");
+    };
 
     return () => {
-      socket.off('audio_processed');
-      socket.off('error');
-      socket.off('initialized');
+      socketRef.current?.close();
     };
   }, []);
 
   const startRecording = async () => {
-    await micManagerRef.current.startRecording();
+    await micManagerRef.current?.startRecording();
     setRecording(true);
   };
 
   const stopRecording = () => {
-    micManagerRef.current.stopRecording();
+    micManagerRef.current?.stopRecording();
     setRecording(false);
   };
 
   const discard = () => {
-    micManagerRef.current.destroy();
+    micManagerRef.current?.destroy();
     micManagerRef.current = null;
     setRecording(false);
     setIsInitialized(false);
@@ -66,11 +73,14 @@ const VoiceRecorderContent = () => {
   };
 
   const initializeModels = useCallback(() => {
-    socket.emit('initialize', {
-      language_to: languageTo,
-      language_from: languageFrom,
-      model_name: modelName
-    });
+    socketRef.current?.send(JSON.stringify({
+      type: 'initialize',
+      payload: {
+        language_to: languageTo,
+        language_from: languageFrom,
+        model_name: modelName
+      }
+    }));
     setLoading(true);
   }, [languageFrom, languageTo, modelName]);
 
