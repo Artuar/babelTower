@@ -10,7 +10,7 @@ import { Console } from "./Console";
 import { Button } from "../../components/Button";
 import { MicrophoneManager } from '../../helpers/MicrophoneManager';
 
-const wsUrl = 'ws://127.0.0.1:5000/ws';
+const wsUrl = 'wss://af6e-34-82-197-233.ngrok-free.app/socket.io/?transport=websocket';
 
 const VoiceRecorderContent = () => {
   const [languageTo, setLanguageTo] = useState('ua');
