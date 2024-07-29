@@ -11,6 +11,7 @@ import soundfile as sf
 from io import BytesIO
 from pyngrok import ngrok
 import argparse
+import requests
 
 from babylon_sts import AudioProcessor
 
@@ -170,5 +171,12 @@ if __name__ == '__main__':
         tunnel = ngrok.connect(addr="127.0.0.1:{}".format("5000"), proto="http", bind_tls=True)
         public_url = tunnel.public_url
         print(" * ngrok URL:", public_url)
+
+        # send server url to front app
+        response = requests.post('https://babel-tower.vercel.app/api/server-url', json={'serverUrl': public_url})
+        if response.status_code == 200:
+            print("Server URL updated successfully on Next.js API")
+        else:
+            print("Failed to update Server URL on Next.js API")
 
     asyncio.run(start_server())
