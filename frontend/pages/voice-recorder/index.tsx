@@ -98,16 +98,8 @@ const VoiceRecorderContent = () => {
           setLanguageTo={setLanguageTo}
           modelName={modelName}
           setModelName={setModelName}
-        />
-        <Typography variant="h6" gutterBottom mt={1}>
-          Server link
-        </Typography>
-        <Input
-          sx={{ p: 1, border: 1, borderRadius: 1, borderColor: "rgba(0, 0, 0, 0.3)" }}
-          disableUnderline
-          onChange={(event) => setUrl(event.currentTarget.value)}
-          value={url}
-          fullWidth
+          serverUrl={url}
+          setServerUrl={setUrl}
         />
         <Button onClick={initializeModels} fullWidth>
           Initialize recorder
