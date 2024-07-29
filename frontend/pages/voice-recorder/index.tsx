@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { ProcessedData } from "./types";
 import Layout from "../layout";
-import { Box, Container } from "@mui/material";
+import {Box, Container, Input, Typography} from "@mui/material";
 import { FeatureArticle } from "../../components/FeatureArticle";
 import { InitialisationForm } from "../../components/InitialisationForm";
 import { TranslationModel } from "../audio-translation/types";
@@ -10,12 +10,11 @@ import { Console } from "./Console";
 import { Button } from "../../components/Button";
 import { MicrophoneManager } from '../../helpers/MicrophoneManager';
 
-const wsUrl = 'wss://af6e-34-82-197-233.ngrok-free.app/socket.io/?transport=websocket';
-
 const VoiceRecorderContent = () => {
   const [languageTo, setLanguageTo] = useState('ua');
   const [languageFrom, setLanguageFrom] = useState('en');
   const [modelName, setModelName] = useState<TranslationModel>('small');
+  const [url, setUrl] = useState<string>('http://127.0.0.1:5000');
   const [loading, setLoading] = useState(false);
   const [recording, setRecording] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -24,7 +23,8 @@ const VoiceRecorderContent = () => {
   const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    socketRef.current = new WebSocket(wsUrl);
+    const formattedUrl = url.replace("http", "ws")
+    socketRef.current = new WebSocket(`${formattedUrl}/socket.io/?transport=websocket`);
 
     socketRef.current.onopen = function(event) {
       console.log("Connected to WebSocket server.");
@@ -52,7 +52,7 @@ const VoiceRecorderContent = () => {
     return () => {
       socketRef.current?.close();
     };
-  }, []);
+  }, [url]);
 
   const startRecording = async () => {
     await micManagerRef.current?.startRecording();
@@ -98,6 +98,16 @@ const VoiceRecorderContent = () => {
           setLanguageTo={setLanguageTo}
           modelName={modelName}
           setModelName={setModelName}
+        />
+        <Typography variant="h6" gutterBottom mt={1}>
+          Server link
+        </Typography>
+        <Input
+          sx={{ p: 1, border: 1, borderRadius: 1, borderColor: "rgba(0, 0, 0, 0.3)" }}
+          disableUnderline
+          onChange={(event) => setUrl(event.currentTarget.value)}
+          value={url}
+          fullWidth
         />
         <Button onClick={initializeModels} fullWidth>
           Initialize recorder
