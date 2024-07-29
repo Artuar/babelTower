@@ -13,6 +13,8 @@ interface InitialisationFormProps {
   setServerUrl: (language: string) => void
 }
 
+const DEFAULT_URL = 'http://127.0.0.1:5000'
+
 export const InitialisationForm: React.FC<InitialisationFormProps> = ({
   languageFrom,
   setLanguageFrom,
@@ -100,7 +102,7 @@ export const InitialisationForm: React.FC<InitialisationFormProps> = ({
         <Input
           sx={{ p: 1, border: 1, borderRadius: 1, borderColor: "rgba(0, 0, 0, 0.3)" }}
           disableUnderline
-          onChange={(event) => setServerUrl(event.currentTarget.value)}
+          onChange={(event) => setServerUrl(event.currentTarget.value || DEFAULT_URL)}
           value={serverUrl}
           fullWidth
         />
