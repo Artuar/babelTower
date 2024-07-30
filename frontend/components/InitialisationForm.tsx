@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
-import { Grid, Input, MenuItem, Select, Typography } from "@mui/material";
+import {Grid, IconButton, Input, InputAdornment, MenuItem, Select, Typography} from "@mui/material";
 import { TranslationModel } from "../types/types";
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 interface InitialisationFormProps {
   languageFrom: string
@@ -105,6 +106,14 @@ export const InitialisationForm: React.FC<InitialisationFormProps> = ({
           onChange={(event) => setServerUrl(event.currentTarget.value || DEFAULT_URL)}
           value={serverUrl}
           fullWidth
+          endAdornment={
+            serverUrl !== DEFAULT_URL &&
+            <InputAdornment position="end">
+              <IconButton onClick={() => window.open(serverUrl, '_blank')}>
+                <OpenInNewIcon />
+              </IconButton>
+            </InputAdornment>
+          }
         />
       </Grid>
     </>
