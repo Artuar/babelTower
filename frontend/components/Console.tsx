@@ -44,9 +44,8 @@ export const Console: React.FC<ConsoleProps> = ({ processedDataList, recording }
             <Box
               key={data.timestamp}
               sx={{
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr auto' },
-                gap: 1,
+                display: 'flex',
+                flexDirection: { xs: 'column', md: 'row' },
                 paddingY: 1,
                 borderBottom: '1px solid #444',
                 '&:hover': {
@@ -58,22 +57,31 @@ export const Console: React.FC<ConsoleProps> = ({ processedDataList, recording }
                 },
               }}
             >
-              <Box sx={{ color: '#999' }}>
-                <div>{data.timestamp}</div>
-                <div>delay: {data.synthesis_delay}</div>
+              <Box sx={{
+                color: '#999',
+                mt: 1,
+                mr: { xs: 0, md: 1 },
+                display: 'flex',
+                flexDirection: { xs: 'row', md: 'column' },
+                justifyContent: { xs: 'space-between', md: 'flex-start' }
+              }}>
+                <Box sx={{ whiteSpace: "nowrap" }}>{data.timestamp}</Box>
+                <Box sx={{ marginLeft: { xs: 2, md: 0 } }}>delay: {data.synthesis_delay}</Box>
               </Box>
-              <Box>
+              <Box sx={{ mt: 1 }}>
                 <div style={{ color: '#fff', fontWeight: 'bold' }}>{data.translated_text}</div>
                 <div style={{ color: '#999' }}>{data.original_text}</div>
               </Box>
               <Box
                 className="audio-control"
                 sx={{
-                  alignSelf: "center",
-                  justifySelf: "center",
+                  display: "flex",
+                  flex: 1,
+                  mt: 1,
                   opacity: 0.2,
+                  justifyContent: { xs: 'center', md: 'flex-end' },
+                  alignSelf: "center",
                   transition: 'opacity 0.5s',
-                  gridColumn: { xs: 'span 2', sm: 'auto' }, // Ensure it spans across two columns on mobile
                 }}
               >
                 <audio controls src={`data:audio/mp3;base64,${data.audio}`}></audio>
