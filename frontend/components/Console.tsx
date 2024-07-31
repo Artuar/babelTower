@@ -69,8 +69,8 @@ export const Console: React.FC<ConsoleProps> = ({ processedDataList, recording }
               <Box
                 className="audio-control"
                 sx={{
-                  alignSelf: 'end',
-                  opacity: 0,
+                  alignSelf: 'center',
+                  opacity: 0.2,
                   transition: 'opacity 0.5s',
                 }}
               >

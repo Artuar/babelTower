@@ -1,7 +1,0 @@
-language: Auto
-max_record_time: 30
-microphone_index: 0
-seconds_of_silence_between_lines: 0.5
-speech_model: base
-transcribe_rate: 0.5
-volume_threshold: 300
