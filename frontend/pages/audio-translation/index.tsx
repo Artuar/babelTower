@@ -47,7 +47,7 @@ const AudioTranslationContent: React.FC = () => {
     return () => {
       socketInstance.close();
     };
-  }, []);
+  }, [url]);
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

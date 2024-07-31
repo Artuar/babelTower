@@ -10,8 +10,7 @@ import { Console } from "../../components/Console";
 import { Button } from "../../components/Button";
 import { MicrophoneManager } from '../../helpers/MicrophoneManager';
 import { PUBLIC_URL } from "../../constants/constants";
-import {ErrorBlock} from "../../components/ErrorBlock";
-import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import { ErrorBlock } from "../../components/ErrorBlock";
 
 const VoiceRecorderContent: React.FC = () => {
   const [languageTo, setLanguageTo] = useState('ua');

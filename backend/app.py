@@ -68,6 +68,7 @@ def process_buffered_audio(base64_audio: str):
             "original_text": log_data['original_text'],
             "translated_text": log_data['translated_text'],
             "synthesis_delay": log_data['synthesis_delay'],
+            "recognize_result": log_data['recognize_result'],
             "audio": processed_file_base64
         }
     except Exception as e:
@@ -159,12 +160,18 @@ async def websocket_handler(websocket):
                 output_io = BytesIO()
                 sf.write(output_io, final_audio, sample_rate, format='mp3')
                 processed_file_base64 = base64.b64encode(output_io.getvalue()).decode('utf-8')
+
+                log_data["timestamp"] = log_data["timestamp"].isoformat()
+
             except ValueError as e:
                 print(f"Error during synthesis: {e}")
                 await websocket.send(json.dumps({'type': 'error', 'payload': {"error": f"Error during synthesis: {e}"}}))
                 return
 
-            await websocket.send(json.dumps({'type': 'translated_audio', 'payload': {"translatedAudio": f"data:audio/mpeg;base64,{processed_file_base64}"}}))
+            await websocket.send(json.dumps({'type': 'translated_audio', 'payload': {
+                "translatedAudio": f"data:audio/mpeg;base64,{processed_file_base64}",
+                "logData": log_data,
+            }}))
 
 async def start_server():
     server = await websockets.serve(websocket_handler, "127.0.0.1", 5000)
