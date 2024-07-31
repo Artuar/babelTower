@@ -42,6 +42,7 @@ const AudioTranslationContent: React.FC = () => {
 
     socketInstance.onclose = () => {
       console.log("Disconnected from WebSocket server.");
+      setSocket(null);
     };
 
     return () => {
@@ -73,7 +74,7 @@ const AudioTranslationContent: React.FC = () => {
       };
       reader.readAsDataURL(file);
     } else {
-      alert('Please select an MP3 file under 100MB.');
+      alert('Please select an MP3 file under 10MB.');
     }
   };
 
@@ -119,46 +120,51 @@ const AudioTranslationContent: React.FC = () => {
         serverUrl={url}
         setServerUrl={setUrl}
       />
-      <Grid container paddingY={4}>
-        <Grid item xs={12}>
-          <Box
-            p={2}
-            height="200px"
-            border="1px dashed grey"
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            flexDirection="column"
-            onDrop={(e) => {
-              e.preventDefault();
-              handleFileChange(e as unknown as React.ChangeEvent<HTMLInputElement>);
-            }}
-            onDragOver={(e) => e.preventDefault()}
-          >
-            <Typography>Drop your MP3 file here or click to upload</Typography>
-            <input
-              type="file"
-              accept="audio/mpeg"
-              style={{display: 'none'}}
-              id="upload-button"
-              onChange={handleFileChange}
-            />
-            <label htmlFor="upload-button">
-              <Box
-                component="span"
-                sx={{mt: 2, cursor: 'pointer', color: 'primary.main', textDecoration: 'underline'}}
-              >
-                Choose File
-              </Box>
-            </label>
-            {selectedFile && (
-              <Typography variant="body2" mt={2}>
-                Selected file: {selectedFile.name}
-              </Typography>
-            )}
-          </Box>
+
+      {
+        socket === null ?
+        <Loading text="Connection to server" /> :
+        <Grid container paddingY={4}>
+          <Grid item xs={12}>
+            <Box
+              p={2}
+              height="200px"
+              border="1px dashed grey"
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              flexDirection="column"
+              onDrop={(e) => {
+                e.preventDefault();
+                handleFileChange(e as unknown as React.ChangeEvent<HTMLInputElement>);
+              }}
+              onDragOver={(e) => e.preventDefault()}
+            >
+              <Typography>Drop your MP3 file here or click to upload</Typography>
+              <input
+                type="file"
+                accept="audio/mpeg"
+                style={{display: 'none'}}
+                id="upload-button"
+                onChange={handleFileChange}
+              />
+              <label htmlFor="upload-button">
+                <Box
+                  component="span"
+                  sx={{mt: 2, cursor: 'pointer', color: 'primary.main', textDecoration: 'underline'}}
+                >
+                  Choose File
+                </Box>
+              </label>
+              {selectedFile && (
+                <Typography variant="body2" mt={2}>
+                  Selected file: {selectedFile.name}
+                </Typography>
+              )}
+            </Box>
+          </Grid>
         </Grid>
-      </Grid>
+      }
     </>
   }
 

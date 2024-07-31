@@ -17,16 +17,16 @@ const Home: React.FC = () => {
 
       <Grid container spacing={4}>
         <Feature
-          imagePath="/audio.png"
-          title="Effortless Audio Translations"
-          description="Easily translate audio files with our intuitive tool. Upload your audio and receive accurate translations in no time. This feature allows users to upload their audio files and translate the conversation within them into any of the supported languages. The background sounds are preserved during the translation process, ensuring the original context and ambiance remain intact."
-          link="/audio-translation"
-        />
-        <Feature
           imagePath="/record.png"
           title="Speak and Translate Instantly"
           description="Enhance your note-taking and subtitling process with our cutting-edge feature. Dictate your messages using your voice and instantly receive both translated text and synthesized audio in your chosen language. Perfect for creating notes or subtitles on the go, this feature ensures you capture and translate your thoughts quickly and accurately. Speak, translate, and listen with ease, making your workflow more efficient and effective."
           link="/voice-recorder"
+        />
+        <Feature
+          imagePath="/audio.png"
+          title="Effortless Audio Translations"
+          description="Easily translate audio files with our intuitive tool. Upload your audio and receive accurate translations in no time. This feature allows users to upload their audio files and translate the conversation within them into any of the supported languages. The background sounds are preserved during the translation process, ensuring the original context and ambiance remain intact."
+          link="/audio-translation"
         />
         <Feature
           imagePath="/walkytalky.png"
