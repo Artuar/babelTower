@@ -25,9 +25,22 @@ last_timestamp = None
 
 SILENCE_THRESHOLD = 500  # Adjust this value based on your requirements
 
+
 def is_silent(data_chunk):
     audio_samples = np.frombuffer(data_chunk, dtype=np.int16)
     return np.mean(np.abs(audio_samples)) < SILENCE_THRESHOLD
+
+
+def default_result(base64_audio: str, error=""):
+    return {
+        "timestamp": last_timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+        "original_text": "",
+        "translated_text": "",
+        "synthesis_delay": 0,
+        "audio": base64_audio,
+        "error": error
+    }
+
 
 def process_buffered_audio(base64_audio: str):
     global audio_processor, buffered_audio, audio_stream
@@ -39,13 +52,7 @@ def process_buffered_audio(base64_audio: str):
     buffered_audio = []
 
     if is_silent(combined_audio):
-        return {
-            "timestamp": last_timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-            "original_text": "",
-            "translated_text": "",
-            "synthesis_delay": 0,
-            "audio": base64_audio
-        }
+        return default_result(base64_audio, "Audio to silent")
 
     timestamp = datetime.utcnow()
 
@@ -65,16 +72,10 @@ def process_buffered_audio(base64_audio: str):
         }
     except Exception as e:
         print(f"Translation error: {e}")
-        return {
-            "timestamp": last_timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-            "original_text": "",
-            "translated_text": "",
-            "synthesis_delay": 0,
-            "audio": base64_audio,
-            "error": e
-        }
+        return default_result(base64_audio, str(e))
 
-async def websocket_handler(websocket, path):
+
+async def websocket_handler(websocket):
     global audio_processor, audio_stream, buffered_audio, last_timestamp
 
     async for message in websocket:

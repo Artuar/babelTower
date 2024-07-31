@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { ProcessedData } from "../../types/types";
 import Layout from "../layout";
-import { Box, Container } from "@mui/material";
+import {Box, Container, IconButton, Typography} from "@mui/material";
 import { FeatureArticle } from "../../components/FeatureArticle";
 import { InitialisationForm } from "../../components/InitialisationForm";
 import { TranslationModel } from "../../types/types";
@@ -11,6 +11,7 @@ import { Button } from "../../components/Button";
 import { MicrophoneManager } from '../../helpers/MicrophoneManager';
 import { PUBLIC_URL } from "../../constants/constants";
 import {ErrorBlock} from "../../components/ErrorBlock";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 
 const VoiceRecorderContent: React.FC = () => {
   const [languageTo, setLanguageTo] = useState('ua');
@@ -24,13 +25,15 @@ const VoiceRecorderContent: React.FC = () => {
   const micManagerRef = useRef<MicrophoneManager | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isConnected, setIsConnected] = useState<boolean>(false)
 
-  useEffect(() => {
+  const connect = useCallback(() => {
     const formattedUrl = url.replace("http", "ws")
     socketRef.current = new WebSocket(`${formattedUrl}/socket.io/?transport=websocket`);
 
     socketRef.current.onopen = function(event) {
       console.log("Connected to WebSocket server.");
+      setIsConnected(true)
     };
 
     socketRef.current.onmessage = function(event) {
@@ -50,7 +53,12 @@ const VoiceRecorderContent: React.FC = () => {
 
     socketRef.current.onclose = function(event) {
       console.log("Disconnected from WebSocket server.");
+      setIsConnected(false)
     };
+  }, [url])
+
+  useEffect(() => {
+    connect()
 
     return () => {
       socketRef.current?.close();
@@ -68,6 +76,7 @@ const VoiceRecorderContent: React.FC = () => {
   };
 
   const discard = () => {
+    socketRef.current?.close();
     micManagerRef.current?.destroy();
     micManagerRef.current = null;
     setRecording(false);
@@ -75,6 +84,7 @@ const VoiceRecorderContent: React.FC = () => {
     setProcessedData([]);
     setError(null)
     setLoading(false)
+    connect()
   };
 
   const initializeModels = useCallback(() => {
@@ -115,9 +125,17 @@ const VoiceRecorderContent: React.FC = () => {
           serverUrl={url}
           setServerUrl={setUrl}
         />
-        <Button onClick={initializeModels} fullWidth>
-          Initialize recorder
-        </Button>
+        {
+          isConnected ?
+            <Button onClick={initializeModels} fullWidth>
+              Initialize recorder
+            </Button> :
+            <Box mt={4} textAlign="center" color="error.main">
+              <Typography variant="body2">
+                Check connection to server
+              </Typography>
+            </Box>
+        }
       </>
     );
   }
