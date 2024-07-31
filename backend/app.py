@@ -48,19 +48,31 @@ def process_buffered_audio(base64_audio: str):
         }
 
     timestamp = datetime.utcnow()
-    final_audio, log_data = audio_processor.process_audio(timestamp, combined_audio)
-    audio_stream.extend(final_audio)
-    output_io = BytesIO()
-    sf.write(output_io, final_audio, 24000, format='mp3')
-    processed_file_base64 = base64.b64encode(output_io.getvalue()).decode('utf-8')
 
-    return {
-        "timestamp": log_data['timestamp'].strftime('%Y-%m-%d %H:%M:%S'),
-        "original_text": log_data['original_text'],
-        "translated_text": log_data['translated_text'],
-        "synthesis_delay": log_data['synthesis_delay'],
-        "audio": processed_file_base64
-    }
+    try:
+        final_audio, log_data = audio_processor.process_audio(timestamp, combined_audio)
+        audio_stream.extend(final_audio)
+        output_io = BytesIO()
+        sf.write(output_io, final_audio, 24000, format='mp3')
+        processed_file_base64 = base64.b64encode(output_io.getvalue()).decode('utf-8')
+
+        return {
+            "timestamp": log_data['timestamp'].strftime('%Y-%m-%d %H:%M:%S'),
+            "original_text": log_data['original_text'],
+            "translated_text": log_data['translated_text'],
+            "synthesis_delay": log_data['synthesis_delay'],
+            "audio": processed_file_base64
+        }
+    except Exception as e:
+        print(f"Translation error: {e}")
+        return {
+            "timestamp": last_timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            "original_text": "",
+            "translated_text": "",
+            "synthesis_delay": 0,
+            "audio": base64_audio,
+            "error": e
+        }
 
 async def websocket_handler(websocket, path):
     global audio_processor, audio_stream, buffered_audio, last_timestamp
@@ -76,8 +88,14 @@ async def websocket_handler(websocket, path):
             if language_from == 'en' and model_name != 'large':
                 model_name = f"{model_name}.en"
 
-            audio_processor = AudioProcessor(language_to=language_to, language_from=language_from, model_name=model_name, sample_rate=sample_rate)
-            await websocket.send(json.dumps({'type': 'initialized', 'payload': {"message": "Audio processor initialized"}}))
+            try:
+                audio_processor = AudioProcessor(language_to=language_to, language_from=language_from, model_name=model_name, sample_rate=sample_rate)
+                await websocket.send(json.dumps({'type': 'initialized', 'payload': {"message": "Audio processor initialized"}}))
+            except Exception as e:
+                print(f"Initialization error: {e}")
+                await websocket.send(json.dumps({'type': 'error', 'payload': {"error": f"Initialization error: {e}"}}))
+                return
+
         elif data['type'] == 'audio_data':
             audio_data_base64 = data['payload']['audio']
             base64_audio = audio_data_base64.split(",")[1]
@@ -105,6 +123,7 @@ async def websocket_handler(websocket, path):
                 if is_silent(last_half_second):
                     result = process_buffered_audio(base64_audio)
                     await websocket.send(json.dumps({'type': 'audio_processed', 'payload': result}))
+
         elif data['type'] == 'translate_audio':
             file_base64 = data['payload'].get('file')
             language_to = data['payload'].get('language_to')

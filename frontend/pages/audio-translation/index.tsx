@@ -7,6 +7,7 @@ import { FILE_MAX_SIZE, FILE_TYPE, PUBLIC_URL } from "../../constants/constants"
 import { InitialisationForm } from "../../components/InitialisationForm";
 import { Loading } from "../../components/Loading";
 import { Button } from "../../components/Button";
+import { ErrorBlock } from "../../components/ErrorBlock";
 
 const AudioTranslationContent: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -98,14 +99,12 @@ const AudioTranslationContent: React.FC = () => {
   }, [selectedFile])
 
   if (error) {
-    return <Box mt={4} alignItems="center" flexDirection="column" display="flex">
-      <Box mt={4} textAlign="center" color="error.main">
-        <Typography variant="body2">{error}</Typography>
-      </Box>
-      <Button color="secondary" onClick={discard}>
-        Try new file
-      </Button>
-    </Box>
+    return <ErrorBlock
+      title="Processing error"
+      description={error}
+      button="Try new file"
+      onClick={discard}
+    />
   }
 
   if (!uploading && !translatedAudio) {

@@ -10,6 +10,7 @@ import { Console } from "../../components/Console";
 import { Button } from "../../components/Button";
 import { MicrophoneManager } from '../../helpers/MicrophoneManager';
 import { PUBLIC_URL } from "../../constants/constants";
+import {ErrorBlock} from "../../components/ErrorBlock";
 
 const VoiceRecorderContent: React.FC = () => {
   const [languageTo, setLanguageTo] = useState('ua');
@@ -22,6 +23,7 @@ const VoiceRecorderContent: React.FC = () => {
   const [processedData, setProcessedData] = useState<ProcessedData[]>([]);
   const micManagerRef = useRef<MicrophoneManager | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const formattedUrl = url.replace("http", "ws")
@@ -36,7 +38,7 @@ const VoiceRecorderContent: React.FC = () => {
       if (data.type === 'audio_processed') {
         setProcessedData((current) => ([data.payload, ...current]));
       } else if (data.type === 'error') {
-        console.error(data.payload.error);
+        setError(data.payload.error);
       } else if (data.type === 'initialized') {
         micManagerRef.current = new MicrophoneManager((audio) => {
           socketRef.current?.send(JSON.stringify({ type: 'audio_data', payload: { audio } }));
@@ -71,6 +73,8 @@ const VoiceRecorderContent: React.FC = () => {
     setRecording(false);
     setIsInitialized(false);
     setProcessedData([]);
+    setError(null)
+    setLoading(false)
   };
 
   const initializeModels = useCallback(() => {
@@ -84,6 +88,15 @@ const VoiceRecorderContent: React.FC = () => {
     }));
     setLoading(true);
   }, [languageFrom, languageTo, modelName]);
+
+  if (error) {
+    return <ErrorBlock
+      title={isInitialized ? "Processing error" : "Initializing error"}
+      description={error}
+      button="Restart"
+      onClick={discard}
+    />
+  }
 
   if (loading) {
     return <Loading text="Recorder preparing" />;
