@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { ProcessedData } from "../../types/types";
 import Layout from "../layout";
-import {Box, Container, IconButton, Typography} from "@mui/material";
+import { Box, Container } from "@mui/material";
 import { FeatureArticle } from "../../components/FeatureArticle";
 import { InitialisationForm } from "../../components/InitialisationForm";
 import { TranslationModel } from "../../types/types";
@@ -129,11 +129,7 @@ const VoiceRecorderContent: React.FC = () => {
             <Button onClick={initializeModels} fullWidth>
               Initialize recorder
             </Button> :
-            <Box mt={4} textAlign="center" color="error.main">
-              <Typography variant="body2">
-                Check connection to server
-              </Typography>
-            </Box>
+            <Loading text="Connection to server" />
         }
       </>
     );
