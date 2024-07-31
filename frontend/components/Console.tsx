@@ -45,7 +45,7 @@ export const Console: React.FC<ConsoleProps> = ({ processedDataList, recording }
               key={data.timestamp}
               sx={{
                 display: 'grid',
-                gridTemplateColumns: '1fr 1fr auto',
+                gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr auto' },
                 gap: 1,
                 paddingY: 1,
                 borderBottom: '1px solid #444',
@@ -63,15 +63,17 @@ export const Console: React.FC<ConsoleProps> = ({ processedDataList, recording }
                 <div>delay: {data.synthesis_delay}</div>
               </Box>
               <Box>
-                <div style={{ color: '#fff', fontWeight: "bold" }}>{data.translated_text}</div>
+                <div style={{ color: '#fff', fontWeight: 'bold' }}>{data.translated_text}</div>
                 <div style={{ color: '#999' }}>{data.original_text}</div>
               </Box>
               <Box
                 className="audio-control"
                 sx={{
-                  alignSelf: 'center',
+                  alignSelf: "center",
+                  justifySelf: "center",
                   opacity: 0.2,
                   transition: 'opacity 0.5s',
+                  gridColumn: { xs: 'span 2', sm: 'auto' }, // Ensure it spans across two columns on mobile
                 }}
               >
                 <audio controls src={`data:audio/mp3;base64,${data.audio}`}></audio>
