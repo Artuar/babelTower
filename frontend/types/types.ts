@@ -7,4 +7,3 @@ export interface ProcessedData {
   "synthesis_delay": string,
   audio: string
 }
-

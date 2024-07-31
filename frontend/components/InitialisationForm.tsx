@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
-import {Grid, IconButton, Input, InputAdornment, MenuItem, Select, Typography} from "@mui/material";
-import { TranslationModel } from "../types/types";
+import {Grid, IconButton, InputAdornment, MenuItem, Select, Typography} from "@mui/material";
+import {TranslationModel} from "../types/types";
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import { LOCAL_URL, PUBLIC_URL } from "../constants/constants";
 
 interface InitialisationFormProps {
   languageFrom: string
@@ -11,10 +12,8 @@ interface InitialisationFormProps {
   modelName: string,
   setModelName: (language: TranslationModel) => void
   serverUrl: string,
-  setServerUrl: (language: string) => void
+  setServerUrl: (url: string) => void
 }
-
-const DEFAULT_URL = 'http://127.0.0.1:5000'
 
 export const InitialisationForm: React.FC<InitialisationFormProps> = ({
   languageFrom,
@@ -37,7 +36,7 @@ export const InitialisationForm: React.FC<InitialisationFormProps> = ({
       }
     };
 
-    void fetchServerUrl();
+    // void fetchServerUrl();
   }, []);
 
   return (
@@ -99,22 +98,21 @@ export const InitialisationForm: React.FC<InitialisationFormProps> = ({
       <Grid item xs={12} md={4} mt={1}>
         <Typography variant="h6" gutterBottom>
           Server link
-        </Typography>
-        <Input
-          sx={{ p: 1, border: 1, borderRadius: 1, borderColor: "rgba(0, 0, 0, 0.3)" }}
-          disableUnderline
-          onChange={(event) => setServerUrl(event.currentTarget.value || DEFAULT_URL)}
-          value={serverUrl}
-          fullWidth
-          endAdornment={
-            serverUrl !== DEFAULT_URL &&
-            <InputAdornment position="end">
-              <IconButton onClick={() => window.open(serverUrl, '_blank')}>
-                <OpenInNewIcon />
-              </IconButton>
-            </InputAdornment>
+          {
+            serverUrl !== LOCAL_URL &&
+            <IconButton onClick={() => window.open(PUBLIC_URL, '_blank')}>
+              <OpenInNewIcon />
+            </IconButton>
           }
-        />
+        </Typography>
+        <Select
+          value={serverUrl}
+          onChange={(e) => setServerUrl(e.target.value)}
+          fullWidth
+        >
+          <MenuItem value={LOCAL_URL}>Localhost</MenuItem>
+          <MenuItem value={PUBLIC_URL}>Public</MenuItem>
+        </Select>
       </Grid>
     </>
   );

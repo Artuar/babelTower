@@ -9,12 +9,13 @@ import { Loading } from "../../components/Loading";
 import { Console } from "../../components/Console";
 import { Button } from "../../components/Button";
 import { MicrophoneManager } from '../../helpers/MicrophoneManager';
+import { PUBLIC_URL } from "../../constants/constants";
 
 const VoiceRecorderContent: React.FC = () => {
   const [languageTo, setLanguageTo] = useState('ua');
   const [languageFrom, setLanguageFrom] = useState('en');
   const [modelName, setModelName] = useState<TranslationModel>('small');
-  const [url, setUrl] = useState<string>('http://127.0.0.1:5000');
+  const [url, setUrl] = useState<string>(PUBLIC_URL);
   const [loading, setLoading] = useState(false);
   const [recording, setRecording] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);

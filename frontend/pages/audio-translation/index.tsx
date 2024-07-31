@@ -3,7 +3,7 @@ import { Box, Container, Grid, Typography } from '@mui/material';
 import Layout from '../layout';
 import { FeatureArticle } from "../../components/FeatureArticle";
 import { TranslationModel } from "../../types/types";
-import { FILE_MAX_SIZE, FILE_TYPE } from "../../constants/constants";
+import { FILE_MAX_SIZE, FILE_TYPE, PUBLIC_URL } from "../../constants/constants";
 import { InitialisationForm } from "../../components/InitialisationForm";
 import { Loading } from "../../components/Loading";
 import { Button } from "../../components/Button";
@@ -13,7 +13,7 @@ const AudioTranslationContent: React.FC = () => {
   const [languageTo, setLanguageTo] = useState('ua');
   const [languageFrom, setLanguageFrom] = useState('en');
   const [modelName, setModelName] = useState<TranslationModel>('small');
-  const [url, setUrl] = useState<string>('http://127.0.0.1:5000');
+  const [url, setUrl] = useState<string>(PUBLIC_URL);
   const [uploading, setUploading] = useState(false);
   const [translatedAudio, setTranslatedAudio] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);

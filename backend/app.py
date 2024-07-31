@@ -168,7 +168,12 @@ if __name__ == '__main__':
         for tunnel in ngrok.get_tunnels():
             ngrok.disconnect(tunnel.public_url)
         # run ngrok tunnel
-        tunnel = ngrok.connect(addr="127.0.0.1:{}".format("5000"), proto="http", bind_tls=True)
+        tunnel = ngrok.connect(
+            addr="127.0.0.1:{}".format("5000"),
+            proto="http",
+            bind_tls=True,
+            hostname="curious-goldfish-next.ngrok-free.app"
+        )
         public_url = tunnel.public_url
         print(" * ngrok URL:", public_url)
 
