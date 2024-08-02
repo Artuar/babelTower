@@ -1,6 +1,5 @@
 from typing import Tuple
 
-import librosa as librosa
 from pydub import AudioSegment
 import numpy as np
 from audio_separator.separator import Separator
@@ -8,7 +7,7 @@ import soundfile as sf
 import tempfile
 import os
 
-audio_file_path = "test.mp3"
+audio_file_path = "audio/test.mp3"
 sample_rate = 44100
 
 def load_and_normalize_audio(file_path: str) -> Tuple[np.ndarray, int]:
@@ -62,8 +61,8 @@ if audio_np is not None:
         voice = voice[:shortened_length]
         background = background[:shortened_length]
 
-        sf.write("voice.mp3", voice, sample_rate, format='MP3')
-        sf.write("background.mp3", background, sample_rate, format='MP3')
+        sf.write("audio/voice.mp3", voice, sample_rate, format='MP3')
+        sf.write("audio/background.mp3", background, sample_rate, format='MP3')
 
 
     except Exception as e:
