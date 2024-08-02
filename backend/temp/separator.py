@@ -8,9 +8,10 @@ import soundfile as sf
 import tempfile
 import os
 
-audio_file_path = "short_whisky.mp3"
+audio_file_path = "test.mp3"
+sample_rate = 44100
 
-def load_and_normalize_audio(file_path: str, sample_rate: int = 24000) -> Tuple[np.ndarray, int]:
+def load_and_normalize_audio(file_path: str) -> Tuple[np.ndarray, int]:
     try:
         audio_segment = AudioSegment.from_file(file_path, format="mp3")
         audio_segment = audio_segment.set_frame_rate(sample_rate).set_sample_width(2).set_channels(1)
@@ -35,13 +36,13 @@ def adjust_audio_length(audio_np: np.ndarray, target_length: int) -> np.ndarray:
 audio_np, audio_len = load_and_normalize_audio(audio_file_path)
 
 if audio_np is not None:
-    target_length = int(audio_len * (10 / 3)) * 24000
+    target_length = int(audio_len * (10 / 3)) * sample_rate
 
     adjusted_audio_np = adjust_audio_length(audio_np, target_length)
 
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_audio_file:
         normalized_audio_path = temp_audio_file.name
-        sf.write(normalized_audio_path, adjusted_audio_np, 24000, format='WAV')
+        sf.write(normalized_audio_path, adjusted_audio_np, sample_rate, format='WAV')
 
     separator = Separator()
     separator.load_model()
@@ -61,8 +62,8 @@ if audio_np is not None:
         voice = voice[:shortened_length]
         background = background[:shortened_length]
 
-        sf.write("voice.mp3", voice, 44100, format='MP3')
-        sf.write("background.mp3", background, 44100, format='MP3')
+        sf.write("voice.mp3", voice, sample_rate, format='MP3')
+        sf.write("background.mp3", background, sample_rate, format='MP3')
 
 
     except Exception as e:
