@@ -24,7 +24,7 @@ export const Footer: React.FC = () => {
           <Typography variant="body2" display="flex" flexDirection="column">
             <Link href="/voice-recorder" style={{ color: 'inherit', textDecoration: 'none' }}>Speak and Translate Instantly</Link>
             <Link href="/audio-translation" style={{ color: 'inherit', textDecoration: 'none' }}>Effortless Audio Translations</Link>
-            <Link href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Global Conversations Made Easy</Link>
+            <Link href="/global-conversation" style={{ color: 'inherit', textDecoration: 'none' }}>Global Conversations Made Easy</Link>
           </Typography>
         </Grid>
         <Grid item xs={12} md={4}>

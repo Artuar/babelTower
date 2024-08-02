@@ -1,4 +1,4 @@
-import { Box, keyframes } from "@mui/material";
+import { Box, keyframes, Typography } from "@mui/material";
 import { ProcessedData } from "../types/types";
 
 interface ConsoleProps {
@@ -16,7 +16,7 @@ const pulseAnimation = keyframes`
 export const Console: React.FC<ConsoleProps> = ({ processedDataList, recording }) => {
   return (
     <>
-      <h2>Processed Data</h2>
+      <Typography variant="h5">Processed Data</Typography>
       <Box
         sx={{
           height: 'calc(100vh - 200px)',
