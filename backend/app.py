@@ -21,6 +21,7 @@ CORS(app)
 audio_processor = None
 audio_stream = []
 buffered_audio = []
+buffered_audio_length = 0
 last_timestamp = None
 
 SILENCE_THRESHOLD = 500  # Adjust this value based on your requirements
@@ -43,13 +44,14 @@ def default_result(base64_audio: str, error=""):
 
 
 def process_buffered_audio(base64_audio: str):
-    global audio_processor, buffered_audio, audio_stream
+    global audio_processor, buffered_audio, audio_stream, buffered_audio_length
 
     if not buffered_audio:
         return
 
     combined_audio = b''.join(buffered_audio)
     buffered_audio = []
+    buffered_audio_length = 0
 
     if is_silent(combined_audio):
         return default_result(base64_audio, "Audio to silent")
@@ -57,7 +59,7 @@ def process_buffered_audio(base64_audio: str):
     timestamp = datetime.utcnow()
 
     try:
-        final_audio, log_data = audio_processor.process_audio(timestamp, combined_audio)
+        final_audio, log_data = audio_processor.process_audio(timestamp, combined_audio, buffered_audio_length)
         audio_stream.extend(final_audio)
         output_io = BytesIO()
         sf.write(output_io, final_audio, 24000, format='mp3')
@@ -77,7 +79,7 @@ def process_buffered_audio(base64_audio: str):
 
 
 async def websocket_handler(websocket):
-    global audio_processor, audio_stream, buffered_audio, last_timestamp
+    global audio_processor, audio_stream, buffered_audio, last_timestamp, buffered_audio_length
 
     async for message in websocket:
         data = json.loads(message)
@@ -105,6 +107,7 @@ async def websocket_handler(websocket):
 
             try:
                 audio_segment = AudioSegment.from_file(BytesIO(audio_data), format='webm')
+                audio_length = len(audio_segment) / 1000.0  # pydub provides duration in milliseconds
                 raw_audio_data = audio_segment.set_frame_rate(24000).set_channels(1).set_sample_width(2).raw_data
             except Exception as e:
                 print(f"Conversion error: {e}")
@@ -115,6 +118,7 @@ async def websocket_handler(websocket):
 
             buffered_audio.append(raw_audio_data)
             combined_audio = b''.join(buffered_audio)
+            buffered_audio_length = buffered_audio_length + audio_length
 
             last_timestamp = datetime.utcnow()
 
@@ -144,6 +148,9 @@ async def websocket_handler(websocket):
             audio_data = np.array(audio_segment.get_array_of_samples())
             audio_data = audio_data.tobytes()
 
+            # Calculate the duration of the audio in seconds
+            audio_length = len(audio_segment) / 1000.0  # pydub provides duration in milliseconds
+
             timestamp = datetime.utcnow()
 
             # Processing the audio data
@@ -156,7 +163,7 @@ async def websocket_handler(websocket):
                     sample_rate=sample_rate
                 )
 
-                final_audio, log_data = audio_processor.process_audio(timestamp, audio_data)
+                final_audio, log_data = audio_processor.process_audio(timestamp, audio_data, audio_length)
                 output_io = BytesIO()
                 sf.write(output_io, final_audio, sample_rate, format='mp3')
                 processed_file_base64 = base64.b64encode(output_io.getvalue()).decode('utf-8')
