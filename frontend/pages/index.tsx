@@ -2,6 +2,7 @@ import { Grid } from '@mui/material';
 import Layout from "./layout";
 import { Feature } from "../components/Feature";
 import { FeatureArticle } from "../components/FeatureArticle";
+import Link from "next/link";
 
 const Home: React.FC = () => {
   return (
@@ -10,7 +11,7 @@ const Home: React.FC = () => {
         title="Welcome to Babylon Tower"
         imagePath="/big_logo.png"
         descriptions={[
-          <>Babylon Tower bridges the communication gap between people speaking different languages. Our platform offers cutting-edge features for text and audio recognition and translation, all powered by the advanced <a href="https://github.com/Artuar/babylon_sts" style={{ color: 'inherit', textDecoration: 'none', fontWeight: 'bold' }}>babylon_sts</a> library. Whether you're conversing in real-time or translating audio files, Babylon Tower makes seamless communication a reality.</>,
+          <>Babylon Tower bridges the communication gap between people speaking different languages. Our platform offers cutting-edge features for text and audio recognition and translation, all powered by the advanced <Link href="https://github.com/Artuar/babylon_sts" target="babylon_sts" style={{ color: 'inherit', textDecoration: 'none', fontWeight: 'bold' }}>babylon_sts</Link> library. Whether you're conversing in real-time or translating audio files, Babylon Tower makes seamless communication a reality.</>,
           <>This project was created by enthusiasts who aim to solve the problem of communication and the limitations imposed by the multitude of languages. We strive to break down language barriers and make global communication accessible to everyone.</>
         ]}
       />
@@ -29,14 +30,10 @@ const Home: React.FC = () => {
           link="/audio-translation"
         />
         <Feature
-          imagePath="/walkytalky.png"
-          title="Instant Voice Messaging"
-          description="Send and receive short voice messages with real-time translation. Experience seamless communication as your messages are instantly translated to your preferred language."
-        />
-        <Feature
           imagePath="/conversation.png"
           title="Global Conversations Made Easy"
-          description="Connect with anyone, anywhere. Make real-time audio calls with automatic translation, allowing you to talk effortlessly without language barriers or delays."
+          description="Experience seamless global communication with our real-time audio translation feature. Engage in conversations with people worldwide, regardless of language differences. Enjoy instant translation during your audio calls, connecting effortlessly with anyone, anywhere. Break down language barriers and foster meaningful relationships without delays or misunderstandings."
+          link="/global-conversation"
         />
       </Grid>
     </Layout>

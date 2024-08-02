@@ -1,5 +1,6 @@
 import {Box, Container, Grid, Typography} from "@mui/material";
 import Image from "next/image";
+import Link from "next/link";
 
 export const Footer: React.FC = () => {
   return <Box mt={5} bgcolor="primary.main" color="primary.contrastText" py={5}>
@@ -20,11 +21,10 @@ export const Footer: React.FC = () => {
           <Typography variant="h6" gutterBottom>
             Features
           </Typography>
-          <Typography variant="body2">
-            <a href="/voice-recorder" style={{ color: 'inherit', textDecoration: 'none' }}>Speak and Translate Instantly</a><br />
-            <a href="/audio-translation" style={{ color: 'inherit', textDecoration: 'none' }}>Effortless Audio Translations</a>
-            <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Instant Voice Messaging</a><br />
-            <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Global Conversations Made Easy</a><br />
+          <Typography variant="body2" display="flex" flexDirection="column">
+            <Link href="/voice-recorder" style={{ color: 'inherit', textDecoration: 'none' }}>Speak and Translate Instantly</Link>
+            <Link href="/audio-translation" style={{ color: 'inherit', textDecoration: 'none' }}>Effortless Audio Translations</Link>
+            <Link href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Global Conversations Made Easy</Link>
           </Typography>
         </Grid>
         <Grid item xs={12} md={4}>
@@ -32,8 +32,8 @@ export const Footer: React.FC = () => {
             About
           </Typography>
           <Typography variant="body2">
-            <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>About the project</a><br />
-            <a href="https://github.com/Artuar/babylon_sts" target="babylon_sts" style={{ color: 'inherit', textDecoration: 'none' }}>About babylon_sts</a>
+            <Link href="#" style={{ color: 'inherit', textDecoration: 'none' }}>About the project</Link><br />
+            <Link href="https://github.com/Artuar/babylon_sts" target="babylon_sts" style={{ color: 'inherit', textDecoration: 'none' }}>About babylon_sts</Link>
           </Typography>
         </Grid>
       </Grid>
