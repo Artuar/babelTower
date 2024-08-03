@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import {Grid, IconButton, InputAdornment, MenuItem, Select, Typography} from "@mui/material";
+import { Grid, IconButton, MenuItem, Select, Typography } from "@mui/material";
 import {TranslationModel} from "../types/types";
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { LOCAL_URL, PUBLIC_URL } from "../constants/constants";

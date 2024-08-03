@@ -1,5 +1,4 @@
-import { Box, Typography } from "@mui/material";
-import { Button } from "./Button";
+import { Box, Typography, Button } from "@mui/material";
 
 interface ErrorBlockProps {
   title: string;

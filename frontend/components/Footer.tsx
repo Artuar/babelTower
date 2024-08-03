@@ -1,6 +1,6 @@
 import {Box, Container, Grid, Typography} from "@mui/material";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "./Link";
 
 export const Footer: React.FC = () => {
   return <Box mt={5} bgcolor="primary.main" color="primary.contrastText" py={5}>
@@ -22,18 +22,18 @@ export const Footer: React.FC = () => {
             Features
           </Typography>
           <Typography variant="body2" display="flex" flexDirection="column">
-            <Link href="/voice-recorder" style={{ color: 'inherit', textDecoration: 'none' }}>Speak and Translate Instantly</Link>
-            <Link href="/audio-translation" style={{ color: 'inherit', textDecoration: 'none' }}>Effortless Audio Translations</Link>
-            <Link href="/global-conversation" style={{ color: 'inherit', textDecoration: 'none' }}>Global Conversations Made Easy</Link>
+            <Link href="/voice-recorder">Speak and Translate Instantly</Link>
+            <Link href="/audio-translation">Effortless Audio Translations</Link>
+            <Link href="/global-conversation">Global Conversations Made Easy</Link>
           </Typography>
         </Grid>
         <Grid item xs={12} md={4}>
           <Typography variant="h6" gutterBottom>
             About
           </Typography>
-          <Typography variant="body2">
-            <Link href="#" style={{ color: 'inherit', textDecoration: 'none' }}>About the project</Link><br />
-            <Link href="https://github.com/Artuar/babylon_sts" target="babylon_sts" style={{ color: 'inherit', textDecoration: 'none' }}>About babylon_sts</Link>
+          <Typography variant="body2" display="flex" flexDirection="column">
+            <Link href="#">About the project</Link>
+            <Link href="https://github.com/Artuar/babylon_sts" target="babylon_sts">About babylon_sts</Link>
           </Typography>
         </Grid>
       </Grid>

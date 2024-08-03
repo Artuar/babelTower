@@ -1,13 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { ProcessedData } from "../../types/types";
 import Layout from "../layout";
-import { Box, Container } from "@mui/material";
+import { Box, Container, Button } from "@mui/material";
 import { FeatureArticle } from "../../components/FeatureArticle";
 import { InitialisationForm } from "../../components/InitialisationForm";
 import { TranslationModel } from "../../types/types";
 import { Loading } from "../../components/Loading";
 import { Console } from "../../components/Console";
-import { Button } from "../../components/Button";
 import { MicrophoneManager } from '../../helpers/MicrophoneManager';
 import { PUBLIC_URL } from "../../constants/constants";
 import { ErrorBlock } from "../../components/ErrorBlock";

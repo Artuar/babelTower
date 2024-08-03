@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
-import { Card, CardActions, CardContent, Grid, Typography } from '@mui/material';
+import { Card, CardActions, CardContent, Grid, Typography, Button } from '@mui/material';
 import Image from 'next/image';
-import {Button} from "./Button";
 
 interface FeatureProps {
   imagePath: string;

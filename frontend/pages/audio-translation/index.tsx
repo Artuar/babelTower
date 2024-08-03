@@ -1,12 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Box, Container, Grid, Typography } from '@mui/material';
+import { Box, Container, Grid, Typography, Button } from '@mui/material';
 import Layout from '../layout';
 import { FeatureArticle } from "../../components/FeatureArticle";
 import { TranslationModel } from "../../types/types";
 import { FILE_MAX_SIZE, FILE_TYPE, PUBLIC_URL } from "../../constants/constants";
 import { InitialisationForm } from "../../components/InitialisationForm";
 import { Loading } from "../../components/Loading";
-import { Button } from "../../components/Button";
 import { ErrorBlock } from "../../components/ErrorBlock";
 
 const AudioTranslationContent: React.FC = () => {

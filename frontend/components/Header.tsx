@@ -1,6 +1,7 @@
-import {AppBar, Button, MenuItem, Select, Toolbar, Typography, Link } from "@mui/material";
+import { AppBar, MenuItem, Select, Toolbar, Typography } from "@mui/material";
 import Image from "next/image";
-import {useState} from "react";
+import { useState } from "react";
+import { Link } from "./Link";
 
 export const Header: React.FC = () => {
   const [language, setLanguage] = useState('en');
@@ -13,7 +14,7 @@ export const Header: React.FC = () => {
     <Toolbar>
       <Image src="/logo_light.png" alt="Babylon Tower Logo" width={40} height={40} />
       <Typography variant="h6" style={{ flexGrow: 1, marginLeft: 8 }}>
-        <Link href="/" style={{ color: 'inherit', textDecoration: 'none' }}>
+        <Link href="/">
           Babylon Tower
         </Link>
       </Typography>
