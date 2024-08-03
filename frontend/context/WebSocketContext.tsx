@@ -5,9 +5,13 @@ interface WebSocketProviderProps {
   children: ReactNode;
 }
 
-const WebSocketContext = createContext<UseWebSocketReturn | undefined>(undefined);
+const WebSocketContext = createContext<UseWebSocketReturn | undefined>(
+  undefined,
+);
 
-export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }) => {
+export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
+  children,
+}) => {
   const webSocket = useWebSocket();
 
   return (
@@ -20,7 +24,9 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 export const useWebSocketContext = (): UseWebSocketReturn => {
   const context = useContext(WebSocketContext);
   if (context === undefined) {
-    throw new Error('useWebSocketContext must be used within a WebSocketProvider');
+    throw new Error(
+      'useWebSocketContext must be used within a WebSocketProvider',
+    );
   }
   return context;
 };

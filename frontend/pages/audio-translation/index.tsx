@@ -1,18 +1,15 @@
-import {useState, useEffect, useCallback} from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Box, Container, Grid, Typography, Button } from '@mui/material';
 import Layout from '../layout';
 import { FeatureArticle } from '../../components/FeatureArticle';
 import { TranslationModel } from '../../types/types';
-import {
-  FILE_MAX_SIZE,
-  FILE_TYPE,
-} from '../../constants/constants';
+import { FILE_MAX_SIZE, FILE_TYPE } from '../../constants/constants';
 import { InitialisationForm } from '../../components/InitialisationForm';
 import { Loading } from '../../components/Loading';
 import { ErrorBlock } from '../../components/ErrorBlock';
-import {useWebSocketContext} from "../../context/WebSocketContext";
-import { TranslatedAudio} from "../../types/receivedMessages";
-import {downloadFile} from "../../helpers/downloadFile";
+import { useWebSocketContext } from '../../context/WebSocketContext';
+import { TranslatedAudio } from '../../types/receivedMessages';
+import { downloadFile } from '../../helpers/downloadFile';
 
 const AudioTranslationContent: React.FC = () => {
   const [languageTo, setLanguageTo] = useState('ua');
@@ -67,7 +64,7 @@ const AudioTranslationContent: React.FC = () => {
             model_name: modelName,
           },
         });
-      }
+      };
       reader.readAsDataURL(file);
     } else {
       alert('Please select an MP3 file under 10MB.');
@@ -75,15 +72,15 @@ const AudioTranslationContent: React.FC = () => {
   };
 
   const handleDownload = useCallback(() => {
-    downloadFile(translatedAudio, 'translated_audio.mp3')
+    downloadFile(translatedAudio, 'translated_audio.mp3');
   }, [translatedAudio]);
 
   const discard = () => {
     setSelectedFile(null);
     setUploading(false);
-    setTranslatedAudio(null)
-    disconnect()
-    connect()
+    setTranslatedAudio(null);
+    disconnect();
+    connect();
   };
 
   if (error) {

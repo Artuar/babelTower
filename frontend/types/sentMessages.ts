@@ -9,7 +9,7 @@ interface AudioData {
 }
 
 interface TranslateAudioData {
-  file: string,
+  file: string;
   language_from: string;
   language_to: string;
   model_name: string;
@@ -30,4 +30,7 @@ interface TranslateAudioMessage {
   type: 'translate_audio';
 }
 
-export type UserMessage = InitializingMessage | ProcessingMessage | TranslateAudioMessage;
+export type UserMessage =
+  | InitializingMessage
+  | ProcessingMessage
+  | TranslateAudioMessage;
