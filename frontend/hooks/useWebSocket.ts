@@ -1,18 +1,20 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { PUBLIC_URL } from '../constants/constants';
-
-interface WebSocketMessage {
-  type: string;
-  payload: unknown;
-}
+import { WebSocketMessage } from '../types/messages';
 
 interface UseWebSocketReturn {
-  sendMessage: (message: WebSocketMessage) => void;
+  sendMessage: (message: unknown) => void;
   isInitialized: boolean;
   isConnected: boolean;
   error: string | null;
-  subscribe: (messageType: string, callback: (data: unknown) => void) => void;
-  unsubscribe: (messageType: string, callback: (data: unknown) => void) => void;
+  subscribe: (
+    messageType: string,
+    callback: (data: WebSocketMessage['payload']) => void,
+  ) => void;
+  unsubscribe: (
+    messageType: string,
+    callback: (data: WebSocketMessage['payload']) => void,
+  ) => void;
   disconnect: () => void;
   connect: () => void;
   setServerUrl: (url: string) => void;
@@ -24,7 +26,9 @@ export const useWebSocket = (): UseWebSocketReturn => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
-  const subscribers = useRef<Record<string, ((data: unknown) => void)[]>>({});
+  const subscribers = useRef<
+    Record<string, ((data: WebSocketMessage['payload']) => void)[]>
+  >({});
   const [serverUrl, setServerUrl] = useState<string>(PUBLIC_URL);
 
   const connect = useCallback(() => {
@@ -76,7 +80,7 @@ export const useWebSocket = (): UseWebSocketReturn => {
 
   const subscribe = (
     messageType: string,
-    callback: (data: unknown) => void,
+    callback: (data: WebSocketMessage['payload']) => void,
   ) => {
     if (!subscribers.current[messageType]) {
       subscribers.current[messageType] = [];
@@ -86,7 +90,7 @@ export const useWebSocket = (): UseWebSocketReturn => {
 
   const unsubscribe = (
     messageType: string,
-    callback: (data: unknown) => void,
+    callback: (data: WebSocketMessage['payload']) => void,
   ) => {
     if (subscribers.current[messageType]) {
       subscribers.current[messageType] = subscribers.current[

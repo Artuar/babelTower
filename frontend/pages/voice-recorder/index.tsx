@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { ProcessedData, TranslationModel } from '../../types/types';
+import { TranslationModel } from '../../types/types';
 import Layout from '../layout';
 import { Box, Container, Button } from '@mui/material';
 import { FeatureArticle } from '../../components/FeatureArticle';
@@ -9,6 +9,7 @@ import { Console } from '../../components/Console';
 import { MicrophoneManager } from '../../helpers/MicrophoneManager';
 import { ErrorBlock } from '../../components/ErrorBlock';
 import { useWebSocket } from '../../hooks/useWebSocket';
+import { ProcessedData } from '../../types/messages';
 
 const VoiceRecorderContent: React.FC = () => {
   const [languageTo, setLanguageTo] = useState('ua');
