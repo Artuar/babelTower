@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import {useState, useEffect, useCallback} from 'react';
 import { Box, Container, Grid, Typography, Button } from '@mui/material';
 import Layout from '../layout';
 import { FeatureArticle } from '../../components/FeatureArticle';
@@ -6,55 +6,46 @@ import { TranslationModel } from '../../types/types';
 import {
   FILE_MAX_SIZE,
   FILE_TYPE,
-  PUBLIC_URL,
 } from '../../constants/constants';
 import { InitialisationForm } from '../../components/InitialisationForm';
 import { Loading } from '../../components/Loading';
 import { ErrorBlock } from '../../components/ErrorBlock';
+import {useWebSocketContext} from "../../context/WebSocketContext";
+import { TranslatedAudio} from "../../types/receivedMessages";
+import {downloadFile} from "../../helpers/downloadFile";
 
 const AudioTranslationContent: React.FC = () => {
   const [languageTo, setLanguageTo] = useState('ua');
   const [languageFrom, setLanguageFrom] = useState('en');
   const [modelName, setModelName] = useState<TranslationModel>('small');
-  const [url, setUrl] = useState<string>(PUBLIC_URL);
-  const [socket, setSocket] = useState<WebSocket | null>(null);
+  const {
+    serverUrl,
+    setServerUrl,
+    sendMessage,
+    isConnected,
+    error,
+    subscribe,
+    unsubscribe,
+    disconnect,
+    connect,
+  } = useWebSocketContext();
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [translatedAudio, setTranslatedAudio] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const formattedUrl = url.replace('http', 'ws');
-    const socketInstance = new WebSocket(
-      `${formattedUrl}/socket.io/?transport=websocket`,
-    );
-
-    socketInstance.onopen = () => {
-      console.log('Connected to WebSocket server.');
-      setSocket(socketInstance);
+    const handleAudioProcessed = (data: TranslatedAudio) => {
+      setTranslatedAudio(data.translatedAudio);
+      setUploading(false);
     };
 
-    socketInstance.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === 'translated_audio') {
-        setTranslatedAudio(data.payload.translatedAudio);
-        setUploading(false);
-      } else if (data.type === 'error') {
-        setError(data.payload.error);
-        setUploading(false);
-      }
-    };
-
-    socketInstance.onclose = () => {
-      console.log('Disconnected from WebSocket server.');
-      setSocket(null);
-    };
+    subscribe('translated_audio', handleAudioProcessed);
 
     return () => {
-      socketInstance.close();
+      unsubscribe('translated_audio', handleAudioProcessed);
     };
-  }, [url]);
+  }, [serverUrl]);
 
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -65,47 +56,35 @@ const AudioTranslationContent: React.FC = () => {
 
       const reader = new FileReader();
       reader.onload = () => {
-        if (socket) {
-          setUploading(true);
-          const base64File = reader.result as string;
-          const message = {
-            type: 'translate_audio',
-            payload: {
-              file: base64File,
-              language_to: languageTo,
-              language_from: languageFrom,
-              model_name: modelName,
-            },
-          };
-          socket.send(JSON.stringify(message));
-        }
-      };
+        setUploading(true);
+        const base64File = reader.result as string;
+        sendMessage({
+          type: 'translate_audio',
+          payload: {
+            file: base64File,
+            language_to: languageTo,
+            language_from: languageFrom,
+            model_name: modelName,
+          },
+        });
+      }
       reader.readAsDataURL(file);
     } else {
       alert('Please select an MP3 file under 10MB.');
     }
   };
 
-  const handleDownload = () => {
-    if (!translatedAudio) return;
-
-    const link = document.createElement('a');
-    link.href = translatedAudio;
-    link.download = 'translated_audio.mp3';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+  const handleDownload = useCallback(() => {
+    downloadFile(translatedAudio, 'translated_audio.mp3')
+  }, [translatedAudio]);
 
   const discard = () => {
     setSelectedFile(null);
     setUploading(false);
+    setTranslatedAudio(null)
+    disconnect()
+    connect()
   };
-
-  useMemo(() => {
-    setTranslatedAudio(null);
-    setError(null);
-  }, [selectedFile]);
 
   if (error) {
     return (
@@ -128,11 +107,11 @@ const AudioTranslationContent: React.FC = () => {
           setLanguageTo={setLanguageTo}
           modelName={modelName}
           setModelName={setModelName}
-          serverUrl={url}
-          setServerUrl={setUrl}
+          serverUrl={serverUrl}
+          setServerUrl={setServerUrl}
         />
 
-        {socket === null ? (
+        {!isConnected ? (
           <Loading text="Connection to server" />
         ) : (
           <Grid container paddingY={4}>

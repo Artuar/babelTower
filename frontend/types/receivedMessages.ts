@@ -20,6 +20,15 @@ export interface ErrorData {
   error: string;
 }
 
+export interface TranslatedAudio {
+  translatedAudio: string;
+}
+
+export interface ErrorMessage {
+  payload: ErrorData;
+  type: 'error';
+}
+
 export interface ProcessedMessage {
   payload: ProcessedData;
   type: 'audio';
@@ -30,12 +39,13 @@ export interface InitialisedMessage {
   type: 'initialized';
 }
 
-export interface ErrorMessage {
-  payload: ErrorData;
-  type: 'error';
+export interface TranslatedAudioMessage {
+  payload: TranslatedAudio;
+  type: 'translated_audio';
 }
 
 export type WebSocketMessage =
   | ProcessedMessage
   | InitialisedMessage
-  | ErrorMessage;
+  | ErrorMessage
+  | TranslatedAudioMessage;

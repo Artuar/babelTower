@@ -8,6 +8,13 @@ interface AudioData {
   audio: string;
 }
 
+interface TranslateAudioData {
+  file: string,
+  language_from: string;
+  language_to: string;
+  model_name: string;
+}
+
 interface InitializingMessage {
   payload: InitializingData;
   type: 'initialize';
@@ -18,4 +25,9 @@ interface ProcessingMessage {
   type: 'audio_data';
 }
 
-export type UserMessage = InitializingMessage | ProcessingMessage;
+interface TranslateAudioMessage {
+  payload: TranslateAudioData;
+  type: 'translate_audio';
+}
+
+export type UserMessage = InitializingMessage | ProcessingMessage | TranslateAudioMessage;
