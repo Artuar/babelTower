@@ -3,7 +3,7 @@ import { PUBLIC_URL } from '../constants/constants';
 import { WebSocketMessage } from '../types/receivedMessages';
 import { UserMessage } from '../types/sentMessages';
 
-interface UseWebSocketReturn {
+export interface UseWebSocketReturn {
   sendMessage: (message: UserMessage) => void;
   isInitialized: boolean;
   isConnected: boolean;

@@ -8,8 +8,8 @@ import { Loading } from '../../components/Loading';
 import { Console } from '../../components/Console';
 import { MicrophoneManager } from '../../helpers/MicrophoneManager';
 import { ErrorBlock } from '../../components/ErrorBlock';
-import { useWebSocket } from '../../hooks/useWebSocket';
 import { ProcessedData } from '../../types/receivedMessages';
+import { useWebSocketContext } from "../../context/WebSocketContext";
 
 const VoiceRecorderContent: React.FC = () => {
   const [languageTo, setLanguageTo] = useState('ua');
@@ -26,7 +26,7 @@ const VoiceRecorderContent: React.FC = () => {
     unsubscribe,
     disconnect,
     connect,
-  } = useWebSocket();
+  } = useWebSocketContext();
 
   const [loading, setLoading] = useState(false);
   const [recording, setRecording] = useState(false);

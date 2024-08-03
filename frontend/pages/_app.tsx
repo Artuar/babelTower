@@ -5,6 +5,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import type { ReactElement, ReactNode } from 'react';
 import type { NextPage } from 'next';
 import { theme } from '../styles/theme';
+import { WebSocketProvider } from "../context/WebSocketContext";
 
 export type NextPageWithLayout<P = unknown, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
@@ -20,7 +21,9 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      {getLayout(<Component {...pageProps} />)}
+      <WebSocketProvider>
+        {getLayout(<Component {...pageProps} />)}
+      </WebSocketProvider>
     </ThemeProvider>
   );
 }
