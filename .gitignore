@@ -2,3 +2,4 @@ venv/
 /.idea/
 /backend/local_model_*/
 /frontend/.next/
+/frontend/node_modules/
