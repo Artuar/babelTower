@@ -42,7 +42,10 @@ export const Footer: React.FC = () => {
               About
             </Typography>
             <Typography variant="body2" display="flex" flexDirection="column">
-              <Link href="#">About the project</Link>
+              <Link
+                href="https://github.com/Artuar/babelTower"
+                target="babylonTower"
+              >About the project</Link>
               <Link
                 href="https://github.com/Artuar/babylon_sts"
                 target="babylon_sts"

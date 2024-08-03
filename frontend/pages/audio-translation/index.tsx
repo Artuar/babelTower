@@ -13,15 +13,16 @@ import { Loading } from '../../components/Loading';
 import { ErrorBlock } from '../../components/ErrorBlock';
 
 const AudioTranslationContent: React.FC = () => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [languageTo, setLanguageTo] = useState('ua');
   const [languageFrom, setLanguageFrom] = useState('en');
   const [modelName, setModelName] = useState<TranslationModel>('small');
   const [url, setUrl] = useState<string>(PUBLIC_URL);
+  const [socket, setSocket] = useState<WebSocket | null>(null);
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [translatedAudio, setTranslatedAudio] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [socket, setSocket] = useState<WebSocket | null>(null);
 
   useEffect(() => {
     const formattedUrl = url.replace('http', 'ws');

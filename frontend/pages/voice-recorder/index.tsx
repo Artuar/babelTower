@@ -15,14 +15,16 @@ const VoiceRecorderContent: React.FC = () => {
   const [languageFrom, setLanguageFrom] = useState('en');
   const [modelName, setModelName] = useState<TranslationModel>('small');
   const [url, setUrl] = useState<string>(PUBLIC_URL);
+  const socketRef = useRef<WebSocket | null>(null);
   const [loading, setLoading] = useState(false);
-  const [recording, setRecording] = useState(false);
+
+  const [error, setError] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isConnected, setIsConnected] = useState<boolean>(false);
+
+  const [recording, setRecording] = useState(false);
   const [processedData, setProcessedData] = useState<ProcessedData[]>([]);
   const micManagerRef = useRef<MicrophoneManager | null>(null);
-  const socketRef = useRef<WebSocket | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isConnected, setIsConnected] = useState<boolean>(false);
 
   const connect = useCallback(() => {
     const formattedUrl = url.replace('http', 'ws');
@@ -42,11 +44,6 @@ const VoiceRecorderContent: React.FC = () => {
       } else if (data.type === 'error') {
         setError(data.payload.error);
       } else if (data.type === 'initialized') {
-        micManagerRef.current = new MicrophoneManager((audio) => {
-          socketRef.current?.send(
-            JSON.stringify({ type: 'audio_data', payload: { audio } }),
-          );
-        });
         setIsInitialized(true);
         setLoading(false);
       }
@@ -65,6 +62,18 @@ const VoiceRecorderContent: React.FC = () => {
       socketRef.current?.close();
     };
   }, [url]);
+
+
+  useEffect(() => {
+    if (isInitialized) {
+      micManagerRef.current = new MicrophoneManager((audio) => {
+        socketRef.current?.send(
+          JSON.stringify({ type: 'audio_data', payload: { audio } }),
+        );
+      });
+    }
+  }, [isInitialized]);
+
 
   const startRecording = async () => {
     await micManagerRef.current?.startRecording();
