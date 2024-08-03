@@ -27,6 +27,8 @@ const VoiceRecorderContent: React.FC = () => {
   const micManagerRef = useRef<MicrophoneManager | null>(null);
 
   const connect = useCallback(() => {
+    socketRef.current?.close();
+
     const formattedUrl = url.replace('http', 'ws');
     socketRef.current = new WebSocket(
       `${formattedUrl}/socket.io/?transport=websocket`,
@@ -57,12 +59,7 @@ const VoiceRecorderContent: React.FC = () => {
 
   useEffect(() => {
     connect();
-
-    return () => {
-      socketRef.current?.close();
-    };
   }, [url]);
-
 
   useEffect(() => {
     if (isInitialized) {
@@ -74,6 +71,11 @@ const VoiceRecorderContent: React.FC = () => {
     }
   }, [isInitialized]);
 
+  useEffect(() => {
+    return () => {
+      socketRef.current?.close();
+    };
+  }, []);
 
   const startRecording = async () => {
     await micManagerRef.current?.startRecording();

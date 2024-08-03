@@ -45,7 +45,9 @@ export const Footer: React.FC = () => {
               <Link
                 href="https://github.com/Artuar/babelTower"
                 target="babylonTower"
-              >About the project</Link>
+              >
+                About the project
+              </Link>
               <Link
                 href="https://github.com/Artuar/babylon_sts"
                 target="babylon_sts"
