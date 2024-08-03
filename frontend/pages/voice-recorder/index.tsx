@@ -7,75 +7,46 @@ import { InitialisationForm } from '../../components/InitialisationForm';
 import { Loading } from '../../components/Loading';
 import { Console } from '../../components/Console';
 import { MicrophoneManager } from '../../helpers/MicrophoneManager';
-import { PUBLIC_URL } from '../../constants/constants';
 import { ErrorBlock } from '../../components/ErrorBlock';
+import { useWebSocket } from '../../hooks/useWebSocket';
 
 const VoiceRecorderContent: React.FC = () => {
   const [languageTo, setLanguageTo] = useState('ua');
   const [languageFrom, setLanguageFrom] = useState('en');
   const [modelName, setModelName] = useState<TranslationModel>('small');
-  const [url, setUrl] = useState<string>(PUBLIC_URL);
-  const socketRef = useRef<WebSocket | null>(null);
+  const { url, setUrl , sendMessage, isInitialized, isConnected, error, subscribe, unsubscribe, disconnect, connect } = useWebSocket();
+
   const [loading, setLoading] = useState(false);
-
-  const [error, setError] = useState<string | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [isConnected, setIsConnected] = useState<boolean>(false);
-
   const [recording, setRecording] = useState(false);
   const [processedData, setProcessedData] = useState<ProcessedData[]>([]);
   const micManagerRef = useRef<MicrophoneManager | null>(null);
 
-  const connect = useCallback(() => {
-    socketRef.current?.close();
-
-    const formattedUrl = url.replace('http', 'ws');
-    socketRef.current = new WebSocket(
-      `${formattedUrl}/socket.io/?transport=websocket`,
-    );
-
-    socketRef.current.onopen = function () {
-      console.log('Connected to WebSocket server.');
-      setIsConnected(true);
+  useEffect(() => {
+    const handleAudioProcessed = (data: any) => {
+      setProcessedData((current) => [data, ...current]);
     };
 
-    socketRef.current.onmessage = function (event) {
-      const data = JSON.parse(event.data);
-      if (data.type === 'audio_processed') {
-        setProcessedData((current) => [data.payload, ...current]);
-      } else if (data.type === 'error') {
-        setError(data.payload.error);
-      } else if (data.type === 'initialized') {
-        setIsInitialized(true);
-        setLoading(false);
-      }
-    };
+    subscribe('audio_processed', handleAudioProcessed);
 
-    socketRef.current.onclose = function () {
-      console.log('Disconnected from WebSocket server.');
-      setIsConnected(false);
-    };
-  }, [url]);
-
-  useEffect(() => {
-    connect();
-  }, [url]);
-
-  useEffect(() => {
-    if (isInitialized) {
-      micManagerRef.current = new MicrophoneManager((audio) => {
-        socketRef.current?.send(
-          JSON.stringify({ type: 'audio_data', payload: { audio } }),
-        );
-      });
-    }
-  }, [isInitialized]);
-
-  useEffect(() => {
     return () => {
-      socketRef.current?.close();
+      unsubscribe('audio_processed', handleAudioProcessed);
     };
   }, []);
+
+  useEffect(() => {
+    setLoading(false);
+
+    if (isInitialized) {
+      micManagerRef.current = new MicrophoneManager((audio) => {
+        sendMessage({ type: 'audio_data', payload: { audio } });
+      });
+    } else {
+      micManagerRef.current?.destroy();
+      micManagerRef.current = null;
+      setRecording(false);
+      setProcessedData([]);
+    }
+  }, [isInitialized]);
 
   const startRecording = async () => {
     await micManagerRef.current?.startRecording();
@@ -88,30 +59,21 @@ const VoiceRecorderContent: React.FC = () => {
   };
 
   const discard = () => {
-    socketRef.current?.close();
-    micManagerRef.current?.destroy();
-    micManagerRef.current = null;
-    setRecording(false);
-    setIsInitialized(false);
-    setProcessedData([]);
-    setError(null);
-    setLoading(false);
+    disconnect();
     connect();
   };
 
   const initializeModels = useCallback(() => {
-    socketRef.current?.send(
-      JSON.stringify({
-        type: 'initialize',
-        payload: {
-          language_to: languageTo,
-          language_from: languageFrom,
-          model_name: modelName,
-        },
-      }),
-    );
+    sendMessage({
+      type: 'initialize',
+      payload: {
+        language_to: languageTo,
+        language_from: languageFrom,
+        model_name: modelName,
+      },
+    });
     setLoading(true);
-  }, [languageFrom, languageTo, modelName]);
+  }, [languageFrom, languageTo, modelName, sendMessage]);
 
   if (error) {
     return (
