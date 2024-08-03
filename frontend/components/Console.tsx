@@ -16,7 +16,9 @@ const pulseAnimation = keyframes`
 export const Console = ({ processedDataList, recording }: ConsoleProps) => {
   return (
     <>
-      <Typography variant="h5">Processed Data</Typography>
+      <Typography variant="h5" marginY={2}>
+        Processed Data
+      </Typography>
       <Box
         sx={{
           height: 'calc(100vh - 200px)',
@@ -90,10 +92,9 @@ export const Console = ({ processedDataList, recording }: ConsoleProps) => {
                     transition: 'opacity 0.5s',
                   }}
                 >
-                  <audio
-                    controls
-                    src={`data:audio/mp3;base64,${data.audio}`}
-                  ></audio>
+                  <audio controls src={`data:audio/mp3;base64,${data.audio}`}>
+                    <track kind="captions" />
+                  </audio>
                 </Box>
               </Box>
             );

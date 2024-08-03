@@ -199,12 +199,16 @@ const AudioTranslationContent: React.FC = () => {
           Original Audio
         </Typography>
         {selectedFile && (
-          <audio controls src={URL.createObjectURL(selectedFile)}></audio>
+          <audio controls src={URL.createObjectURL(selectedFile)}>
+            <track kind="captions" />
+          </audio>
         )}
         <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
           Translated Audio
         </Typography>
-        <audio controls src={translatedAudio}></audio>
+        <audio controls src={translatedAudio}>
+          <track kind="captions" />
+        </audio>
         <Button onClick={handleDownload}>Download Translated Audio</Button>
         <Button color="secondary" onClick={discard}>
           Try new file

@@ -6,7 +6,7 @@ import type { ReactElement, ReactNode } from 'react';
 import type { NextPage } from 'next';
 import { theme } from '../styles/theme';
 
-export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
+export type NextPageWithLayout<P = unknown, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
 };
 

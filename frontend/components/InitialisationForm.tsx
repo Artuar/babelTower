@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { Grid, IconButton, Typography } from '@mui/material';
 import { TranslationModel } from '../types/types';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
@@ -32,20 +31,6 @@ export const InitialisationForm = ({
   serverUrl,
   setServerUrl,
 }: InitialisationFormProps) => {
-  useEffect(() => {
-    const fetchServerUrl = async () => {
-      try {
-        const response = await fetch('/api/server-url');
-        const data = await response.json();
-        setServerUrl(data.serverUrl);
-      } catch (error) {
-        console.error('Error fetching server URL:', error);
-      }
-    };
-
-    // void fetchServerUrl();
-  }, []);
-
   return (
     <>
       <Grid container spacing={2}>

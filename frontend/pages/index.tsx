@@ -22,9 +22,9 @@ const Home: React.FC = () => {
               style={{ fontWeight: 'bold' }}
             >
               babylon_sts
-            </Link>{' '}
-            library. Whether you're conversing in real-time or translating audio
-            files, Babylon Tower makes seamless communication a reality.
+            </Link>
+            {" library. Whether you're conversing in real-time or translating audio" +
+              ' files, Babylon Tower makes seamless communication a reality.'}
           </>,
           <>
             This project was created by enthusiasts who aim to solve the problem
