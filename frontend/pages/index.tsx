@@ -1,8 +1,8 @@
 import { Grid } from '@mui/material';
-import Layout from "./layout";
-import { Feature } from "../components/Feature";
-import { FeatureArticle } from "../components/FeatureArticle";
-import { Link } from "../components/Link";
+import Layout from './layout';
+import { Feature } from '../components/Feature';
+import { FeatureArticle } from '../components/FeatureArticle';
+import { Link } from '../components/Link';
 
 const Home: React.FC = () => {
   return (
@@ -11,8 +11,27 @@ const Home: React.FC = () => {
         title="Welcome to Babylon Tower"
         imagePath="/big_logo.png"
         descriptions={[
-          <>Babylon Tower bridges the communication gap between people speaking different languages. Our platform offers cutting-edge features for text and audio recognition and translation, all powered by the advanced <Link href="https://github.com/Artuar/babylon_sts" target="babylon_sts" style={{ fontWeight: 'bold' }}>babylon_sts</Link> library. Whether you're conversing in real-time or translating audio files, Babylon Tower makes seamless communication a reality.</>,
-          <>This project was created by enthusiasts who aim to solve the problem of communication and the limitations imposed by the multitude of languages. We strive to break down language barriers and make global communication accessible to everyone.</>
+          <>
+            Babylon Tower bridges the communication gap between people speaking
+            different languages. Our platform offers cutting-edge features for
+            text and audio recognition and translation, all powered by the
+            advanced{' '}
+            <Link
+              href="https://github.com/Artuar/babylon_sts"
+              target="babylon_sts"
+              style={{ fontWeight: 'bold' }}
+            >
+              babylon_sts
+            </Link>{' '}
+            library. Whether you're conversing in real-time or translating audio
+            files, Babylon Tower makes seamless communication a reality.
+          </>,
+          <>
+            This project was created by enthusiasts who aim to solve the problem
+            of communication and the limitations imposed by the multitude of
+            languages. We strive to break down language barriers and make global
+            communication accessible to everyone.
+          </>,
         ]}
       />
 

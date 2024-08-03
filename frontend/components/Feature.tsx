@@ -1,5 +1,12 @@
 import { motion } from 'framer-motion';
-import { Card, CardActions, CardContent, Grid, Typography, Button } from '@mui/material';
+import {
+  Card,
+  CardActions,
+  CardContent,
+  Grid,
+  Typography,
+  Button,
+} from '@mui/material';
 import Image from 'next/image';
 
 interface FeatureProps {
@@ -9,7 +16,12 @@ interface FeatureProps {
   link?: string;
 }
 
-export const Feature: React.FC<FeatureProps> = ({ imagePath, title, description, link }) => {
+export const Feature = ({
+  imagePath,
+  title,
+  description,
+  link,
+}: FeatureProps) => {
   return (
     <Grid item xs={12}>
       <motion.div
@@ -21,7 +33,12 @@ export const Feature: React.FC<FeatureProps> = ({ imagePath, title, description,
         <Card sx={{ boxShadow: 'none' }}>
           <CardContent>
             <Grid container spacing={2} alignItems="center">
-              <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Grid
+                item
+                xs={12}
+                md={4}
+                sx={{ display: 'flex', justifyContent: 'center' }}
+              >
                 <Image src={imagePath} alt={title} width={200} height={200} />
               </Grid>
               <Grid item xs={12} md={8}>
@@ -32,11 +49,15 @@ export const Feature: React.FC<FeatureProps> = ({ imagePath, title, description,
                   {description}
                 </Typography>
                 <CardActions sx={{ paddingX: 0 }}>
-                  {
-                    link ?
-                      <Button size="small" href={link}>Try now</Button> :
-                      <Typography variant="body2" color="secondary" mt={2}>IN PROGRESS...</Typography>
-                  }
+                  {link ? (
+                    <Button size="small" href={link}>
+                      Try now
+                    </Button>
+                  ) : (
+                    <Typography variant="body2" color="secondary" mt={2}>
+                      IN PROGRESS...
+                    </Typography>
+                  )}
                 </CardActions>
               </Grid>
             </Grid>

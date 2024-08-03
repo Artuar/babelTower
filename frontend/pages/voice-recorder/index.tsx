@@ -1,15 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { ProcessedData } from "../../types/types";
-import Layout from "../layout";
-import { Box, Container, Button } from "@mui/material";
-import { FeatureArticle } from "../../components/FeatureArticle";
-import { InitialisationForm } from "../../components/InitialisationForm";
-import { TranslationModel } from "../../types/types";
-import { Loading } from "../../components/Loading";
-import { Console } from "../../components/Console";
+import { ProcessedData, TranslationModel } from '../../types/types';
+import Layout from '../layout';
+import { Box, Container, Button } from '@mui/material';
+import { FeatureArticle } from '../../components/FeatureArticle';
+import { InitialisationForm } from '../../components/InitialisationForm';
+import { Loading } from '../../components/Loading';
+import { Console } from '../../components/Console';
 import { MicrophoneManager } from '../../helpers/MicrophoneManager';
-import { PUBLIC_URL } from "../../constants/constants";
-import { ErrorBlock } from "../../components/ErrorBlock";
+import { PUBLIC_URL } from '../../constants/constants';
+import { ErrorBlock } from '../../components/ErrorBlock';
 
 const VoiceRecorderContent: React.FC = () => {
   const [languageTo, setLanguageTo] = useState('ua');
@@ -23,40 +22,44 @@ const VoiceRecorderContent: React.FC = () => {
   const micManagerRef = useRef<MicrophoneManager | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isConnected, setIsConnected] = useState<boolean>(false)
+  const [isConnected, setIsConnected] = useState<boolean>(false);
 
   const connect = useCallback(() => {
-    const formattedUrl = url.replace("http", "ws")
-    socketRef.current = new WebSocket(`${formattedUrl}/socket.io/?transport=websocket`);
+    const formattedUrl = url.replace('http', 'ws');
+    socketRef.current = new WebSocket(
+      `${formattedUrl}/socket.io/?transport=websocket`,
+    );
 
-    socketRef.current.onopen = function(event) {
-      console.log("Connected to WebSocket server.");
-      setIsConnected(true)
+    socketRef.current.onopen = function () {
+      console.log('Connected to WebSocket server.');
+      setIsConnected(true);
     };
 
-    socketRef.current.onmessage = function(event) {
+    socketRef.current.onmessage = function (event) {
       const data = JSON.parse(event.data);
       if (data.type === 'audio_processed') {
-        setProcessedData((current) => ([data.payload, ...current]));
+        setProcessedData((current) => [data.payload, ...current]);
       } else if (data.type === 'error') {
         setError(data.payload.error);
       } else if (data.type === 'initialized') {
         micManagerRef.current = new MicrophoneManager((audio) => {
-          socketRef.current?.send(JSON.stringify({ type: 'audio_data', payload: { audio } }));
+          socketRef.current?.send(
+            JSON.stringify({ type: 'audio_data', payload: { audio } }),
+          );
         });
         setIsInitialized(true);
         setLoading(false);
       }
     };
 
-    socketRef.current.onclose = function(event) {
-      console.log("Disconnected from WebSocket server.");
-      setIsConnected(false)
+    socketRef.current.onclose = function () {
+      console.log('Disconnected from WebSocket server.');
+      setIsConnected(false);
     };
-  }, [url])
+  }, [url]);
 
   useEffect(() => {
-    connect()
+    connect();
 
     return () => {
       socketRef.current?.close();
@@ -80,30 +83,34 @@ const VoiceRecorderContent: React.FC = () => {
     setRecording(false);
     setIsInitialized(false);
     setProcessedData([]);
-    setError(null)
-    setLoading(false)
-    connect()
+    setError(null);
+    setLoading(false);
+    connect();
   };
 
   const initializeModels = useCallback(() => {
-    socketRef.current?.send(JSON.stringify({
-      type: 'initialize',
-      payload: {
-        language_to: languageTo,
-        language_from: languageFrom,
-        model_name: modelName
-      }
-    }));
+    socketRef.current?.send(
+      JSON.stringify({
+        type: 'initialize',
+        payload: {
+          language_to: languageTo,
+          language_from: languageFrom,
+          model_name: modelName,
+        },
+      }),
+    );
     setLoading(true);
   }, [languageFrom, languageTo, modelName]);
 
   if (error) {
-    return <ErrorBlock
-      title={isInitialized ? "Processing error" : "Initializing error"}
-      description={error}
-      button="Restart"
-      onClick={discard}
-    />
+    return (
+      <ErrorBlock
+        title={isInitialized ? 'Processing error' : 'Initializing error'}
+        description={error}
+        button="Restart"
+        onClick={discard}
+      />
+    );
   }
 
   if (loading) {
@@ -123,13 +130,13 @@ const VoiceRecorderContent: React.FC = () => {
           serverUrl={url}
           setServerUrl={setUrl}
         />
-        {
-          isConnected ?
-            <Button onClick={initializeModels} fullWidth>
-              Initialize recorder
-            </Button> :
-            <Loading text="Connection to server" />
-        }
+        {isConnected ? (
+          <Button onClick={initializeModels} fullWidth>
+            Initialize recorder
+          </Button>
+        ) : (
+          <Loading text="Connection to server" />
+        )}
       </>
     );
   }
@@ -156,7 +163,7 @@ const VoiceRecorder = () => {
         <FeatureArticle
           title="Speak and Translate Instantly"
           descriptions={[
-            "Enhance your note-taking and subtitling process with our cutting-edge feature. Dictate your messages using your voice and instantly receive both translated text and synthesized audio in your chosen language. Perfect for creating notes or subtitles on the go, this feature ensures you capture and translate your thoughts quickly and accurately. Speak, translate, and listen with ease, making your workflow more efficient and effective."
+            'Enhance your note-taking and subtitling process with our cutting-edge feature. Dictate your messages using your voice and instantly receive both translated text and synthesized audio in your chosen language. Perfect for creating notes or subtitles on the go, this feature ensures you capture and translate your thoughts quickly and accurately. Speak, translate, and listen with ease, making your workflow more efficient and effective.',
           ]}
           imagePath="/record.png"
         />

@@ -1,4 +1,4 @@
-import Document, { Html, Head, Main, NextScript } from 'next/document'
+import Document, { Html, Head, Main, NextScript } from 'next/document';
 
 class MyDocument extends Document {
   render() {
@@ -7,12 +7,21 @@ class MyDocument extends Document {
         <Head>
           <link rel="icon" href="/favicon.ico" />
           {/* SEO */}
-          <meta name="description" content="Babylon Tower - Your ultimate solution for speech recognition and synthesis." />
-          <meta name="keywords" content="speech recognition, speech synthesis, translation, audio, Babylon Tower" />
+          <meta
+            name="description"
+            content="Babylon Tower - Your ultimate solution for speech recognition and synthesis."
+          />
+          <meta
+            name="keywords"
+            content="speech recognition, speech synthesis, translation, audio, Babylon Tower"
+          />
 
           {/* Open Graph */}
           <meta property="og:title" content="Babylon Tower" />
-          <meta property="og:description" content="Your ultimate solution for speech recognition and synthesis." />
+          <meta
+            property="og:description"
+            content="Your ultimate solution for speech recognition and synthesis."
+          />
           <meta property="og:image" content="/logo_light.png" />
           {/*<meta property="og:url" content="https://domain.com" />*/}
           <meta property="og:type" content="website" />
@@ -20,7 +29,10 @@ class MyDocument extends Document {
           {/* Twitter Cards */}
           <meta name="twitter:card" content="/logo_light.png" />
           <meta name="twitter:title" content="Babylon Tower" />
-          <meta name="twitter:description" content="Your ultimate solution for speech recognition and synthesis." />
+          <meta
+            name="twitter:description"
+            content="Your ultimate solution for speech recognition and synthesis."
+          />
           <meta name="twitter:image" content="/logo_light.png" />
 
           {/* Other */}
@@ -28,12 +40,12 @@ class MyDocument extends Document {
           <meta charSet="UTF-8" />
         </Head>
         <body>
-        <Main />
-        <NextScript />
+          <Main />
+          <NextScript />
         </body>
       </Html>
-    )
+    );
   }
 }
 
-export default MyDocument
+export default MyDocument;

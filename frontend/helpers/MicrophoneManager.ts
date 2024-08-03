@@ -18,7 +18,9 @@ export class MicrophoneManager {
   async initialize() {
     try {
       this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      this.mediaRecorder = new MediaRecorder(this.stream, { mimeType: 'audio/webm' });
+      this.mediaRecorder = new MediaRecorder(this.stream, {
+        mimeType: 'audio/webm',
+      });
 
       this.mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
@@ -37,13 +39,13 @@ export class MicrophoneManager {
         }
       };
     } catch (err) {
-      console.error("Error initializing media recorder", err);
+      console.error('Error initializing media recorder', err);
     }
   }
 
   private stopAllTracks() {
     if (this.stream) {
-      this.stream.getTracks().forEach(track => track.stop());
+      this.stream.getTracks().forEach((track) => track.stop());
     }
   }
 

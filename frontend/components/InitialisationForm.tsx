@@ -1,22 +1,28 @@
 import { useEffect } from 'react';
-import { Grid, IconButton, Typography } from "@mui/material";
-import {TranslationModel} from "../types/types";
+import { Grid, IconButton, Typography } from '@mui/material';
+import { TranslationModel } from '../types/types';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { LANGUAGES, LOCAL_URL, PUBLIC_URL, RECORDING_MODEL, SERVER_LINK } from "../constants/constants";
-import { Select } from "./Select";
+import {
+  LANGUAGES,
+  LOCAL_URL,
+  PUBLIC_URL,
+  RECORDING_MODEL,
+  SERVER_LINK,
+} from '../constants/constants';
+import { Select } from './Select';
 
 interface InitialisationFormProps {
-  languageFrom: string
-  setLanguageFrom: (language: string) => void
-  languageTo: string
-  setLanguageTo: (language: string) => void
-  modelName: string,
-  setModelName: (language: TranslationModel) => void
-  serverUrl: string,
-  setServerUrl: (url: string) => void
+  languageFrom: string;
+  setLanguageFrom: (language: string) => void;
+  languageTo: string;
+  setLanguageTo: (language: string) => void;
+  modelName: string;
+  setModelName: (language: TranslationModel) => void;
+  serverUrl: string;
+  setServerUrl: (url: string) => void;
 }
 
-export const InitialisationForm: React.FC<InitialisationFormProps> = ({
+export const InitialisationForm = ({
   languageFrom,
   setLanguageFrom,
   languageTo,
@@ -24,8 +30,8 @@ export const InitialisationForm: React.FC<InitialisationFormProps> = ({
   modelName,
   setModelName,
   serverUrl,
-  setServerUrl
-}) => {
+  setServerUrl,
+}: InitialisationFormProps) => {
   useEffect(() => {
     const fetchServerUrl = async () => {
       try {
@@ -77,12 +83,11 @@ export const InitialisationForm: React.FC<InitialisationFormProps> = ({
       <Grid item xs={12} md={4} mt={1}>
         <Typography variant="h6" gutterBottom>
           Server link
-          {
-            serverUrl !== LOCAL_URL &&
+          {serverUrl !== LOCAL_URL && (
             <IconButton onClick={() => window.open(PUBLIC_URL, '_blank')}>
               <OpenInNewIcon />
             </IconButton>
-          }
+          )}
         </Typography>
         <Select
           value={serverUrl}

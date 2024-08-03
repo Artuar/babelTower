@@ -1,12 +1,16 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Box, Container, Grid, Typography, Button } from '@mui/material';
 import Layout from '../layout';
-import { FeatureArticle } from "../../components/FeatureArticle";
-import { TranslationModel } from "../../types/types";
-import { FILE_MAX_SIZE, FILE_TYPE, PUBLIC_URL } from "../../constants/constants";
-import { InitialisationForm } from "../../components/InitialisationForm";
-import { Loading } from "../../components/Loading";
-import { ErrorBlock } from "../../components/ErrorBlock";
+import { FeatureArticle } from '../../components/FeatureArticle';
+import { TranslationModel } from '../../types/types';
+import {
+  FILE_MAX_SIZE,
+  FILE_TYPE,
+  PUBLIC_URL,
+} from '../../constants/constants';
+import { InitialisationForm } from '../../components/InitialisationForm';
+import { Loading } from '../../components/Loading';
+import { ErrorBlock } from '../../components/ErrorBlock';
 
 const AudioTranslationContent: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -20,11 +24,13 @@ const AudioTranslationContent: React.FC = () => {
   const [socket, setSocket] = useState<WebSocket | null>(null);
 
   useEffect(() => {
-    const formattedUrl = url.replace("http", "ws")
-    const socketInstance = new WebSocket(`${formattedUrl}/socket.io/?transport=websocket`);
+    const formattedUrl = url.replace('http', 'ws');
+    const socketInstance = new WebSocket(
+      `${formattedUrl}/socket.io/?transport=websocket`,
+    );
 
     socketInstance.onopen = () => {
-      console.log("Connected to WebSocket server.");
+      console.log('Connected to WebSocket server.');
       setSocket(socketInstance);
     };
 
@@ -40,7 +46,7 @@ const AudioTranslationContent: React.FC = () => {
     };
 
     socketInstance.onclose = () => {
-      console.log("Disconnected from WebSocket server.");
+      console.log('Disconnected from WebSocket server.');
       setSocket(null);
     };
 
@@ -49,7 +55,9 @@ const AudioTranslationContent: React.FC = () => {
     };
   }, [url]);
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (file && file.size <= FILE_MAX_SIZE && file.type === FILE_TYPE) {
       setSelectedFile(file);
@@ -96,100 +104,113 @@ const AudioTranslationContent: React.FC = () => {
   useMemo(() => {
     setTranslatedAudio(null);
     setError(null);
-  }, [selectedFile])
+  }, [selectedFile]);
 
   if (error) {
-    return <ErrorBlock
-      title="Processing error"
-      description={error}
-      button="Try new file"
-      onClick={discard}
-    />
+    return (
+      <ErrorBlock
+        title="Processing error"
+        description={error}
+        button="Try new file"
+        onClick={discard}
+      />
+    );
   }
 
   if (!uploading && !translatedAudio) {
-    return <>
-      <InitialisationForm
-        languageFrom={languageFrom}
-        setLanguageFrom={setLanguageFrom}
-        languageTo={languageTo}
-        setLanguageTo={setLanguageTo}
-        modelName={modelName}
-        setModelName={setModelName}
-        serverUrl={url}
-        setServerUrl={setUrl}
-      />
+    return (
+      <>
+        <InitialisationForm
+          languageFrom={languageFrom}
+          setLanguageFrom={setLanguageFrom}
+          languageTo={languageTo}
+          setLanguageTo={setLanguageTo}
+          modelName={modelName}
+          setModelName={setModelName}
+          serverUrl={url}
+          setServerUrl={setUrl}
+        />
 
-      {
-        socket === null ?
-        <Loading text="Connection to server" /> :
-        <Grid container paddingY={4}>
-          <Grid item xs={12}>
-            <Box
-              p={2}
-              height="200px"
-              border="1px dashed grey"
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              flexDirection="column"
-              onDrop={(e) => {
-                e.preventDefault();
-                handleFileChange(e as unknown as React.ChangeEvent<HTMLInputElement>);
-              }}
-              onDragOver={(e) => e.preventDefault()}
-            >
-              <Typography>Drop your MP3 file here or click to upload</Typography>
-              <input
-                type="file"
-                accept="audio/mpeg"
-                style={{display: 'none'}}
-                id="upload-button"
-                onChange={handleFileChange}
-              />
-              <label htmlFor="upload-button">
-                <Box
-                  component="span"
-                  sx={{mt: 2, cursor: 'pointer', color: 'primary.main', textDecoration: 'underline'}}
-                >
-                  Choose File
-                </Box>
-              </label>
-              {selectedFile && (
-                <Typography variant="body2" mt={2}>
-                  Selected file: {selectedFile.name}
+        {socket === null ? (
+          <Loading text="Connection to server" />
+        ) : (
+          <Grid container paddingY={4}>
+            <Grid item xs={12}>
+              <Box
+                p={2}
+                height="200px"
+                border="1px dashed grey"
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                flexDirection="column"
+                onDrop={(e) => {
+                  e.preventDefault();
+                  handleFileChange(
+                    e as unknown as React.ChangeEvent<HTMLInputElement>,
+                  );
+                }}
+                onDragOver={(e) => e.preventDefault()}
+              >
+                <Typography>
+                  Drop your MP3 file here or click to upload
                 </Typography>
-              )}
-            </Box>
+                <input
+                  type="file"
+                  accept="audio/mpeg"
+                  style={{ display: 'none' }}
+                  id="upload-button"
+                  onChange={handleFileChange}
+                />
+                <label htmlFor="upload-button">
+                  <Box
+                    component="span"
+                    sx={{
+                      mt: 2,
+                      cursor: 'pointer',
+                      color: 'primary.main',
+                      textDecoration: 'underline',
+                    }}
+                  >
+                    Choose File
+                  </Box>
+                </label>
+                {selectedFile && (
+                  <Typography variant="body2" mt={2}>
+                    Selected file: {selectedFile.name}
+                  </Typography>
+                )}
+              </Box>
+            </Grid>
           </Grid>
-        </Grid>
-      }
-    </>
+        )}
+      </>
+    );
   }
 
   if (uploading) {
-    return  <Loading text="Uploading and translating" />
+    return <Loading text="Uploading and translating" />;
   }
 
   if (translatedAudio) {
-    return <Box mt={4} alignItems="center" flexDirection="column" display="flex">
-      <Typography variant="h6" gutterBottom>
-        Original Audio
-      </Typography>
-      {selectedFile && (
-        <audio controls src={URL.createObjectURL(selectedFile)}></audio>
-      )}
-      <Typography variant="h6" gutterBottom sx={{mt: 2}}>
-        Translated Audio
-      </Typography>
-      <audio controls src={translatedAudio}></audio>
-      <Button onClick={handleDownload}>
-        Download Translated Audio
-      </Button>
-      <Button color="secondary" onClick={discard}>
-        Try new file
-      </Button>
-    </Box>
+    return (
+      <Box mt={4} alignItems="center" flexDirection="column" display="flex">
+        <Typography variant="h6" gutterBottom>
+          Original Audio
+        </Typography>
+        {selectedFile && (
+          <audio controls src={URL.createObjectURL(selectedFile)}></audio>
+        )}
+        <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
+          Translated Audio
+        </Typography>
+        <audio controls src={translatedAudio}></audio>
+        <Button onClick={handleDownload}>Download Translated Audio</Button>
+        <Button color="secondary" onClick={discard}>
+          Try new file
+        </Button>
+      </Box>
+    );
   }
 };
 
@@ -200,7 +221,7 @@ const AudioTranslation: React.FC = () => {
         <FeatureArticle
           title="Effortless Audio Translations"
           descriptions={[
-            "Easily translate audio files with our intuitive tool. Upload your audio and receive accurate translations in no time. This feature allows users to upload their audio files and translate the conversation within them into any of the supported languages. The background sounds are preserved during the translation process, ensuring the original context and ambiance remain intact."
+            'Easily translate audio files with our intuitive tool. Upload your audio and receive accurate translations in no time. This feature allows users to upload their audio files and translate the conversation within them into any of the supported languages. The background sounds are preserved during the translation process, ensuring the original context and ambiance remain intact.',
           ]}
           imagePath="/audio.png"
         />
