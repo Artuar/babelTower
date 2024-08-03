@@ -14,7 +14,18 @@ const VoiceRecorderContent: React.FC = () => {
   const [languageTo, setLanguageTo] = useState('ua');
   const [languageFrom, setLanguageFrom] = useState('en');
   const [modelName, setModelName] = useState<TranslationModel>('small');
-  const { url, setUrl , sendMessage, isInitialized, isConnected, error, subscribe, unsubscribe, disconnect, connect } = useWebSocket();
+  const {
+    serverUrl,
+    setServerUrl,
+    sendMessage,
+    isInitialized,
+    isConnected,
+    error,
+    subscribe,
+    unsubscribe,
+    disconnect,
+    connect,
+  } = useWebSocket();
 
   const [loading, setLoading] = useState(false);
   const [recording, setRecording] = useState(false);
@@ -22,7 +33,7 @@ const VoiceRecorderContent: React.FC = () => {
   const micManagerRef = useRef<MicrophoneManager | null>(null);
 
   useEffect(() => {
-    const handleAudioProcessed = (data: any) => {
+    const handleAudioProcessed = (data: ProcessedData) => {
       setProcessedData((current) => [data, ...current]);
     };
 
@@ -100,8 +111,8 @@ const VoiceRecorderContent: React.FC = () => {
           setLanguageTo={setLanguageTo}
           modelName={modelName}
           setModelName={setModelName}
-          serverUrl={url}
-          setServerUrl={setUrl}
+          serverUrl={serverUrl}
+          setServerUrl={setServerUrl}
         />
         {isConnected ? (
           <Button onClick={initializeModels} fullWidth>

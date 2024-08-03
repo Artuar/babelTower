@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { PUBLIC_URL } from "../constants/constants";
+import { PUBLIC_URL } from '../constants/constants';
 
 interface WebSocketMessage {
   type: string;
-  payload: any;
+  payload: unknown;
 }
 
 interface UseWebSocketReturn {
@@ -11,12 +11,12 @@ interface UseWebSocketReturn {
   isInitialized: boolean;
   isConnected: boolean;
   error: string | null;
-  subscribe: (messageType: string, callback: (data: any) => void) => void;
-  unsubscribe: (messageType: string, callback: (data: any) => void) => void;
+  subscribe: (messageType: string, callback: (data: unknown) => void) => void;
+  unsubscribe: (messageType: string, callback: (data: unknown) => void) => void;
   disconnect: () => void;
   connect: () => void;
-  setUrl: (url: string) => void;
-  url: string;
+  setServerUrl: (url: string) => void;
+  serverUrl: string;
 }
 
 export const useWebSocket = (): UseWebSocketReturn => {
@@ -24,16 +24,18 @@ export const useWebSocket = (): UseWebSocketReturn => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
-  const subscribers = useRef<Record<string, ((data: any) => void)[]>>({});
-  const [url, setUrl] = useState<string>(PUBLIC_URL);
+  const subscribers = useRef<Record<string, ((data: unknown) => void)[]>>({});
+  const [serverUrl, setServerUrl] = useState<string>(PUBLIC_URL);
 
   const connect = useCallback(() => {
     if (socketRef.current) {
       socketRef.current.close();
     }
 
-    const formattedUrl = url.replace('http', 'ws');
-    socketRef.current = new WebSocket(`${formattedUrl}/socket.io/?transport=websocket`);
+    const formattedUrl = serverUrl.replace('http', 'ws');
+    socketRef.current = new WebSocket(
+      `${formattedUrl}/socket.io/?transport=websocket`,
+    );
 
     socketRef.current.onopen = () => {
       setIsConnected(true);
@@ -57,7 +59,7 @@ export const useWebSocket = (): UseWebSocketReturn => {
     socketRef.current.onclose = () => {
       setIsConnected(false);
     };
-  }, [url]);
+  }, [serverUrl]);
 
   useEffect(() => {
     connect();
@@ -72,25 +74,31 @@ export const useWebSocket = (): UseWebSocketReturn => {
     }
   };
 
-  const subscribe = (messageType: string, callback: (data: any) => void) => {
+  const subscribe = (
+    messageType: string,
+    callback: (data: unknown) => void,
+  ) => {
     if (!subscribers.current[messageType]) {
       subscribers.current[messageType] = [];
     }
     subscribers.current[messageType].push(callback);
   };
 
-  const unsubscribe = (messageType: string, callback: (data: any) => void) => {
+  const unsubscribe = (
+    messageType: string,
+    callback: (data: unknown) => void,
+  ) => {
     if (subscribers.current[messageType]) {
-      subscribers.current[messageType] = subscribers.current[messageType].filter(
-        (cb) => cb !== callback
-      );
+      subscribers.current[messageType] = subscribers.current[
+        messageType
+      ].filter((cb) => cb !== callback);
     }
   };
 
   const disconnect = () => {
     socketRef.current?.close();
     setIsInitialized(false);
-    setError(null)
+    setError(null);
   };
 
   return {
@@ -102,7 +110,7 @@ export const useWebSocket = (): UseWebSocketReturn => {
     disconnect,
     connect,
     unsubscribe,
-    setUrl,
-    url,
+    setServerUrl,
+    serverUrl,
   };
 };
