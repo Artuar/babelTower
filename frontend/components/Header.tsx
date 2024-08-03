@@ -1,7 +1,9 @@
-import { AppBar, MenuItem, Select, Toolbar, Typography } from "@mui/material";
+import { AppBar, Toolbar, Typography } from "@mui/material";
 import Image from "next/image";
 import { useState } from "react";
 import { Link } from "./Link";
+import { LANGUAGES } from "../constants/constants";
+import { Select } from "./Select";
 
 export const Header: React.FC = () => {
   const [language, setLanguage] = useState('en');
@@ -22,15 +24,9 @@ export const Header: React.FC = () => {
         value={language}
         onChange={handleLanguageChange}
         style={{ marginRight: 16, color: 'white' }}
-      >
-        <MenuItem value={'en'}>English</MenuItem>
-        <MenuItem value={'ua'}>Українська</MenuItem>
-        <MenuItem value={'ru'}>Русский</MenuItem>
-        <MenuItem value={'fr'}>Français</MenuItem>
-        <MenuItem value={'de'}>Deutsch</MenuItem>
-        <MenuItem value={'es'}>Español</MenuItem>
-        <MenuItem value={'hi'}>हिन्दी</MenuItem>
-      </Select>
+        options={LANGUAGES}
+        fullWidth={false}
+      />
     </Toolbar>
   </AppBar>
 }

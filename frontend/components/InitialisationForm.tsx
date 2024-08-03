@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
-import { Grid, IconButton, MenuItem, Select, Typography } from "@mui/material";
+import { Grid, IconButton, Typography } from "@mui/material";
 import {TranslationModel} from "../types/types";
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { LOCAL_URL, PUBLIC_URL } from "../constants/constants";
+import { LANGUAGES, LOCAL_URL, PUBLIC_URL, RECORDING_MODEL, SERVER_LINK } from "../constants/constants";
+import { Select } from "./Select";
 
 interface InitialisationFormProps {
   languageFrom: string
@@ -49,16 +50,8 @@ export const InitialisationForm: React.FC<InitialisationFormProps> = ({
           <Select
             value={languageFrom}
             onChange={(e) => setLanguageFrom(e.target.value as string)}
-            fullWidth
-          >
-            <MenuItem value={'en'}>English</MenuItem>
-            <MenuItem value={'ua'}>Українська</MenuItem>
-            <MenuItem value={'ru'}>Русский</MenuItem>
-            <MenuItem value={'fr'}>Français</MenuItem>
-            <MenuItem value={'de'}>Deutsch</MenuItem>
-            <MenuItem value={'es'}>Español</MenuItem>
-            <MenuItem value={'hi'}>हिन्दी</MenuItem>
-          </Select>
+            options={LANGUAGES}
+          />
         </Grid>
         <Grid item xs={12} md={4}>
           <Typography variant="h6" gutterBottom>
@@ -67,16 +60,8 @@ export const InitialisationForm: React.FC<InitialisationFormProps> = ({
           <Select
             value={languageTo}
             onChange={(e) => setLanguageTo(e.target.value as string)}
-            fullWidth
-          >
-            <MenuItem value={'en'}>English</MenuItem>
-            <MenuItem value={'ua'}>Українська</MenuItem>
-            <MenuItem value={'ru'}>Русский</MenuItem>
-            <MenuItem value={'fr'}>Français</MenuItem>
-            <MenuItem value={'de'}>Deutsch</MenuItem>
-            <MenuItem value={'es'}>Español</MenuItem>
-            <MenuItem value={'hi'}>हिन्दी</MenuItem>
-          </Select>
+            options={LANGUAGES}
+          />
         </Grid>
         <Grid item xs={12} md={4}>
           <Typography variant="h6" gutterBottom>
@@ -85,14 +70,8 @@ export const InitialisationForm: React.FC<InitialisationFormProps> = ({
           <Select
             value={modelName}
             onChange={(e) => setModelName(e.target.value as TranslationModel)}
-            fullWidth
-          >
-            <MenuItem value={'tiny'}>tiny</MenuItem>
-            <MenuItem value={'base'}>base</MenuItem>
-            <MenuItem value={'small'}>small</MenuItem>
-            <MenuItem value={'medium'}>medium</MenuItem>
-            <MenuItem value={'large'}>large</MenuItem>
-          </Select>
+            options={RECORDING_MODEL}
+          />
         </Grid>
       </Grid>
       <Grid item xs={12} md={4} mt={1}>
@@ -107,12 +86,9 @@ export const InitialisationForm: React.FC<InitialisationFormProps> = ({
         </Typography>
         <Select
           value={serverUrl}
-          onChange={(e) => setServerUrl(e.target.value)}
-          fullWidth
-        >
-          <MenuItem value={LOCAL_URL}>Localhost</MenuItem>
-          <MenuItem value={PUBLIC_URL}>Public</MenuItem>
-        </Select>
+          onChange={(e) => setServerUrl(e.target.value as string)}
+          options={SERVER_LINK}
+        />
       </Grid>
     </>
   );
