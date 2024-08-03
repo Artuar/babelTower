@@ -9,7 +9,7 @@ import { Console } from '../../components/Console';
 import { MicrophoneManager } from '../../helpers/MicrophoneManager';
 import { ErrorBlock } from '../../components/ErrorBlock';
 import { useWebSocket } from '../../hooks/useWebSocket';
-import { ProcessedData } from '../../types/messages';
+import { ProcessedData } from '../../types/receivedMessages';
 
 const VoiceRecorderContent: React.FC = () => {
   const [languageTo, setLanguageTo] = useState('ua');
@@ -49,7 +49,7 @@ const VoiceRecorderContent: React.FC = () => {
     setLoading(false);
 
     if (isInitialized) {
-      micManagerRef.current = new MicrophoneManager((audio) => {
+      micManagerRef.current = new MicrophoneManager((audio: string) => {
         sendMessage({ type: 'audio_data', payload: { audio } });
       });
     } else {

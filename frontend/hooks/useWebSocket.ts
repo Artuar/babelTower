@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { PUBLIC_URL } from '../constants/constants';
-import { WebSocketMessage } from '../types/messages';
+import { WebSocketMessage } from '../types/receivedMessages';
+import { UserMessage } from '../types/sentMessages';
 
 interface UseWebSocketReturn {
-  sendMessage: (message: unknown) => void;
+  sendMessage: (message: UserMessage) => void;
   isInitialized: boolean;
   isConnected: boolean;
   error: string | null;
@@ -72,7 +73,7 @@ export const useWebSocket = (): UseWebSocketReturn => {
     };
   }, [connect]);
 
-  const sendMessage = (message: WebSocketMessage) => {
+  const sendMessage = (message: UserMessage) => {
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
       socketRef.current.send(JSON.stringify(message));
     }

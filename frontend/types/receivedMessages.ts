@@ -12,7 +12,7 @@ export interface ProcessedData {
   recognize_result: RecognizeResult;
 }
 
-export interface InitialiseData {
+export interface InitialisedData {
   message: string;
 }
 
@@ -25,8 +25,8 @@ export interface ProcessedMessage {
   type: 'audio';
 }
 
-export interface InitialiseMessage {
-  payload: InitialiseData;
+export interface InitialisedMessage {
+  payload: InitialisedData;
   type: 'initialized';
 }
 
@@ -37,5 +37,5 @@ export interface ErrorMessage {
 
 export type WebSocketMessage =
   | ProcessedMessage
-  | InitialiseMessage
+  | InitialisedMessage
   | ErrorMessage;
