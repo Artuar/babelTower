@@ -18,6 +18,7 @@ const AudioTranslationContent: React.FC = () => {
     serverUrl,
     sendMessage,
     isConnected,
+    isInitialized,
     error,
     subscribe,
     unsubscribe,
@@ -47,9 +48,8 @@ const AudioTranslationContent: React.FC = () => {
     setUploading(true);
     setOriginalAudio(base64File);
     sendMessage({
-      type: 'translate_audio',
+      type: 'initialize',
       payload: {
-        file: base64File,
         language_to: languageTo,
         language_from: languageFrom,
         model_name: modelName,
@@ -60,6 +60,20 @@ const AudioTranslationContent: React.FC = () => {
   const handleDownload = useCallback(() => {
     downloadFile(translatedAudio, 'translated_audio.mp3');
   }, [translatedAudio]);
+
+  useEffect(() => {
+    if (isInitialized) {
+      sendMessage({
+        type: 'translate_audio',
+        payload: {
+          file: originalAudio,
+        },
+      });
+    } else {
+      setUploading(false);
+      setOriginalAudio(null);
+    }
+  }, [isInitialized]);
 
   const discard = () => {
     setUploading(false);
@@ -91,6 +105,10 @@ const AudioTranslationContent: React.FC = () => {
         )}
       </>
     );
+  }
+
+  if (!isInitialized) {
+    return <Loading text="Initializing models" />;
   }
 
   if (uploading) {

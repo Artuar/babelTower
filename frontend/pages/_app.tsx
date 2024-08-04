@@ -20,11 +20,11 @@ type AppPropsWithLayout = AppProps & {
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout ?? ((page) => <Layout>{page}</Layout>);
-  const getProviders = (page) => [
-    WebSocketProvider,
-    ModelInitializationProvider,
-    MicrophoneProvider,
-  ].reduce((Content, Provider) => <Provider>{Content}</Provider>, page)
+  const getProviders = (page) =>
+    [WebSocketProvider, ModelInitializationProvider, MicrophoneProvider].reduce(
+      (Content, Provider) => <Provider>{Content}</Provider>,
+      page,
+    );
 
   return (
     <ThemeProvider theme={theme}>

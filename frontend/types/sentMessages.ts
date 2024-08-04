@@ -10,9 +10,6 @@ interface AudioData {
 
 interface TranslateAudioData {
   file: string;
-  language_from: string;
-  language_to: string;
-  model_name: string;
 }
 
 interface InitializingMessage {
