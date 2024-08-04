@@ -6,28 +6,20 @@ import {
   SERVER_LINK,
 } from '../constants/constants';
 import { Select } from './Select';
+import { useWebSocketContext } from '../context/WebSocketContext';
+import { useModelInitialization } from '../context/ModelInitializationContext';
 
-interface InitialisationFormProps {
-  languageFrom: string;
-  setLanguageFrom: (language: string) => void;
-  languageTo: string;
-  setLanguageTo: (language: string) => void;
-  modelName: string;
-  setModelName: (language: TranslationModel) => void;
-  serverUrl: string;
-  setServerUrl: (url: string) => void;
-}
+export const InitialisationForm = () => {
+  const { setServerUrl, serverUrl } = useWebSocketContext();
+  const {
+    languageTo,
+    languageFrom,
+    modelName,
+    setLanguageTo,
+    setLanguageFrom,
+    setModelName,
+  } = useModelInitialization();
 
-export const InitialisationForm = ({
-  languageFrom,
-  setLanguageFrom,
-  languageTo,
-  setLanguageTo,
-  modelName,
-  setModelName,
-  serverUrl,
-  setServerUrl,
-}: InitialisationFormProps) => {
   return (
     <>
       <Grid container spacing={2}>

@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Box, Container, Typography, Button } from '@mui/material';
 import { FeatureArticle } from '../../components/FeatureArticle';
-import { TranslationModel } from '../../types/types';
 import { InitialisationForm } from '../../components/InitialisationForm';
 import { Loading } from '../../components/Loading';
 import { ErrorBlock } from '../../components/ErrorBlock';
@@ -10,14 +9,13 @@ import { TranslatedAudio } from '../../types/receivedMessages';
 import { downloadFile } from '../../helpers/downloadFile';
 import FileDragAndDrop from '../../components/FileDragAndDrop';
 import { Metadata } from '../../components/Metadata';
+import { useModelInitialization } from '../../context/ModelInitializationContext';
 
 const AudioTranslationContent: React.FC = () => {
-  const [languageTo, setLanguageTo] = useState('ua');
-  const [languageFrom, setLanguageFrom] = useState('en');
-  const [modelName, setModelName] = useState<TranslationModel>('small');
+  const { languageTo, languageFrom, modelName } = useModelInitialization();
+
   const {
     serverUrl,
-    setServerUrl,
     sendMessage,
     isConnected,
     error,
@@ -83,16 +81,7 @@ const AudioTranslationContent: React.FC = () => {
   if (!uploading && !translatedAudio) {
     return (
       <>
-        <InitialisationForm
-          languageFrom={languageFrom}
-          setLanguageFrom={setLanguageFrom}
-          languageTo={languageTo}
-          setLanguageTo={setLanguageTo}
-          modelName={modelName}
-          setModelName={setModelName}
-          serverUrl={serverUrl}
-          setServerUrl={setServerUrl}
-        />
+        <InitialisationForm />
 
         {!isConnected ? (
           <Loading text="Connection to server" url={serverUrl} />

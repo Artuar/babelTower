@@ -7,6 +7,7 @@ import type { NextPage } from 'next';
 import { theme } from '../styles/theme';
 import { WebSocketProvider } from '../context/WebSocketContext';
 import Layout from './layout';
+import { ModelInitializationProvider } from '../context/ModelInitializationContext';
 
 export type NextPageWithLayout<P = unknown, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
@@ -23,7 +24,9 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <WebSocketProvider>
-        {getLayout(<Component {...pageProps} />)}
+        <ModelInitializationProvider>
+          {getLayout(<Component {...pageProps} />)}
+        </ModelInitializationProvider>
       </WebSocketProvider>
     </ThemeProvider>
   );

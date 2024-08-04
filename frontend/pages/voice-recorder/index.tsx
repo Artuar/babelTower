@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { TranslationModel } from '../../types/types';
 import { Box, Container, Button } from '@mui/material';
 import { FeatureArticle } from '../../components/FeatureArticle';
 import { InitialisationForm } from '../../components/InitialisationForm';
@@ -10,14 +9,13 @@ import { ErrorBlock } from '../../components/ErrorBlock';
 import { ProcessedData } from '../../types/receivedMessages';
 import { useWebSocketContext } from '../../context/WebSocketContext';
 import { Metadata } from '../../components/Metadata';
+import { useModelInitialization } from '../../context/ModelInitializationContext';
 
 const VoiceRecorderContent: React.FC = () => {
-  const [languageTo, setLanguageTo] = useState('ua');
-  const [languageFrom, setLanguageFrom] = useState('en');
-  const [modelName, setModelName] = useState<TranslationModel>('small');
+  const { languageTo, languageFrom, modelName } = useModelInitialization();
+
   const {
     serverUrl,
-    setServerUrl,
     sendMessage,
     isInitialized,
     isConnected,
@@ -105,16 +103,7 @@ const VoiceRecorderContent: React.FC = () => {
   if (!isInitialized) {
     return (
       <>
-        <InitialisationForm
-          languageFrom={languageFrom}
-          setLanguageFrom={setLanguageFrom}
-          languageTo={languageTo}
-          setLanguageTo={setLanguageTo}
-          modelName={modelName}
-          setModelName={setModelName}
-          serverUrl={serverUrl}
-          setServerUrl={setServerUrl}
-        />
+        <InitialisationForm />
         {isConnected ? (
           <Button onClick={initializeModels} fullWidth>
             Initialize recorder
