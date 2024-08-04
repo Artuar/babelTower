@@ -1,10 +1,7 @@
-import { Grid, IconButton, Typography } from '@mui/material';
+import { Grid, Typography } from '@mui/material';
 import { TranslationModel } from '../types/types';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import {
   LANGUAGES,
-  LOCAL_URL,
-  PUBLIC_URL,
   RECORDING_MODEL,
   SERVER_LINK,
 } from '../constants/constants';
@@ -68,11 +65,6 @@ export const InitialisationForm = ({
       <Grid item xs={12} md={4} mt={1}>
         <Typography variant="h6" gutterBottom>
           Server link
-          {serverUrl !== LOCAL_URL && (
-            <IconButton onClick={() => window.open(PUBLIC_URL, '_blank')}>
-              <OpenInNewIcon />
-            </IconButton>
-          )}
         </Typography>
         <Select
           value={serverUrl}

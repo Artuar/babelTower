@@ -19,7 +19,7 @@ export const Loading = ({ text = 'Loading', url }: LoadingProps) => {
           <Link
             target="serverUrl"
             href={url}
-            style={{ textDecoration: 'underline', fontWeight: "bold" }}
+            style={{ textDecoration: 'underline', fontWeight: 'bold' }}
           >
             {url}
           </Link>
