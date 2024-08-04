@@ -6,6 +6,7 @@ class MyDocument extends Document {
       <Html>
         <Head>
           <link rel="icon" href="/favicon.ico" />
+          <title>Babylon Tower</title>
           {/* SEO */}
           <meta
             name="description"
@@ -23,7 +24,7 @@ class MyDocument extends Document {
             content="Your ultimate solution for speech recognition and synthesis."
           />
           <meta property="og:image" content="/logo_light.png" />
-          {/*<meta property="og:url" content="https://domain.com" />*/}
+          <meta property="og:url" content="https://babel-tower.vercel.app/voice-recorder" />
           <meta property="og:type" content="website" />
 
           {/* Twitter Cards */}
