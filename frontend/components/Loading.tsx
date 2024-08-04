@@ -14,12 +14,12 @@ export const Loading = ({ text = 'Loading', url }: LoadingProps) => {
         {text}...
       </Typography>
       {url && (
-        <Typography variant="h6" mt={2}>
+        <Typography variant="body1">
           Please check availability of{' '}
           <Link
             target="serverUrl"
             href={url}
-            style={{ textDecoration: 'underline' }}
+            style={{ textDecoration: 'underline', fontWeight: "bold" }}
           >
             {url}
           </Link>
