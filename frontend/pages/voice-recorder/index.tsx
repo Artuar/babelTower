@@ -9,6 +9,7 @@ import { MicrophoneManager } from '../../helpers/MicrophoneManager';
 import { ErrorBlock } from '../../components/ErrorBlock';
 import { ProcessedData } from '../../types/receivedMessages';
 import { useWebSocketContext } from '../../context/WebSocketContext';
+import { Metadata } from '../../components/Metadata';
 
 const VoiceRecorderContent: React.FC = () => {
   const [languageTo, setLanguageTo] = useState('ua');
@@ -142,16 +143,25 @@ const VoiceRecorderContent: React.FC = () => {
 
 const VoiceRecorder = () => {
   return (
-    <Container>
-      <FeatureArticle
-        title="Speak and Translate Instantly"
-        descriptions={[
-          'Enhance your note-taking and subtitling process with our cutting-edge feature. Dictate your messages using your voice and instantly receive both translated text and synthesized audio in your chosen language. Perfect for creating notes or subtitles on the go, this feature ensures you capture and translate your thoughts quickly and accurately. Speak, translate, and listen with ease, making your workflow more efficient and effective.',
-        ]}
-        imagePath="/record.png"
+    <>
+      <Metadata
+        title="Babylon Tower - Speak and Translate Instantly"
+        description="Dictate your messages using your voice and instantly receive both translated text and synthesized audio in your chosen language."
+        keywords="speech recognition, speech synthesis, translation, audio, Babylon Tower, Voice recorder"
+        image="/record.png"
+        url="https://babel-tower.vercel.app/voice-recorder"
       />
-      <VoiceRecorderContent />
-    </Container>
+      <Container>
+        <FeatureArticle
+          title="Speak and Translate Instantly"
+          descriptions={[
+            'Enhance your note-taking and subtitling process with our cutting-edge feature. Dictate your messages using your voice and instantly receive both translated text and synthesized audio in your chosen language. Perfect for creating notes or subtitles on the go, this feature ensures you capture and translate your thoughts quickly and accurately. Speak, translate, and listen with ease, making your workflow more efficient and effective.',
+          ]}
+          imagePath="/record.png"
+        />
+        <VoiceRecorderContent />
+      </Container>
+    </>
   );
 };
 

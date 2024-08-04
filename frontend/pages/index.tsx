@@ -2,11 +2,19 @@ import { Grid } from '@mui/material';
 import { Feature } from '../components/Feature';
 import { FeatureArticle } from '../components/FeatureArticle';
 import { Link } from '../components/Link';
-import { NextPageWithLayout } from "./_app";
+import { NextPageWithLayout } from './_app';
+import { Metadata } from '../components/Metadata';
 
 const Home: NextPageWithLayout = () => {
   return (
     <>
+      <Metadata
+        title="Babylon Tower"
+        description="Your ultimate solution for speech recognition and synthesis."
+        keywords="speech recognition, speech synthesis, translation, audio, Babylon Tower"
+        image="/big_logo.png"
+        url="https://babel-tower.vercel.app"
+      />
       <FeatureArticle
         title="Welcome to Babylon Tower"
         imagePath="/big_logo.png"

@@ -9,6 +9,7 @@ import { useWebSocketContext } from '../../context/WebSocketContext';
 import { TranslatedAudio } from '../../types/receivedMessages';
 import { downloadFile } from '../../helpers/downloadFile';
 import FileDragAndDrop from '../../components/FileDragAndDrop';
+import { Metadata } from '../../components/Metadata';
 
 const AudioTranslationContent: React.FC = () => {
   const [languageTo, setLanguageTo] = useState('ua');
@@ -134,17 +135,25 @@ const AudioTranslationContent: React.FC = () => {
 
 const AudioTranslation: React.FC = () => {
   return (
-    <Container>
-      <FeatureArticle
-        title="Effortless Audio Translations"
-        descriptions={[
-          'Easily translate audio files with our intuitive tool. Upload your audio and receive accurate translations in no time. This feature allows users to upload their audio files and translate the conversation within them into any of the supported languages. The background sounds are preserved during the translation process, ensuring the original context and ambiance remain intact.',
-        ]}
-        imagePath="/audio.png"
+    <>
+      <Metadata
+        title="Babylon Tower - Effortless Audio Translations"
+        description="Easily translate audio files with our intuitive tool."
+        keywords="speech recognition, speech synthesis, translation, audio, Babylon Tower, Audio Translations"
+        image="/audio.png"
+        url="https://babel-tower.vercel.app/audio-translation"
       />
-
-      <AudioTranslationContent />
-    </Container>
+      <Container>
+        <FeatureArticle
+          title="Effortless Audio Translations"
+          descriptions={[
+            'Easily translate audio files with our intuitive tool. Upload your audio and receive accurate translations in no time. This feature allows users to upload their audio files and translate the conversation within them into any of the supported languages. The background sounds are preserved during the translation process, ensuring the original context and ambiance remain intact.',
+          ]}
+          imagePath="/audio.png"
+        />
+        <AudioTranslationContent />
+      </Container>
+    </>
   );
 };
 

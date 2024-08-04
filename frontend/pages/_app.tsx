@@ -6,7 +6,7 @@ import type { ReactElement, ReactNode } from 'react';
 import type { NextPage } from 'next';
 import { theme } from '../styles/theme';
 import { WebSocketProvider } from '../context/WebSocketContext';
-import Layout from "./layout";
+import Layout from './layout';
 
 export type NextPageWithLayout<P = unknown, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
