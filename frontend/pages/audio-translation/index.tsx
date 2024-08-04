@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Box, Container, Typography, Button } from '@mui/material';
-import Layout from '../layout';
 import { FeatureArticle } from '../../components/FeatureArticle';
 import { TranslationModel } from '../../types/types';
 import { InitialisationForm } from '../../components/InitialisationForm';
@@ -135,19 +134,17 @@ const AudioTranslationContent: React.FC = () => {
 
 const AudioTranslation: React.FC = () => {
   return (
-    <Layout>
-      <Container>
-        <FeatureArticle
-          title="Effortless Audio Translations"
-          descriptions={[
-            'Easily translate audio files with our intuitive tool. Upload your audio and receive accurate translations in no time. This feature allows users to upload their audio files and translate the conversation within them into any of the supported languages. The background sounds are preserved during the translation process, ensuring the original context and ambiance remain intact.',
-          ]}
-          imagePath="/audio.png"
-        />
+    <Container>
+      <FeatureArticle
+        title="Effortless Audio Translations"
+        descriptions={[
+          'Easily translate audio files with our intuitive tool. Upload your audio and receive accurate translations in no time. This feature allows users to upload their audio files and translate the conversation within them into any of the supported languages. The background sounds are preserved during the translation process, ensuring the original context and ambiance remain intact.',
+        ]}
+        imagePath="/audio.png"
+      />
 
-        <AudioTranslationContent />
-      </Container>
-    </Layout>
+      <AudioTranslationContent />
+    </Container>
   );
 };
 

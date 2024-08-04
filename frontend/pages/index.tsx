@@ -1,12 +1,12 @@
 import { Grid } from '@mui/material';
-import Layout from './layout';
 import { Feature } from '../components/Feature';
 import { FeatureArticle } from '../components/FeatureArticle';
 import { Link } from '../components/Link';
+import { NextPageWithLayout } from "./_app";
 
-const Home: React.FC = () => {
+const Home: NextPageWithLayout = () => {
   return (
-    <Layout>
+    <>
       <FeatureArticle
         title="Welcome to Babylon Tower"
         imagePath="/big_logo.png"
@@ -55,7 +55,7 @@ const Home: React.FC = () => {
           link="/global-conversation"
         />
       </Grid>
-    </Layout>
+    </>
   );
 };
 

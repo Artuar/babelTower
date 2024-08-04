@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { TranslationModel } from '../../types/types';
-import Layout from '../layout';
 import { Box, Container, Button } from '@mui/material';
 import { FeatureArticle } from '../../components/FeatureArticle';
 import { InitialisationForm } from '../../components/InitialisationForm';
@@ -143,18 +142,16 @@ const VoiceRecorderContent: React.FC = () => {
 
 const VoiceRecorder = () => {
   return (
-    <Layout>
-      <Container>
-        <FeatureArticle
-          title="Speak and Translate Instantly"
-          descriptions={[
-            'Enhance your note-taking and subtitling process with our cutting-edge feature. Dictate your messages using your voice and instantly receive both translated text and synthesized audio in your chosen language. Perfect for creating notes or subtitles on the go, this feature ensures you capture and translate your thoughts quickly and accurately. Speak, translate, and listen with ease, making your workflow more efficient and effective.',
-          ]}
-          imagePath="/record.png"
-        />
-        <VoiceRecorderContent />
-      </Container>
-    </Layout>
+    <Container>
+      <FeatureArticle
+        title="Speak and Translate Instantly"
+        descriptions={[
+          'Enhance your note-taking and subtitling process with our cutting-edge feature. Dictate your messages using your voice and instantly receive both translated text and synthesized audio in your chosen language. Perfect for creating notes or subtitles on the go, this feature ensures you capture and translate your thoughts quickly and accurately. Speak, translate, and listen with ease, making your workflow more efficient and effective.',
+        ]}
+        imagePath="/record.png"
+      />
+      <VoiceRecorderContent />
+    </Container>
   );
 };
 
