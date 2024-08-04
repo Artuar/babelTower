@@ -1,15 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Box, Container, Grid, Typography, Button } from '@mui/material';
+import { Box, Container, Typography, Button } from '@mui/material';
 import Layout from '../layout';
 import { FeatureArticle } from '../../components/FeatureArticle';
 import { TranslationModel } from '../../types/types';
-import { FILE_MAX_SIZE, FILE_TYPE } from '../../constants/constants';
 import { InitialisationForm } from '../../components/InitialisationForm';
 import { Loading } from '../../components/Loading';
 import { ErrorBlock } from '../../components/ErrorBlock';
 import { useWebSocketContext } from '../../context/WebSocketContext';
 import { TranslatedAudio } from '../../types/receivedMessages';
 import { downloadFile } from '../../helpers/downloadFile';
+import FileDragAndDrop from '../../components/FileDragAndDrop';
 
 const AudioTranslationContent: React.FC = () => {
   const [languageTo, setLanguageTo] = useState('ua');
@@ -27,9 +27,9 @@ const AudioTranslationContent: React.FC = () => {
     connect,
   } = useWebSocketContext();
 
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [translatedAudio, setTranslatedAudio] = useState<string | null>(null);
+  const [originalAudio, setOriginalAudio] = useState<string | null>(null);
 
   useEffect(() => {
     const handleAudioProcessed = (data: TranslatedAudio) => {
@@ -44,31 +44,18 @@ const AudioTranslationContent: React.FC = () => {
     };
   }, [serverUrl]);
 
-  const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = event.target.files?.[0];
-    if (file && file.size <= FILE_MAX_SIZE && file.type === FILE_TYPE) {
-      setSelectedFile(file);
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        setUploading(true);
-        const base64File = reader.result as string;
-        sendMessage({
-          type: 'translate_audio',
-          payload: {
-            file: base64File,
-            language_to: languageTo,
-            language_from: languageFrom,
-            model_name: modelName,
-          },
-        });
-      };
-      reader.readAsDataURL(file);
-    } else {
-      alert('Please select an MP3 file under 10MB.');
-    }
+  const handleFileChange = async (base64File: string) => {
+    setUploading(true);
+    setOriginalAudio(base64File);
+    sendMessage({
+      type: 'translate_audio',
+      payload: {
+        file: base64File,
+        language_to: languageTo,
+        language_from: languageFrom,
+        model_name: modelName,
+      },
+    });
   };
 
   const handleDownload = useCallback(() => {
@@ -76,7 +63,6 @@ const AudioTranslationContent: React.FC = () => {
   }, [translatedAudio]);
 
   const discard = () => {
-    setSelectedFile(null);
     setUploading(false);
     setTranslatedAudio(null);
     disconnect();
@@ -109,57 +95,9 @@ const AudioTranslationContent: React.FC = () => {
         />
 
         {!isConnected ? (
-          <Loading text="Connection to server" />
+          <Loading text="Connection to server" url={serverUrl} />
         ) : (
-          <Grid container paddingY={4}>
-            <Grid item xs={12}>
-              <Box
-                p={2}
-                height="200px"
-                border="1px dashed grey"
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                flexDirection="column"
-                onDrop={(e) => {
-                  e.preventDefault();
-                  handleFileChange(
-                    e as unknown as React.ChangeEvent<HTMLInputElement>,
-                  );
-                }}
-                onDragOver={(e) => e.preventDefault()}
-              >
-                <Typography>
-                  Drop your MP3 file here or click to upload
-                </Typography>
-                <input
-                  type="file"
-                  accept="audio/mpeg"
-                  style={{ display: 'none' }}
-                  id="upload-button"
-                  onChange={handleFileChange}
-                />
-                <label htmlFor="upload-button">
-                  <Box
-                    component="span"
-                    sx={{
-                      mt: 2,
-                      cursor: 'pointer',
-                      color: 'primary.main',
-                      textDecoration: 'underline',
-                    }}
-                  >
-                    Choose File
-                  </Box>
-                </label>
-                {selectedFile && (
-                  <Typography variant="body2" mt={2}>
-                    Selected file: {selectedFile.name}
-                  </Typography>
-                )}
-              </Box>
-            </Grid>
-          </Grid>
+          <FileDragAndDrop onFileSelected={handleFileChange} />
         )}
       </>
     );
@@ -175,8 +113,8 @@ const AudioTranslationContent: React.FC = () => {
         <Typography variant="h6" gutterBottom>
           Original Audio
         </Typography>
-        {selectedFile && (
-          <audio controls src={URL.createObjectURL(selectedFile)}>
+        {originalAudio && (
+          <audio controls src={originalAudio}>
             <track kind="captions" />
           </audio>
         )}

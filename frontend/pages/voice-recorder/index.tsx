@@ -120,7 +120,7 @@ const VoiceRecorderContent: React.FC = () => {
             Initialize recorder
           </Button>
         ) : (
-          <Loading text="Connection to server" />
+          <Loading text="Connection to server" url={serverUrl} />
         )}
       </>
     );
