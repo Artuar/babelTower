@@ -12,9 +12,9 @@ app = Flask(__name__)
 CORS(app)
 
 
-async def start_server():
-    server = await serve(websocket_handler, "127.0.0.1", 5000)
-    print("WebSocket server is running on ws://127.0.0.1:5000")
+async def start_server(port: int):
+    server = await serve(websocket_handler, "127.0.0.1", port)
+    print(f"WebSocket server is running on ws://127.0.0.1:{port}")
     await server.wait_closed()
 
 if __name__ == '__main__':
@@ -35,7 +35,7 @@ if __name__ == '__main__':
             ngrok.disconnect(tunnel.public_url)
         # run ngrok tunnel
         tunnel = ngrok.connect(
-            addr="127.0.0.1:{}".format("5000"),
+            addr=f"127.0.0.1:{PORT}",
             proto="http",
             bind_tls=True,
             hostname="curious-goldfish-next.ngrok-free.app"
@@ -50,4 +50,4 @@ if __name__ == '__main__':
         else:
             print("Failed to update Server URL on Next.js API")
 
-    asyncio.run(start_server())
+    asyncio.run(start_server(PORT))
