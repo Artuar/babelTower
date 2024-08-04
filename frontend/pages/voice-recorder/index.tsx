@@ -1,18 +1,25 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Box, Container, Button } from '@mui/material';
 import { FeatureArticle } from '../../components/FeatureArticle';
 import { InitialisationForm } from '../../components/InitialisationForm';
 import { Loading } from '../../components/Loading';
 import { Console } from '../../components/Console';
-import { MicrophoneManager } from '../../helpers/MicrophoneManager';
 import { ErrorBlock } from '../../components/ErrorBlock';
 import { ProcessedData } from '../../types/receivedMessages';
 import { useWebSocketContext } from '../../context/WebSocketContext';
 import { Metadata } from '../../components/Metadata';
 import { useModelInitialization } from '../../context/ModelInitializationContext';
+import { useMicrophone } from '../../context/MicrophoneContext';
 
-const VoiceRecorderContent: React.FC = () => {
+const VoiceRecorderContent = () => {
   const { languageTo, languageFrom, modelName } = useModelInitialization();
+  const {
+    initializeRecorder,
+    startRecording,
+    stopRecording,
+    isRecording,
+    destroyRecorder,
+  } = useMicrophone();
 
   const {
     serverUrl,
@@ -27,9 +34,7 @@ const VoiceRecorderContent: React.FC = () => {
   } = useWebSocketContext();
 
   const [loading, setLoading] = useState(false);
-  const [recording, setRecording] = useState(false);
   const [processedData, setProcessedData] = useState<ProcessedData[]>([]);
-  const micManagerRef = useRef<MicrophoneManager | null>(null);
 
   useEffect(() => {
     const handleAudioProcessed = (data: ProcessedData) => {
@@ -40,6 +45,8 @@ const VoiceRecorderContent: React.FC = () => {
 
     return () => {
       unsubscribe('audio_processed', handleAudioProcessed);
+      destroyRecorder();
+      disconnect();
     };
   }, []);
 
@@ -47,26 +54,14 @@ const VoiceRecorderContent: React.FC = () => {
     setLoading(false);
 
     if (isInitialized) {
-      micManagerRef.current = new MicrophoneManager((audio: string) => {
+      initializeRecorder((audio: string) => {
         sendMessage({ type: 'audio_data', payload: { audio } });
       });
     } else {
-      micManagerRef.current?.destroy();
-      micManagerRef.current = null;
-      setRecording(false);
+      destroyRecorder();
       setProcessedData([]);
     }
   }, [isInitialized]);
-
-  const startRecording = async () => {
-    await micManagerRef.current?.startRecording();
-    setRecording(true);
-  };
-
-  const stopRecording = () => {
-    micManagerRef.current?.stopRecording();
-    setRecording(false);
-  };
 
   const discard = () => {
     disconnect();
@@ -121,11 +116,11 @@ const VoiceRecorderContent: React.FC = () => {
         <Button onClick={discard} color="secondary">
           Restart
         </Button>
-        <Button onClick={recording ? stopRecording : startRecording}>
-          {recording ? 'Stop recording' : 'Start Recording'}
+        <Button onClick={isRecording ? stopRecording : startRecording}>
+          {isRecording ? 'Stop recording' : 'Start Recording'}
         </Button>
       </Box>
-      <Console processedDataList={processedData} recording={recording} />
+      <Console processedDataList={processedData} recording={isRecording} />
     </>
   );
 };

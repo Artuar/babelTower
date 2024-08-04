@@ -8,6 +8,7 @@ import { theme } from '../styles/theme';
 import { WebSocketProvider } from '../context/WebSocketContext';
 import Layout from './layout';
 import { ModelInitializationProvider } from '../context/ModelInitializationContext';
+import { MicrophoneProvider } from '../context/MicrophoneContext';
 
 export type NextPageWithLayout<P = unknown, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
@@ -25,7 +26,9 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       <CssBaseline />
       <WebSocketProvider>
         <ModelInitializationProvider>
-          {getLayout(<Component {...pageProps} />)}
+          <MicrophoneProvider>
+            {getLayout(<Component {...pageProps} />)}
+          </MicrophoneProvider>
         </ModelInitializationProvider>
       </WebSocketProvider>
     </ThemeProvider>

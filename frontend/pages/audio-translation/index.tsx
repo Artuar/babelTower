@@ -39,8 +39,9 @@ const AudioTranslationContent: React.FC = () => {
 
     return () => {
       unsubscribe('translated_audio', handleAudioProcessed);
+      disconnect();
     };
-  }, [serverUrl]);
+  }, []);
 
   const handleFileChange = async (base64File: string) => {
     setUploading(true);
