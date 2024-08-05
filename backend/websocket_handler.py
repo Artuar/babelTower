@@ -5,7 +5,7 @@ import numpy as np
 from pydub import AudioSegment
 
 from audio_processing import initialize_processor, collect_complete_phrase, translate_audio
-from utils import audio_base64_to_bytes
+from utils import audio_base64_to_bytes, audio_base64_to_audio_segment
 
 SAMPLE_RATE = 24000
 SAMPLE_WIDTH = 2
@@ -31,12 +31,11 @@ async def websocket_handler(websocket):
 
         elif data['type'] == 'audio_data':
             audio_data_base64 = data['payload']['audio']
-
-            ## TODO ->>
             base64_audio = audio_data_base64.split(",")[1]
-            audio_data = base64.b64decode(base64_audio)
-            audio_segment = AudioSegment.from_file(BytesIO(audio_data), format='webm')
-            audio_segment = audio_segment.set_frame_rate(SAMPLE_RATE).set_channels(CHANNELS).set_sample_width(SAMPLE_WIDTH)
+
+            audio_segment = audio_base64_to_audio_segment(audio_data_base64, audio_format="webm")
+
+            audio_segment = audio_segment.set_sample_width(SAMPLE_WIDTH)
 
             raw_audio_data = audio_segment.raw_data
             raw_audio_data = np.frombuffer(raw_audio_data, dtype=np.int16).tobytes()

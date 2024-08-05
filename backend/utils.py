@@ -25,10 +25,14 @@ def default_result(base64_audio: str, error=""):
     }
 
 
-def audio_base64_to_bytes(file_base64: str, sample_rate=24000, audio_format="mp3"):
+def audio_base64_to_audio_segment(file_base64: str, sample_rate=24000, audio_format="mp3"):
     file_data = base64.b64decode(file_base64.split(';base64,')[-1])
     audio_segment = AudioSegment.from_file(BytesIO(file_data),  format=audio_format)
-    audio_segment = audio_segment.set_frame_rate(sample_rate).set_channels(1)
+    return audio_segment.set_frame_rate(sample_rate).set_channels(1)
+
+
+def audio_base64_to_bytes(file_base64: str, sample_rate=24000, audio_format="mp3"):
+    audio_segment = audio_base64_to_audio_segment(file_base64, sample_rate, audio_format)
     audio_data = np.array(audio_segment.get_array_of_samples())
     return audio_data.tobytes()
 
