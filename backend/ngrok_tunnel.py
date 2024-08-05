@@ -3,7 +3,7 @@ from pyngrok import ngrok
 NGROK_PERMANENT_URL = "curious-goldfish-next.ngrok-free.app"
 
 
-def create_ngrok_tunnel(token, port=5000):
+def create_ngrok_tunnel(token, port):
     ngrok.set_auth_token(token)
     # Close existing tunnels to avoid error
     for tunnel in ngrok.get_tunnels():

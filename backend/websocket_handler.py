@@ -4,8 +4,8 @@ from io import BytesIO
 import numpy as np
 from pydub import AudioSegment
 
-from audio_processing import initialize_processor, process_buffered_audio, combine_audio, translate_audio
-from utils import is_silent, audio_base64_to_bytes
+from audio_processing import initialize_processor, collect_complete_phrase, translate_audio
+from utils import audio_base64_to_bytes
 
 SAMPLE_RATE = 24000
 SAMPLE_WIDTH = 2
@@ -41,14 +41,10 @@ async def websocket_handler(websocket):
             raw_audio_data = audio_segment.raw_data
             raw_audio_data = np.frombuffer(raw_audio_data, dtype=np.int16).tobytes()
 
-            combined_audio = combine_audio(raw_audio_data)
+            result = collect_complete_phrase(raw_audio_data, base64_audio)
 
-            last_silence_duration = int(EXPECTED_SILENCE_DURATION * SAMPLE_RATE * SAMPLE_WIDTH * CHANNELS)
-            if len(combined_audio) >= last_silence_duration:
-                last_half_second = combined_audio[-last_silence_duration:]
-                if is_silent(last_half_second):
-                    result = process_buffered_audio(base64_audio)
-                    await websocket.send(json.dumps({'type': 'audio_processed', 'payload': result}))
+            if result:
+                await websocket.send(json.dumps({'type': 'audio_processed', 'payload': result}))
 
         elif data['type'] == 'translate_audio':
             file_base64 = data['payload'].get('file')

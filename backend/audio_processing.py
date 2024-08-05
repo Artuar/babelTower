@@ -4,16 +4,30 @@ import numpy as np
 from utils import is_silent, default_result, audio_bytes_to_base64
 from babylon_sts import AudioProcessor
 
+SAMPLE_RATE = 24000
+SAMPLE_WIDTH = 2
+CHANNELS = 1
+EXPECTED_SILENCE_DURATION = 0.5
+
 audio_processor = None
 last_timestamp = None
 buffered_audio = []
 
 
-def combine_audio(raw_audio_data: np.ndarray):
+def collect_complete_phrase(raw_audio_data: np.ndarray, base64_audio: str):
     global buffered_audio
     buffered_audio.append(raw_audio_data)
     combined_audio = b''.join(buffered_audio)
-    return combined_audio
+    result = None
+
+    last_silence_duration = int(EXPECTED_SILENCE_DURATION * SAMPLE_RATE * SAMPLE_WIDTH * CHANNELS)
+    if len(combined_audio) >= last_silence_duration:
+        # check if combined_audio ends with expected silens duration
+        last_duration = combined_audio[-last_silence_duration:]
+        if is_silent(last_duration):
+            result = process_buffered_audio(base64_audio)
+
+    return result
 
 
 def translate_audio(audio_data: bytes):
