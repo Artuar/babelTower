@@ -34,13 +34,10 @@ async def websocket_handler(websocket):
             base64_audio = audio_data_base64.split(",")[1]
 
             audio_segment = audio_base64_to_audio_segment(audio_data_base64, audio_format="webm")
-
             audio_segment = audio_segment.set_sample_width(SAMPLE_WIDTH)
+            raw_audio_bytes = np.frombuffer(audio_segment.raw_data, dtype=np.int16).tobytes()
 
-            raw_audio_data = audio_segment.raw_data
-            raw_audio_data = np.frombuffer(raw_audio_data, dtype=np.int16).tobytes()
-
-            result = collect_complete_phrase(raw_audio_data, base64_audio)
+            result = collect_complete_phrase(raw_audio_bytes, base64_audio)
 
             if result:
                 await websocket.send(json.dumps({'type': 'audio_processed', 'payload': result}))
