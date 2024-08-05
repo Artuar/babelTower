@@ -2,10 +2,9 @@ import asyncio
 import argparse
 from flask import Flask
 from flask_cors import CORS
-from pyngrok import ngrok
-import requests
 from websockets import serve
 
+from backend.ngrok_tunnel import create_ngrok_tunnel
 from websocket_handler import websocket_handler
 
 app = Flask(__name__)
@@ -29,25 +28,6 @@ if __name__ == '__main__':
     IS_DEBUG = args.is_debug
 
     if NGROK_TOKEN:
-        ngrok.set_auth_token(NGROK_TOKEN)
-        # Close existing tunnels to avoid error
-        for tunnel in ngrok.get_tunnels():
-            ngrok.disconnect(tunnel.public_url)
-        # run ngrok tunnel
-        tunnel = ngrok.connect(
-            addr=f"127.0.0.1:{PORT}",
-            proto="http",
-            bind_tls=True,
-            hostname="curious-goldfish-next.ngrok-free.app"
-        )
-        public_url = tunnel.public_url
-        print(" * ngrok URL:", public_url)
-
-        # send server url to front app
-        response = requests.post('https://babel-tower.vercel.app/api/server-url', json={'serverUrl': public_url})
-        if response.status_code == 200:
-            print("Server URL updated successfully on Next.js API")
-        else:
-            print("Failed to update Server URL on Next.js API")
+        create_ngrok_tunnel(NGROK_TOKEN, PORT)
 
     asyncio.run(start_server(PORT))
