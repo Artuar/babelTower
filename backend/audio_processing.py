@@ -17,6 +17,9 @@ def combine_audio(raw_audio_data: np.ndarray):
 
 
 def translate_audio(audio_data: bytes):
+    if audio_processor is None:
+        raise ValueError("Audio processor is not initialized. Use 'initialize' message before.")
+
     timestamp = datetime.utcnow()
     final_audio, log_data = audio_processor.process_audio(timestamp, audio_data)
     return audio_bytes_to_base64(final_audio), log_data
