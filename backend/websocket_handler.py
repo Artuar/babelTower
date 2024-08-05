@@ -7,6 +7,11 @@ from pydub import AudioSegment
 from audio_processing import initialize_processor, process_buffered_audio, combine_audio, translate_audio
 from utils import is_silent, audio_base64_to_bytes
 
+SAMPLE_RATE = 24000
+SAMPLE_WIDTH = 2
+CHANNELS = 1
+EXPECTED_SILENCE_DURATION = 0.5
+
 
 async def websocket_handler(websocket):
     async for message in websocket:
@@ -31,17 +36,16 @@ async def websocket_handler(websocket):
             base64_audio = audio_data_base64.split(",")[1]
             audio_data = base64.b64decode(base64_audio)
             audio_segment = AudioSegment.from_file(BytesIO(audio_data), format='webm')
-            audio_segment = audio_segment.set_frame_rate(24000).set_channels(1).set_sample_width(2)
+            audio_segment = audio_segment.set_frame_rate(SAMPLE_RATE).set_channels(CHANNELS).set_sample_width(SAMPLE_WIDTH)
 
             raw_audio_data = audio_segment.raw_data
             raw_audio_data = np.frombuffer(raw_audio_data, dtype=np.int16).tobytes()
 
             combined_audio = combine_audio(raw_audio_data)
 
-            frame_rate = 24000
-            last_half_second_duration = int(0.5 * frame_rate * 2 * 1)
-            if len(combined_audio) >= last_half_second_duration:
-                last_half_second = combined_audio[-last_half_second_duration:]
+            last_silence_duration = int(EXPECTED_SILENCE_DURATION * SAMPLE_RATE * SAMPLE_WIDTH * CHANNELS)
+            if len(combined_audio) >= last_silence_duration:
+                last_half_second = combined_audio[-last_silence_duration:]
                 if is_silent(last_half_second):
                     result = process_buffered_audio(base64_audio)
                     await websocket.send(json.dumps({'type': 'audio_processed', 'payload': result}))

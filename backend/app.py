@@ -4,7 +4,7 @@ from flask import Flask
 from flask_cors import CORS
 from websockets import serve
 
-from backend.ngrok_tunnel import create_ngrok_tunnel
+from ngrok_tunnel import create_ngrok_tunnel
 from websocket_handler import websocket_handler
 
 app = Flask(__name__)
