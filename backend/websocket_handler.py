@@ -1,10 +1,12 @@
 import json
 
-from audio_processing import initialize_processor, collect_complete_phrase, translate_audio
+from audio_processing import AudioProcessorManager
 from utils import audio_base64_to_bytes, create_translated_result
 
 
 async def websocket_handler(websocket):
+    audio_processor = AudioProcessorManager()
+
     async for message in websocket:
         data = json.loads(message)
         if data['type'] == 'initialize':
@@ -13,8 +15,10 @@ async def websocket_handler(websocket):
             model_name = data['payload'].get('model_name', 'small')
 
             try:
-                initialize_processor(language_to, language_from, model_name)
-                await websocket.send(json.dumps({'type': 'initialized', 'payload': {"message": "Audio processor initialized"}}))
+                audio_processor.initialize_processor(language_to, language_from, model_name)
+                await websocket.send(json.dumps({
+                    'type': 'initialized', 'payload': {"message": "Audio processor initialized"}
+                }))
             except Exception as e:
                 print(f"Initialization error: {e}")
                 await websocket.send(json.dumps({'type': 'error', 'payload': {"error": f"Initialization error: {e}"}}))
@@ -26,7 +30,7 @@ async def websocket_handler(websocket):
 
             audio_bytes = audio_base64_to_bytes(audio_data_base64, audio_format="webm")
 
-            result = collect_complete_phrase(audio_bytes)
+            result = audio_processor.collect_complete_phrase(audio_bytes)
 
             if result:
                 translated_audio, log_data = result
@@ -41,7 +45,7 @@ async def websocket_handler(websocket):
             audio_data = audio_base64_to_bytes(file_base64)
 
             try:
-                processed_file_base64, log_data = translate_audio(audio_data)
+                processed_file_base64, log_data = audio_processor.translate_audio(audio_data)
 
                 log_data["timestamp"] = log_data["timestamp"].isoformat()
 
