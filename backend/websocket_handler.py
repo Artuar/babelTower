@@ -1,7 +1,7 @@
 import json
-
 from audio_processing import AudioProcessorManager
-from utils import audio_base64_to_bytes, create_translated_result
+import ws_mesages
+from utils import audio_base64_to_bytes
 
 
 async def websocket_handler(websocket):
@@ -16,12 +16,10 @@ async def websocket_handler(websocket):
 
             try:
                 audio_processor.initialize_processor(language_to, language_from, model_name)
-                await websocket.send(json.dumps({
-                    'type': 'initialized', 'payload': {"message": "Audio processor initialized"}
-                }))
+                await websocket.send(json.dumps(ws_mesages.create_initialize_response("Audio processor initialized")))
             except Exception as e:
                 print(f"Initialization error: {e}")
-                await websocket.send(json.dumps({'type': 'error', 'payload': {"error": f"Initialization error: {e}"}}))
+                await websocket.send(json.dumps(ws_mesages.create_error_response(f"Initialization error: {e}")))
                 return
 
         elif data['type'] == 'audio_data':
@@ -34,10 +32,8 @@ async def websocket_handler(websocket):
 
             if result:
                 translated_audio, log_data = result
-                await websocket.send(json.dumps({
-                    'type': 'audio_processed',
-                    'payload': create_translated_result(translated_audio or base64_audio, log_data)
-                }))
+                result_message = ws_mesages.create_audio_processed_response(translated_audio or base64_audio, log_data)
+                await websocket.send(json.dumps(result_message))
 
         elif data['type'] == 'translate_audio':
             file_base64 = data['payload'].get('file')
@@ -46,15 +42,11 @@ async def websocket_handler(websocket):
 
             try:
                 processed_file_base64, log_data = audio_processor.translate_audio(audio_data)
-
                 log_data["timestamp"] = log_data["timestamp"].isoformat()
-
             except ValueError as e:
                 print(f"Error during synthesis: {e}")
-                await websocket.send(json.dumps({'type': 'error', 'payload': {"error": f"Error during synthesis: {e}"}}))
+                await websocket.send(json.dumps(ws_mesages.create_error_response(f"Error during synthesis: {e}")))
                 return
 
-            await websocket.send(json.dumps({'type': 'translated_audio', 'payload': {
-                "translatedAudio": f"data:audio/mpeg;base64,{processed_file_base64}",
-                "logData": log_data,
-            }}))
+            translated_audio_message = ws_mesages.create_translated_audio_response(processed_file_base64, log_data)
+            await websocket.send(json.dumps(translated_audio_message))

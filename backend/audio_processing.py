@@ -28,7 +28,7 @@ class AudioProcessorManager:
         final_audio, log_data = self.audio_processor.process_audio(timestamp, audio_data)
         return audio_bytes_to_base64(final_audio), log_data
 
-    def collect_complete_phrase(self, raw_audio_data: np.ndarray):
+    def collect_complete_phrase(self, raw_audio_data: bytes):
         self.buffered_audio.append(raw_audio_data)
         combined_audio = b''.join(self.buffered_audio)
         result = None
