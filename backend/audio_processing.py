@@ -1,5 +1,4 @@
 from datetime import datetime
-import numpy as np
 from utils import is_silent, audio_bytes_to_base64, SAMPLE_RATE, EXPECTED_SILENCE_DURATION, SAMPLE_WIDTH, CHANNELS
 from babylon_sts import AudioProcessor
 
