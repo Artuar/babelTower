@@ -1,7 +1,7 @@
 import json
 
 from audio_processing import initialize_processor, collect_complete_phrase, translate_audio
-from utils import audio_base64_to_bytes
+from utils import audio_base64_to_bytes, create_translated_result
 
 
 async def websocket_handler(websocket):
@@ -24,12 +24,16 @@ async def websocket_handler(websocket):
             audio_data_base64 = data['payload']['audio']
             base64_audio = audio_data_base64.split(",")[1]
 
-            audio_segment = audio_base64_to_bytes(audio_data_base64, audio_format="webm")
+            audio_bytes = audio_base64_to_bytes(audio_data_base64, audio_format="webm")
 
-            result = collect_complete_phrase(audio_segment, base64_audio)
+            result = collect_complete_phrase(audio_bytes)
 
             if result:
-                await websocket.send(json.dumps({'type': 'audio_processed', 'payload': result}))
+                translated_audio, log_data = result
+                await websocket.send(json.dumps({
+                    'type': 'audio_processed',
+                    'payload': create_translated_result(translated_audio or base64_audio, log_data)
+                }))
 
         elif data['type'] == 'translate_audio':
             file_base64 = data['payload'].get('file')

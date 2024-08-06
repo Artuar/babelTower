@@ -1,5 +1,7 @@
 from io import BytesIO
 import base64
+from typing import Dict, Any
+
 import numpy as np
 from datetime import datetime
 from pydub import AudioSegment
@@ -14,14 +16,17 @@ def is_silent(data_chunk):
     return np.mean(np.abs(audio_samples)) < SILENCE_THRESHOLD
 
 
-def default_result(base64_audio: str, error=""):
+def create_translated_result(base64_audio: str, log_data: Dict[str, Any]) -> Dict[str, Any]:
+    timestamp = log_data.get('timestamp', datetime.utcnow())
+
     return {
-        "timestamp": datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),
-        "original_text": "",
-        "translated_text": "",
-        "synthesis_delay": 0,
+        "timestamp": timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+        "original_text": log_data.get('original_text', ""),
+        "translated_text": log_data.get('translated_text', ""),
+        "synthesis_delay": log_data.get('synthesis_delay', 0),
+        "recognize_result": log_data.get('recognize_result', {}),
         "audio": base64_audio,
-        "error": error
+        "error": log_data.get('error', "")
     }
 
 
