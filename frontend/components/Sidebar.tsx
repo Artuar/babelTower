@@ -1,19 +1,29 @@
 import Link from 'next/link';
 import { Box, List, ListItem, ListItemText } from '@mui/material';
+import { useRouter } from 'next/router';
+
+const Item: React.FC<{link: string, name: string}> = ({link, name}) => {
+  const router = useRouter();
+
+  const isActive = router.pathname === link
+  return <ListItem button component={Link} href={link} sx={{
+    bgcolor: isActive ? 'primary.main' : 'inherit',
+    color: isActive ? 'primary.contrastText' : 'inherit',
+    ":hover": {
+      color: 'inherit',
+    }
+  }}>
+    <ListItemText primary={name} />
+  </ListItem>
+}
 
 const Sidebar = () => {
   return (
-    <Box minWidth={200} bgcolor="primary.light">
-      <List sx={{ position: "sticky", top: 64}}>
-        <ListItem button component={Link} href="/voice-recorder">
-          <ListItemText primary="Voice Recorder" />
-        </ListItem>
-        <ListItem button component={Link} href="/audio-translation">
-          <ListItemText primary="Audio Translation" />
-        </ListItem>
-        <ListItem button component={Link} href="/global-conversation">
-          <ListItemText primary="Global conversation" />
-        </ListItem>
+    <Box minWidth={200} bgcolor="primary.light" position="sticky" top={{xs: 56, sm: 64}} zIndex={1}>
+      <List sx={{ position: "sticky", top: { xs: 56, sm: 64 }, padding: 0, display: "flex", flexDirection: { xs: 'row', md: "column" } }}>
+        <Item link="/voice-recorder" name="Voice Recorder" />
+        <Item link="/audio-translation" name="Audio Translation" />
+        <Item link="/global-conversation" name="Global conversation" />
       </List>
     </Box>
   );

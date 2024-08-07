@@ -14,7 +14,7 @@ const Layout = ({ children }: LayoutProps) => {
       {/* Add top padding to the main container to avoid content being hidden behind the AppBar */}
       <Toolbar />
 
-      <Container style={{ flexGrow: 1, padding: 0, maxWidth: "100%" }}>{children}</Container>
+      <Container style={{ flexGrow: 1, display: "flex", padding: 0, maxWidth: "100%" }}>{children}</Container>
 
       <Footer />
     </Box>
