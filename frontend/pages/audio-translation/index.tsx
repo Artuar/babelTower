@@ -9,7 +9,7 @@ import { TranslatedAudio } from '../../types/receivedMessages';
 import { downloadFile } from '../../helpers/downloadFile';
 import FileDragAndDrop from '../../components/FileDragAndDrop';
 import { Metadata } from '../../components/Metadata';
-import LayoutWithSidebar from "../../components/LayoutWithSidebar";
+import { LayoutWithSidebar } from '../../components/LayoutWithSidebar';
 
 const AudioTranslationContent: React.FC = () => {
   const {
@@ -49,7 +49,7 @@ const AudioTranslationContent: React.FC = () => {
 
   useEffect(() => {
     if (!originalAudio) {
-      return
+      return;
     }
 
     setUploading(true);
@@ -60,12 +60,12 @@ const AudioTranslationContent: React.FC = () => {
         file: originalAudio,
       },
     });
-  }, [originalAudio])
+  }, [originalAudio]);
 
   const discardAudio = () => {
     setUploading(false);
     setTranslatedAudio(null);
-  }
+  };
 
   const discard = () => {
     setUploading(false);
@@ -118,8 +118,7 @@ const AudioTranslationContent: React.FC = () => {
     );
   }
 
-  return <FileDragAndDrop onFileSelected={handleFileChange} />
-
+  return <FileDragAndDrop onFileSelected={handleFileChange} />;
 };
 
 const AudioTranslation: React.FC = () => {

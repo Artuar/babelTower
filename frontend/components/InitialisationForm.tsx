@@ -1,4 +1,4 @@
-import {Button, Grid, Typography} from '@mui/material';
+import { Button, Grid, Typography } from '@mui/material';
 import { TranslationModel } from '../types/types';
 import {
   LANGUAGES,
@@ -8,12 +8,13 @@ import {
 import { Select } from './Select';
 import { useWebSocketContext } from '../context/WebSocketContext';
 import { useModelInitialization } from '../context/ModelInitializationContext';
-import {Loading} from "./Loading";
-import {useCallback, useEffect, useState} from "react";
+import { Loading } from './Loading';
+import { useCallback, useEffect, useState } from 'react';
 
 export const InitialisationForm = () => {
   const [loading, setLoading] = useState(false);
-  const { setServerUrl, serverUrl, isConnected, sendMessage, isInitialized } = useWebSocketContext();
+  const { setServerUrl, serverUrl, isConnected, sendMessage, isInitialized } =
+    useWebSocketContext();
   const {
     languageTo,
     languageFrom,

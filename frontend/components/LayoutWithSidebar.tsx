@@ -1,15 +1,15 @@
 import { Box } from '@mui/material';
 import Sidebar from './Sidebar';
 
-const LayoutWithSidebar = ({ children }) => {
+interface LayoutWithSidebarProps {
+  children: React.ReactNode;
+}
+
+export const LayoutWithSidebar: React.FC<LayoutWithSidebarProps> = ({ children }) => {
   return (
     <Box display="flex">
       <Sidebar />
-      <Box flexGrow={1}>
-        {children}
-      </Box>
+      <Box flexGrow={1}>{children}</Box>
     </Box>
   );
 };
-
-export default LayoutWithSidebar;

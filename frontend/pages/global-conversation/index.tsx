@@ -1,7 +1,7 @@
 import { Container } from '@mui/material';
 import { FeatureArticle } from '../../components/FeatureArticle';
 import { Metadata } from '../../components/Metadata';
-import LayoutWithSidebar from "../../components/LayoutWithSidebar";
+import {LayoutWithSidebar} from '../../components/LayoutWithSidebar';
 
 const GlobalConversation: React.FC = () => {
   return (
