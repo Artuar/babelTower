@@ -9,7 +9,7 @@ export const LayoutWithSidebar: React.FC<LayoutWithSidebarProps> = ({ children }
   return (
     <Box display="flex">
       <Sidebar />
-      <Box flexGrow={1}>{children}</Box>
+      <Box flexGrow={1} mb={5}>{children}</Box>
     </Box>
   );
 };

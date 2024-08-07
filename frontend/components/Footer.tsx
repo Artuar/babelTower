@@ -4,7 +4,7 @@ import { Link } from './Link';
 
 export const Footer: React.FC = () => {
   return (
-    <Box mt={5} bgcolor="primary.main" color="primary.contrastText" py={5}>
+    <Box bgcolor="primary.main" color="primary.contrastText" py={5}>
       <Container>
         <Grid container spacing={4}>
           <Grid item xs={12} md={4}>

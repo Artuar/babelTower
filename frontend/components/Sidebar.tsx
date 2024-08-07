@@ -3,8 +3,8 @@ import { Box, List, ListItem, ListItemText } from '@mui/material';
 
 const Sidebar = () => {
   return (
-    <Box width={240} bgcolor="grey.200">
-      <List>
+    <Box minWidth={200} bgcolor="primary.light">
+      <List sx={{ position: "sticky", top: 64}}>
         <ListItem button component={Link} href="/voice-recorder">
           <ListItemText primary="Voice Recorder" />
         </ListItem>
