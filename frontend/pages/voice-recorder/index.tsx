@@ -8,7 +8,7 @@ import { ProcessedData } from '../../types/receivedMessages';
 import { useWebSocketContext } from '../../context/WebSocketContext';
 import { Metadata } from '../../components/Metadata';
 import { useMicrophone } from '../../context/MicrophoneContext';
-import {LayoutWithSidebar} from '../../components/LayoutWithSidebar';
+import { LayoutWithSidebar } from '../../components/LayoutWithSidebar';
 
 const VoiceRecorderContent = () => {
   const {

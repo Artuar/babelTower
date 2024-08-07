@@ -1,13 +1,13 @@
-import { Grid } from '@mui/material';
+import { Box, Grid, Typography } from '@mui/material';
+import Image from 'next/image';
 import { Feature } from '../components/Feature';
-import { FeatureArticle } from '../components/FeatureArticle';
 import { Link } from '../components/Link';
 import { NextPageWithLayout } from './_app';
 import { Metadata } from '../components/Metadata';
 
 const Home: NextPageWithLayout = () => {
   return (
-    <>
+    <div style={{ padding: '24px' }}>
       <Metadata
         title="Babylon Tower"
         description="Your ultimate solution for speech recognition and synthesis."
@@ -15,34 +15,52 @@ const Home: NextPageWithLayout = () => {
         image="/big_logo.png"
         url="https://babel-tower.vercel.app"
       />
-      <FeatureArticle
-        title="Welcome to Babylon Tower"
-        imagePath="/big_logo.png"
-        descriptions={[
-          <>
-            Babylon Tower bridges the communication gap between people speaking
-            different languages. Our platform offers cutting-edge features for
-            text and audio recognition and translation, all powered by the
-            advanced{' '}
-            <Link
-              href="https://github.com/Artuar/babylon_sts"
-              target="babylon_sts"
-              style={{ fontWeight: 'bold' }}
-            >
-              babylon_sts
-            </Link>
-            {" library. Whether you're conversing in real-time or translating audio" +
-              ' files, Babylon Tower makes seamless communication a reality.'}
-          </>,
-          <>
-            This project was created by enthusiasts who aim to solve the problem
-            of communication and the limitations imposed by the multitude of
-            languages. We strive to break down language barriers and make global
-            communication accessible to everyone.
-          </>,
-        ]}
-      />
-
+      <Box my={4}>
+        <Grid container spacing={4} alignItems="center">
+          <Grid item xs={12} md={4} justifyContent="center" display="flex">
+            <Image
+              src="/big_logo.png"
+              alt="Babylon Tower"
+              width={300}
+              height={300}
+            />
+          </Grid>
+          <Grid
+            item
+            xs={12}
+            md={8}
+            display="flex"
+            flexDirection="column"
+            alignItems="flex-start"
+          >
+            <Typography variant="h4" gutterBottom>
+              Welcome to Babylon Tower
+            </Typography>
+            <Typography variant="body1" paragraph>
+              Babylon Tower bridges the communication gap between people
+              speaking different languages. Our platform offers cutting-edge
+              features for text and audio recognition and translation, all
+              powered by the advanced{' '}
+              <Link
+                href="https://github.com/Artuar/babylon_sts"
+                target="babylon_sts"
+                style={{ fontWeight: 'bold' }}
+              >
+                babylon_sts
+              </Link>
+              library. Whether you`&apos;re conversing in real-time or
+              translating audio files, Babylon Tower makes seamless
+              communication a reality.
+            </Typography>
+            <Typography variant="body1" paragraph>
+              This project was created by enthusiasts who aim to solve the
+              problem of communication and the limitations imposed by the
+              multitude of languages. We strive to break down language barriers
+              and make global communication accessible to everyone.
+            </Typography>
+          </Grid>
+        </Grid>
+      </Box>
       <Grid container spacing={4}>
         <Feature
           imagePath="/record.png"
@@ -63,7 +81,7 @@ const Home: NextPageWithLayout = () => {
           link="/global-conversation"
         />
       </Grid>
-    </>
+    </div>
   );
 };
 

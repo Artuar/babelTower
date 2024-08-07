@@ -20,7 +20,7 @@ export const FeatureArticle = ({
           xs={12}
           lg={2}
           justifyContent="center"
-          display={{ xs: "none", lg: "flex" }}
+          display={{ xs: 'none', lg: 'flex' }}
         >
           <Image src={imagePath} alt={title} width={150} height={150} />
         </Grid>

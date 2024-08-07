@@ -90,7 +90,7 @@ export const InitialisationForm = () => {
       </Grid>
       {isConnected ? (
         <Button onClick={initializeModels} fullWidth>
-          Initialize recorder
+          Initialize models
         </Button>
       ) : (
         <Loading text="Connection to server" url={serverUrl} />
