@@ -10,6 +10,7 @@ import { downloadFile } from '../../helpers/downloadFile';
 import FileDragAndDrop from '../../components/FileDragAndDrop';
 import { Metadata } from '../../components/Metadata';
 import { useModelInitialization } from '../../context/ModelInitializationContext';
+import LayoutWithSidebar from "../../components/LayoutWithSidebar";
 
 const AudioTranslationContent: React.FC = () => {
   const { languageTo, languageFrom, modelName } = useModelInitialization();
@@ -40,13 +41,15 @@ const AudioTranslationContent: React.FC = () => {
 
     return () => {
       unsubscribe('translated_audio', handleAudioProcessed);
-      disconnect();
     };
   }, []);
 
   const handleFileChange = async (base64File: string) => {
-    setUploading(true);
     setOriginalAudio(base64File);
+  };
+
+  const initializeModels = () => {
+    setUploading(true);
     sendMessage({
       type: 'initialize',
       payload: {
@@ -55,25 +58,38 @@ const AudioTranslationContent: React.FC = () => {
         model_name: modelName,
       },
     });
-  };
+  }
 
   const handleDownload = useCallback(() => {
     downloadFile(translatedAudio, 'translated_audio.mp3');
   }, [translatedAudio]);
 
   useEffect(() => {
-    if (isInitialized) {
-      sendMessage({
-        type: 'translate_audio',
-        payload: {
-          file: originalAudio,
-        },
-      });
-    } else {
-      setUploading(false);
+    setUploading(false);
+    if (!isInitialized) {
       setOriginalAudio(null);
     }
   }, [isInitialized]);
+
+  useEffect(() => {
+    if (!originalAudio) {
+      return
+    }
+
+    setUploading(true);
+
+    sendMessage({
+      type: 'translate_audio',
+      payload: {
+        file: originalAudio,
+      },
+    });
+  }, [originalAudio])
+
+  const discardAudio = () => {
+    setUploading(false);
+    setTranslatedAudio(null);
+  }
 
   const discard = () => {
     setUploading(false);
@@ -93,26 +109,23 @@ const AudioTranslationContent: React.FC = () => {
     );
   }
 
-  if (!uploading && !translatedAudio) {
-    return (
-      <>
-        <InitialisationForm />
-
-        {!isConnected ? (
-          <Loading text="Connection to server" url={serverUrl} />
-        ) : (
-          <FileDragAndDrop onFileSelected={handleFileChange} />
-        )}
-      </>
-    );
+  if (uploading) {
+    return <Loading text={isInitialized ? "Uploading and translating" : "Models initialization"} />;
   }
 
   if (!isInitialized) {
-    return <Loading text="Initializing models" />;
-  }
-
-  if (uploading) {
-    return <Loading text="Uploading and translating" />;
+    return (
+      <>
+        <InitialisationForm />
+        {isConnected ? (
+          <Button onClick={initializeModels} fullWidth>
+            Initialize models
+          </Button>
+        ) : (
+          <Loading text="Connection to server" url={serverUrl} />
+        )}
+      </>
+    );
   }
 
   if (translatedAudio) {
@@ -133,17 +146,20 @@ const AudioTranslationContent: React.FC = () => {
           <track kind="captions" />
         </audio>
         <Button onClick={handleDownload}>Download Translated Audio</Button>
-        <Button color="secondary" onClick={discard}>
+        <Button color="secondary" onClick={discardAudio}>
           Try new file
         </Button>
       </Box>
     );
   }
+
+  return <FileDragAndDrop onFileSelected={handleFileChange} />
+
 };
 
 const AudioTranslation: React.FC = () => {
   return (
-    <>
+    <LayoutWithSidebar>
       <Metadata
         title="Babylon Tower - Effortless Audio Translations"
         description="Easily translate audio files with our intuitive tool."
@@ -161,7 +177,7 @@ const AudioTranslation: React.FC = () => {
         />
         <AudioTranslationContent />
       </Container>
-    </>
+    </LayoutWithSidebar>
   );
 };
 

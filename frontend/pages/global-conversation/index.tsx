@@ -1,10 +1,11 @@
 import { Container } from '@mui/material';
 import { FeatureArticle } from '../../components/FeatureArticle';
 import { Metadata } from '../../components/Metadata';
+import LayoutWithSidebar from "../../components/LayoutWithSidebar";
 
 const GlobalConversation: React.FC = () => {
   return (
-    <>
+    <LayoutWithSidebar>
       <Metadata
         title="Babylon Tower - Global Conversations Made Easy"
         description="Experience seamless global communication with our real-time audio translation feature."
@@ -23,7 +24,7 @@ const GlobalConversation: React.FC = () => {
 
         {/*<GlobalConversationContent />*/}
       </Container>
-    </>
+    </LayoutWithSidebar>
   );
 };
 

@@ -10,6 +10,7 @@ import { useWebSocketContext } from '../../context/WebSocketContext';
 import { Metadata } from '../../components/Metadata';
 import { useModelInitialization } from '../../context/ModelInitializationContext';
 import { useMicrophone } from '../../context/MicrophoneContext';
+import LayoutWithSidebar from "../../components/LayoutWithSidebar";
 
 const VoiceRecorderContent = () => {
   const { languageTo, languageFrom, modelName } = useModelInitialization();
@@ -45,8 +46,6 @@ const VoiceRecorderContent = () => {
 
     return () => {
       unsubscribe('audio_processed', handleAudioProcessed);
-      destroyRecorder();
-      disconnect();
     };
   }, []);
 
@@ -127,7 +126,7 @@ const VoiceRecorderContent = () => {
 
 const VoiceRecorder = () => {
   return (
-    <>
+    <LayoutWithSidebar>
       <Metadata
         title="Babylon Tower - Speak and Translate Instantly"
         description="Dictate your messages using your voice and instantly receive both translated text and synthesized audio in your chosen language."
@@ -145,7 +144,7 @@ const VoiceRecorder = () => {
         />
         <VoiceRecorderContent />
       </Container>
-    </>
+    </LayoutWithSidebar>
   );
 };
 
