@@ -1,19 +1,16 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Container, Button } from '@mui/material';
 import { FeatureArticle } from '../../components/FeatureArticle';
 import { InitialisationForm } from '../../components/InitialisationForm';
-import { Loading } from '../../components/Loading';
 import { Console } from '../../components/Console';
 import { ErrorBlock } from '../../components/ErrorBlock';
 import { ProcessedData } from '../../types/receivedMessages';
 import { useWebSocketContext } from '../../context/WebSocketContext';
 import { Metadata } from '../../components/Metadata';
-import { useModelInitialization } from '../../context/ModelInitializationContext';
 import { useMicrophone } from '../../context/MicrophoneContext';
 import LayoutWithSidebar from "../../components/LayoutWithSidebar";
 
 const VoiceRecorderContent = () => {
-  const { languageTo, languageFrom, modelName } = useModelInitialization();
   const {
     initializeRecorder,
     startRecording,
@@ -23,10 +20,8 @@ const VoiceRecorderContent = () => {
   } = useMicrophone();
 
   const {
-    serverUrl,
     sendMessage,
     isInitialized,
-    isConnected,
     error,
     subscribe,
     unsubscribe,
@@ -34,8 +29,12 @@ const VoiceRecorderContent = () => {
     connect,
   } = useWebSocketContext();
 
-  const [loading, setLoading] = useState(false);
   const [processedData, setProcessedData] = useState<ProcessedData[]>([]);
+
+  const discard = () => {
+    disconnect();
+    connect();
+  };
 
   useEffect(() => {
     const handleAudioProcessed = (data: ProcessedData) => {
@@ -50,8 +49,6 @@ const VoiceRecorderContent = () => {
   }, []);
 
   useEffect(() => {
-    setLoading(false);
-
     if (isInitialized) {
       initializeRecorder((audio: string) => {
         sendMessage({ type: 'audio_data', payload: { audio } });
@@ -61,23 +58,6 @@ const VoiceRecorderContent = () => {
       setProcessedData([]);
     }
   }, [isInitialized]);
-
-  const discard = () => {
-    disconnect();
-    connect();
-  };
-
-  const initializeModels = useCallback(() => {
-    sendMessage({
-      type: 'initialize',
-      payload: {
-        language_to: languageTo,
-        language_from: languageFrom,
-        model_name: modelName,
-      },
-    });
-    setLoading(true);
-  }, [languageFrom, languageTo, modelName, sendMessage]);
 
   if (error) {
     return (
@@ -90,23 +70,8 @@ const VoiceRecorderContent = () => {
     );
   }
 
-  if (loading) {
-    return <Loading text="Recorder preparing" />;
-  }
-
   if (!isInitialized) {
-    return (
-      <>
-        <InitialisationForm />
-        {isConnected ? (
-          <Button onClick={initializeModels} fullWidth>
-            Initialize recorder
-          </Button>
-        ) : (
-          <Loading text="Connection to server" url={serverUrl} />
-        )}
-      </>
-    );
+    return <InitialisationForm />;
   }
 
   return (

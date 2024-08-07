@@ -9,16 +9,11 @@ import { TranslatedAudio } from '../../types/receivedMessages';
 import { downloadFile } from '../../helpers/downloadFile';
 import FileDragAndDrop from '../../components/FileDragAndDrop';
 import { Metadata } from '../../components/Metadata';
-import { useModelInitialization } from '../../context/ModelInitializationContext';
 import LayoutWithSidebar from "../../components/LayoutWithSidebar";
 
 const AudioTranslationContent: React.FC = () => {
-  const { languageTo, languageFrom, modelName } = useModelInitialization();
-
   const {
-    serverUrl,
     sendMessage,
-    isConnected,
     isInitialized,
     error,
     subscribe,
@@ -48,28 +43,9 @@ const AudioTranslationContent: React.FC = () => {
     setOriginalAudio(base64File);
   };
 
-  const initializeModels = () => {
-    setUploading(true);
-    sendMessage({
-      type: 'initialize',
-      payload: {
-        language_to: languageTo,
-        language_from: languageFrom,
-        model_name: modelName,
-      },
-    });
-  }
-
   const handleDownload = useCallback(() => {
     downloadFile(translatedAudio, 'translated_audio.mp3');
   }, [translatedAudio]);
-
-  useEffect(() => {
-    setUploading(false);
-    if (!isInitialized) {
-      setOriginalAudio(null);
-    }
-  }, [isInitialized]);
 
   useEffect(() => {
     if (!originalAudio) {
@@ -109,23 +85,12 @@ const AudioTranslationContent: React.FC = () => {
     );
   }
 
-  if (uploading) {
-    return <Loading text={isInitialized ? "Uploading and translating" : "Models initialization"} />;
+  if (!isInitialized) {
+    return <InitialisationForm />;
   }
 
-  if (!isInitialized) {
-    return (
-      <>
-        <InitialisationForm />
-        {isConnected ? (
-          <Button onClick={initializeModels} fullWidth>
-            Initialize models
-          </Button>
-        ) : (
-          <Loading text="Connection to server" url={serverUrl} />
-        )}
-      </>
-    );
+  if (uploading) {
+    return <Loading text="Uploading and translating" />;
   }
 
   if (translatedAudio) {

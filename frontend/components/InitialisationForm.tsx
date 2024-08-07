@@ -1,4 +1,4 @@
-import { Grid, Typography } from '@mui/material';
+import {Button, Grid, Typography} from '@mui/material';
 import { TranslationModel } from '../types/types';
 import {
   LANGUAGES,
@@ -8,9 +8,12 @@ import {
 import { Select } from './Select';
 import { useWebSocketContext } from '../context/WebSocketContext';
 import { useModelInitialization } from '../context/ModelInitializationContext';
+import {Loading} from "./Loading";
+import {useCallback, useEffect, useState} from "react";
 
 export const InitialisationForm = () => {
-  const { setServerUrl, serverUrl } = useWebSocketContext();
+  const [loading, setLoading] = useState(false);
+  const { setServerUrl, serverUrl, isConnected, sendMessage, isInitialized } = useWebSocketContext();
   const {
     languageTo,
     languageFrom,
@@ -19,6 +22,26 @@ export const InitialisationForm = () => {
     setLanguageFrom,
     setModelName,
   } = useModelInitialization();
+
+  const initializeModels = useCallback(() => {
+    sendMessage({
+      type: 'initialize',
+      payload: {
+        language_to: languageTo,
+        language_from: languageFrom,
+        model_name: modelName,
+      },
+    });
+    setLoading(true);
+  }, [languageFrom, languageTo, modelName]);
+
+  useEffect(() => {
+    setLoading(false);
+  }, [isInitialized]);
+
+  if (loading) {
+    return <Loading text="Models initialization" />;
+  }
 
   return (
     <>
@@ -64,6 +87,13 @@ export const InitialisationForm = () => {
           options={SERVER_LINK}
         />
       </Grid>
+      {isConnected ? (
+        <Button onClick={initializeModels} fullWidth>
+          Initialize recorder
+        </Button>
+      ) : (
+        <Loading text="Connection to server" url={serverUrl} />
+      )}
     </>
   );
 };
