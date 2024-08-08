@@ -1,6 +1,6 @@
 import json
 from audio_processing import AudioProcessorManager
-import ws_mesages
+import ws_messages
 from utils import audio_base64_to_bytes
 
 
@@ -16,10 +16,10 @@ async def websocket_handler(websocket):
 
             try:
                 audio_processor.initialize_processor(language_to, language_from, model_name)
-                await websocket.send(json.dumps(ws_mesages.create_initialize_response("Audio processor initialized")))
+                await websocket.send(json.dumps(ws_messages.create_initialize_response("Audio processor initialized")))
             except Exception as e:
                 print(f"Initialization error: {e}")
-                await websocket.send(json.dumps(ws_mesages.create_error_response(f"Initialization error: {e}")))
+                await websocket.send(json.dumps(ws_messages.create_error_response(f"Initialization error: {e}")))
                 return
 
         elif data['type'] == 'audio_data':
@@ -32,7 +32,7 @@ async def websocket_handler(websocket):
 
             if result:
                 translated_audio, log_data = result
-                result_message = ws_mesages.create_audio_processed_response(translated_audio or base64_audio, log_data)
+                result_message = ws_messages.create_audio_processed_response(translated_audio or base64_audio, log_data)
                 await websocket.send(json.dumps(result_message))
 
         elif data['type'] == 'translate_audio':
@@ -45,8 +45,8 @@ async def websocket_handler(websocket):
                 log_data["timestamp"] = log_data["timestamp"].isoformat()
             except ValueError as e:
                 print(f"Error during synthesis: {e}")
-                await websocket.send(json.dumps(ws_mesages.create_error_response(f"Error during synthesis: {e}")))
+                await websocket.send(json.dumps(ws_messages.create_error_response(f"Error during synthesis: {e}")))
                 return
 
-            translated_audio_message = ws_mesages.create_translated_audio_response(processed_file_base64, log_data)
+            translated_audio_message = ws_messages.create_translated_audio_response(processed_file_base64, log_data)
             await websocket.send(json.dumps(translated_audio_message))
