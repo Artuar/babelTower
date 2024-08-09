@@ -2,10 +2,10 @@ from typing import Dict, Any
 from datetime import datetime
 
 
-def create_initialize_response(message: str) -> Dict[str, Any]:
+def create_initialize_response(message: str, session_id: str) -> Dict[str, Any]:
     return {
         'type': 'initialized',
-        'payload': {"message": message}
+        'payload': {"message": message, "session_id": session_id }
     }
 
 
@@ -39,5 +39,18 @@ def create_translated_audio_response(base64_audio: str, log_data: Dict[str, Any]
         'payload': {
             "translatedAudio": f"data:audio/mpeg;base64,{base64_audio}",
             "logData": log_data,
+        }
+    }
+
+
+def create_join_response(success: bool):
+    return {'type': 'join_session', 'payload': {'success': success}}
+
+
+def create_opponent_audio_response(base64_audio: str):
+    return {
+        'type': 'conversation_audio',
+        'payload': {
+            'audio': base64_audio,
         }
     }
