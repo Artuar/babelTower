@@ -21,8 +21,9 @@ async def websocket_handler(websocket):
             try:
                 audio_processor.initialize_processor(language_to, language_from, model_name)
                 session_id = session_manager.create_session(user_id, audio_processor)
+                session_manager.sessions[session_id]['connection1'] = websocket
                 await websocket.send(json.dumps(ws_messages.create_initialize_response(
-                    "Audio processor initialized", session_id
+                    "Audio processor initialized",  session_id
                 )))
             except Exception as e:
                 print(f"Initialization error: {e}")
@@ -38,7 +39,7 @@ async def websocket_handler(websocket):
                 model_name = session['processor1'].model_name
                 audio_processor = AudioProcessorManager()
                 audio_processor.initialize_processor(language_to, language_from, model_name)
-                success = session_manager.join_session(session_id, user_id, audio_processor)
+                success = session_manager.join_session(session_id, user_id, audio_processor, websocket)
                 await websocket.send(json.dumps(ws_messages.create_join_response(success, session_id)))
             else:
                 await websocket.send(json.dumps(ws_messages.create_error_response("Invalid session ID")))
@@ -53,13 +54,14 @@ async def websocket_handler(websocket):
             result = audio_processor.collect_complete_phrase(audio_bytes)
 
             handled_audio = base64_audio
+            log_data = None
             if result:
                 handled_audio, log_data = result
 
-            opponent_id = session_manager.get_opponent(session_id, user_id)
-            if opponent_id:
-                opponent_message = ws_messages.create_opponent_audio_response(handled_audio)
-                await websocket.send_to(opponent_id, json.dumps(opponent_message))
+            opponent_connection = session_manager.get_opponent(session_id, user_id)
+            if opponent_connection and result:
+                opponent_message = ws_messages.create_opponent_audio_response(handled_audio, log_data)
+                await opponent_connection.send(json.dumps(opponent_message))
 
         elif data['type'] == 'audio_data':
             audio_data_base64 = data['payload']['audio']
@@ -89,3 +91,9 @@ async def websocket_handler(websocket):
 
             translated_audio_message = ws_messages.create_translated_audio_response(processed_file_base64, log_data)
             await websocket.send(json.dumps(translated_audio_message))
+
+    # Handle disconnection
+    for session_id, session in session_manager.sessions.items():
+        if session['user1'] == user_id or session['user2'] == user_id:
+            session_manager.remove_session(session_id)
+            break

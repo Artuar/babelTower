@@ -13,16 +13,19 @@ class SessionManager:
         self.sessions[session_id] = {
             'user1': user_id,
             'processor1': processor,
+            'connection1': None,
             'user2': None,
-            'processor2': None
+            'processor2': None,
+            'connection2': None
         }
         return session_id
 
-    def join_session(self, session_id, user_id, processor: AudioProcessorManager):
+    def join_session(self, session_id, user_id, processor: AudioProcessorManager, connection):
         session = self.sessions.get(session_id)
         if session and not session['user2']:
             session['user2'] = user_id
             session['processor2'] = processor
+            session['connection2'] = connection
             return True
         return False
 
@@ -30,7 +33,11 @@ class SessionManager:
         session = self.sessions.get(session_id)
         if session:
             if session['user1'] == user_id:
-                return session['user2']
+                return session['connection2']
             if session['user2'] == user_id:
-                return session['user1']
+                return session['connection1']
         return None
+
+    def remove_session(self, session_id):
+        if session_id in self.sessions:
+            del self.sessions[session_id]

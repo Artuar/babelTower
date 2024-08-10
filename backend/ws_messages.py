@@ -43,14 +43,22 @@ def create_translated_audio_response(base64_audio: str, log_data: Dict[str, Any]
     }
 
 
-def create_join_response(success: bool, session_id: str):
+def create_join_response(success: bool, session_id: str) -> Dict[str, Any]:
     return {'type': 'joined_session', 'payload': {'success': success, 'session_id': session_id}}
 
 
-def create_opponent_audio_response(base64_audio: str):
+def create_opponent_audio_response(base64_audio: str, log_data: Dict[str, Any]) -> Dict[str, Any]:
+    timestamp = log_data.get('timestamp', datetime.utcnow())
+
     return {
         'type': 'conversation_audio',
         'payload': {
             'audio': base64_audio,
+            "timestamp": timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            "original_text": log_data.get('original_text', ""),
+            "translated_text": log_data.get('translated_text', ""),
+            "synthesis_delay": log_data.get('synthesis_delay', 0),
+            "recognize_result": log_data.get('recognize_result', {}),
+            "error": log_data.get('error', "")
         }
     }

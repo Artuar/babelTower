@@ -13,6 +13,10 @@ class AudioProcessorManager:
         self.model_name = None
 
     def initialize_processor(self, language_to, language_from, model_name):
+        self.language_to = language_to
+        self.language_from = language_from
+        self.model_name = model_name
+
         if language_from == 'en' and model_name != 'large':
             model_name = f"{model_name}.en"
         self.audio_processor = AudioProcessor(
@@ -21,9 +25,6 @@ class AudioProcessorManager:
             model_name=model_name,
             sample_rate=SAMPLE_RATE
         )
-        self.language_to = language_to
-        self.language_from = language_from
-        self.model_name = model_name
 
     def translate_audio(self, audio_data: bytes):
         if self.audio_processor is None:

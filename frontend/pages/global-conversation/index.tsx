@@ -127,9 +127,14 @@ const GlobalConversationContent = () => {
       }
       </Box>
       <Box display="flex" flexDirection="column">
-        {processedData.map(data => <audio controls src={`data:audio/mp3;base64,${data.audio}`}>
-          <track kind="captions" />
-        </audio>)}
+        {processedData.map(data => {
+          if (!data.audio) {
+            return null
+          }
+          return <div><audio controls key={data.timestamp} src={`data:audio/mp3;base64,${data.audio}`}>
+            <track kind="captions" />
+          </audio>{data.original_text}</div>
+        })}
       </Box>
     </>
   );
