@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import {useState, useEffect, useRef, useCallback, useMemo} from 'react';
 import { PUBLIC_URL } from '../constants/constants';
 import { WebSocketMessage } from '../types/receivedMessages';
 import { UserMessage } from '../types/sentMessages';
@@ -20,11 +20,12 @@ export interface UseWebSocketReturn {
   connect: () => void;
   setServerUrl: (url: string) => void;
   serverUrl: string;
+  sessionHash: string;
 }
 
 export const useWebSocket = (): UseWebSocketReturn => {
   const [isConnected, setIsConnected] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [sessionHash, setSessionHash] = useState("");
   const [error, setError] = useState<string | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
   const subscribers = useRef<
@@ -51,7 +52,7 @@ export const useWebSocket = (): UseWebSocketReturn => {
       const { type, payload } = data;
 
       if (type === 'initialized') {
-        setIsInitialized(true);
+        setSessionHash(payload.session_id);
       } else if (type === 'error') {
         setError(payload.error);
       }
@@ -102,9 +103,11 @@ export const useWebSocket = (): UseWebSocketReturn => {
 
   const disconnect = () => {
     socketRef.current?.close();
-    setIsInitialized(false);
+    setSessionHash("");
     setError(null);
   };
+
+  const isInitialized = useMemo(() => sessionHash !== "", [sessionHash])
 
   return {
     sendMessage,
@@ -117,5 +120,6 @@ export const useWebSocket = (): UseWebSocketReturn => {
     unsubscribe,
     setServerUrl,
     serverUrl,
+    sessionHash,
   };
 };

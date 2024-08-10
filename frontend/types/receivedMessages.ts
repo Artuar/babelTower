@@ -14,6 +14,7 @@ export interface ProcessedData {
 
 export interface InitialisedData {
   message: string;
+  session_id: string;
 }
 
 export interface ErrorData {
