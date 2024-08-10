@@ -53,7 +53,7 @@ const GlobalConversationContent = () => {
     };
     const handleJoinedSession = (data: JoinedSession) => {
       if (data.success) {
-        setCurrentSession(sessionInputValue);
+        setCurrentSession(data.session_id);
       } else {
         console.log("Session error");
       }
@@ -77,7 +77,7 @@ const GlobalConversationContent = () => {
       destroyRecorder();
       setProcessedData([]);
     }
-  }, [isInitialized]);
+  }, [isInitialized, currentSession]);
 
   useEffect(() => {
     setCurrentSession(sessionHash)

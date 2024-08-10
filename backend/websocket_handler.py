@@ -55,10 +55,8 @@ async def websocket_handler(websocket):
             handled_audio = base64_audio
             if result:
                 handled_audio, log_data = result
-                print(log_data)
 
             opponent_id = session_manager.get_opponent(session_id, user_id)
-            print("opponent_id", opponent_id)
             if opponent_id:
                 opponent_message = ws_messages.create_opponent_audio_response(handled_audio)
                 await websocket.send_to(opponent_id, json.dumps(opponent_message))
