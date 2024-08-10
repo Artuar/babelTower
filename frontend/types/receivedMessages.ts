@@ -25,6 +25,11 @@ export interface TranslatedAudio {
   translatedAudio: string;
 }
 
+export interface JoinedSession {
+  success: boolean;
+  session_id: string;
+}
+
 export interface ErrorMessage {
   payload: ErrorData;
   type: 'error';
@@ -45,8 +50,14 @@ export interface TranslatedAudioMessage {
   type: 'translated_audio';
 }
 
+export interface JoinedSessionMessage {
+  payload: JoinedSession;
+  type: 'joined_session';
+}
+
 export type WebSocketMessage =
   | ProcessedMessage
   | InitialisedMessage
   | ErrorMessage
-  | TranslatedAudioMessage;
+  | TranslatedAudioMessage
+  | JoinedSessionMessage;

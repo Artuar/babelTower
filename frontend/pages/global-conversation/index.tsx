@@ -4,7 +4,7 @@ import { Metadata } from '../../components/Metadata';
 import { LayoutWithSidebar } from '../../components/LayoutWithSidebar';
 import {useWebSocketContext} from "../../context/WebSocketContext";
 import {useCallback, useEffect, useState} from "react";
-import { ProcessedData } from "../../types/receivedMessages";
+import {JoinedSession, ProcessedData} from "../../types/receivedMessages";
 import {ErrorBlock} from "../../components/ErrorBlock";
 import {InitialisationForm} from "../../components/InitialisationForm";
 import {Loading} from "../../components/Loading";
@@ -44,7 +44,6 @@ const GlobalConversationContent = () => {
   }, [sessionHash])
 
   const joinOpponentSession = useCallback(() => {
-    setCurrentSession(sessionInputValue)
     sendMessage({ type: 'join_session', payload: { session_id: sessionInputValue } });
   },[sessionInputValue])
 
@@ -52,18 +51,27 @@ const GlobalConversationContent = () => {
     const handleAudioProcessed = (data: ProcessedData) => {
       setProcessedData((current) => [data, ...current]);
     };
+    const handleJoinedSession = (data: JoinedSession) => {
+      if (data.success) {
+        setCurrentSession(sessionInputValue);
+      } else {
+        console.log("Session error");
+      }
+    };
 
     subscribe('conversation_audio', handleAudioProcessed);
+    subscribe('joined_session', handleJoinedSession);
 
     return () => {
       unsubscribe('conversation_audio', handleAudioProcessed);
+      unsubscribe('joined_session', handleJoinedSession);
     };
   }, []);
 
   useEffect(() => {
     if (isInitialized) {
       initializeRecorder((audio: string) => {
-        sendMessage({ type: 'conversation_audio_data', payload: { audio } });
+        sendMessage({ type: 'conversation_audio_data', payload: { audio, session_id: currentSession } });
       });
     } else {
       destroyRecorder();
@@ -104,7 +112,7 @@ const GlobalConversationContent = () => {
       <Box display="flex" alignItems="center">
         <Typography variant="h6" gutterBottom>Current session is</Typography>
         <Input sx={{ fontWeight: "bold", flex: 1, padding: 0.5 }} fullWidth value={sessionInputValue} onChange={(event) => setSessionInputValue(event.target.value)} />
-        <Button onClick={joinOpponentSession} color="primary" disabled={sessionHash === sessionInputValue}>
+        <Button onClick={joinOpponentSession} color="primary" disabled={sessionInputValue === currentSession}>
           Join new session
         </Button>
         <Button onClick={canselSession} color="secondary" disabled={sessionInputValue === currentSession}>
@@ -114,7 +122,7 @@ const GlobalConversationContent = () => {
       <Box bgcolor="primary.light" p={1} my={1} borderRadius={1}>
       {
         currentSession === sessionHash ?
-          <Typography>Send your session to an opponent to they able to join this conversation. Or change it if you have session key from you opponent.</Typography> :
+          <Typography>Send your session to an opponent to they able to join this conversation. Or change it if you have session key from an opponent.</Typography> :
           <Typography>You are currently joined to an opponent conversation. Your original session is {sessionHash}</Typography>
       }
       </Box>

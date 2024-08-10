@@ -12,6 +12,11 @@ interface SessionData {
   session_id: string;
 }
 
+interface ConversationData {
+  audio: string;
+  session_id: string;
+}
+
 interface TranslateAudioData {
   file: string;
 }
@@ -32,7 +37,7 @@ interface TranslateAudioMessage {
 }
 
 interface AudioConversationMessage {
-  payload: AudioData;
+  payload: ConversationData;
   type: 'conversation_audio_data';
 }
 

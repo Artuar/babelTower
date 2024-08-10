@@ -43,8 +43,8 @@ def create_translated_audio_response(base64_audio: str, log_data: Dict[str, Any]
     }
 
 
-def create_join_response(success: bool):
-    return {'type': 'join_session', 'payload': {'success': success}}
+def create_join_response(success: bool, session_id: str):
+    return {'type': 'joined_session', 'payload': {'success': success, session_id: session_id}}
 
 
 def create_opponent_audio_response(base64_audio: str):
