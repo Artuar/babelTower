@@ -53,6 +53,42 @@ export const CallBlock = ({
     }
   }, []);
 
+  const getContent = () => {
+    if (waitingForOpponent) {
+      return <Box textAlign="center">
+        <CircularProgress />
+        <Typography variant="body1" ml={2}>Waiting for opponent.</Typography>
+        <Typography variant="body1" ml={2}>Send your session to an opponent so they can join this conversation.</Typography>
+      </Box>
+    }
+
+    if (!opponentJoined) {
+      return <Box textAlign="center">
+        <Cancel color="error" fontSize="large" />
+        <Typography variant="body1">Opponent left this call.</Typography>
+      </Box>
+    }
+
+    else {
+      return <Box textAlign="center" sx={{
+        opacity: isRecording ? 0.3 : 1,
+        transition: 'opacity 0.3s, color 0.3s',
+        '&:hover': { opacity: 1 }
+      }}>
+        <Button onClick={isRecording ? stopRecording : startRecording}>
+          {
+            isRecording ?
+              <MicIcon sx={{ color: 'gray'}} fontSize="large" /> :
+              <MicOffIcon sx={{ color: 'red'}} fontSize="large" />
+          }
+        </Button>
+        <Typography variant="body2" color="textSecondary" mt={1}>
+          {isRecording ? "You can talk." : "You are mute."}
+        </Typography>
+      </Box>
+    }
+  }
+
   return (
     <>
       <Box display="flex" alignItems="center">
@@ -60,7 +96,7 @@ export const CallBlock = ({
         <Typography variant="h6" mx={1} fontWeight="bold" gutterBottom>{currentSession}</Typography>
       </Box>
       <Box position="relative" bgcolor="primary.light" p={1} my={1} borderRadius={1} height={200} overflow="auto">
-        <Box display="flex" flexDirection="column">
+        <Box display="flex" flexDirection="column" sx={{ opacity: isRecording ? 1 : 0.3 }}>
           {processedData.map((data) => (
             data.translated_text ?
               <Typography key={data.timestamp} variant="body2" color="textSecondary" gutterBottom>
@@ -71,7 +107,7 @@ export const CallBlock = ({
         <Box
           sx={{
             position: 'absolute',
-            top: '50%',
+            top: '40%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
             display: 'flex',
@@ -79,40 +115,7 @@ export const CallBlock = ({
             justifyContent: 'center',
           }}
         >
-          {
-            waitingForOpponent &&
-            <Box textAlign="center">
-              <CircularProgress />
-              <Typography variant="body1" ml={2}>Waiting for opponent.</Typography>
-              <Typography variant="body1" ml={2}>Send your session to an opponent so they can join this conversation.</Typography>
-            </Box>
-          }
-          {
-            !waitingForOpponent && !opponentJoined &&
-            <Box textAlign="center">
-              <Cancel color="error" fontSize="large" />
-              <Typography variant="body1">Opponent left this call.</Typography>
-            </Box>
-          }
-          {
-            opponentJoined &&
-            <Box textAlign="center" sx={{
-              opacity: isRecording ? 0.5 : 1,
-              transition: 'opacity 0.3s, color 0.3s',
-              '&:hover': { opacity: 1 }
-            }}>
-              <Button onClick={isRecording ? stopRecording : startRecording}>
-                {
-                  isRecording ?
-                    <MicIcon sx={{ color: 'gray'}} fontSize="large" /> :
-                    <MicOffIcon sx={{ color: 'red'}} fontSize="large" />
-                }
-              </Button>
-              <Typography variant="body2" color="textSecondary" mt={1}>
-                {isRecording ? "You can talk." : "You can unmute and talk."}
-              </Typography>
-            </Box>
-          }
+          {getContent()}
         </Box>
       </Box>
     </>
