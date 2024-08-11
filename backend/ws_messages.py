@@ -43,6 +43,16 @@ def create_translated_audio_response(base64_audio: str, log_data: Dict[str, Any]
     }
 
 
+def create_translated_text_response(translated_audio: str, translated_text: str) -> Dict[str, Any]:
+    return {
+        'type': 'translated_text',
+        'payload': {
+            "translatedAudio": f"data:audio/mpeg;base64,{translated_audio}",
+            "translatedText": translated_text,
+        }
+    }
+
+
 def create_join_response(success: bool, session_id: str) -> Dict[str, Any]:
     return {'type': 'joined_session', 'payload': {'success': success, 'session_id': session_id}}
 

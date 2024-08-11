@@ -111,6 +111,7 @@ export const JoinCall = () => {
               onClick={joinOpponentSession}
               color="primary"
               disabled={sessionInputValue === currentSession}
+              variant="contained"
               fullWidth
             >
               Join

@@ -34,6 +34,14 @@ class AudioProcessorManager:
         final_audio, log_data = self.audio_processor.process_audio(timestamp, audio_data)
         return audio_bytes_to_base64(final_audio), log_data
 
+    def translate_text(self, text: str):
+        if self.audio_processor is None:
+            raise ValueError("Audio processor is not initialized. Use 'initialize' method before.")
+
+        translated_text = self.audio_processor.translate_text(text)
+        translated_audio = self.audio_processor.synthesize_speech(translated_text)
+        return audio_bytes_to_base64(translated_audio), translated_text
+
     def collect_complete_phrase(self, raw_audio_data: bytes):
         self.buffered_audio.append(raw_audio_data)
         combined_audio = b''.join(self.buffered_audio)

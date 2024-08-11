@@ -25,6 +25,11 @@ export interface TranslatedAudio {
   translatedAudio: string;
 }
 
+export interface TranslatedText {
+  translatedText: string;
+  translatedAudio: string;
+}
+
 export interface JoinedSession {
   success: boolean;
   session_id: string;
@@ -55,7 +60,7 @@ export interface TranslatedAudioMessage {
 }
 
 export interface TranslatedTextMessage {
-  payload: ProcessedMessage;
+  payload: TranslatedText;
   type: 'translated_text';
 }
 

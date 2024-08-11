@@ -77,7 +77,7 @@ const Home: NextPageWithLayout = () => {
         <Feature
           imagePath="/writer.png"
           title="Text-to-Voice Translator"
-          description="Transform written text into spoken translation in just seconds. Enter any text, choose your target language, and instantly receive a synthesized voice translation. Perfect for quickly generating audio in your desired language for learning, work, or simply for fun. Enjoy clear, natural-sounding translations anytime, anywhere."
+          description="Transform written text into spoken translation in just seconds. Choose your target language, enter any text, and instantly receive a synthesized voice translation. Perfect for quickly generating audio in your desired language for learning, work, or simply for fun. Enjoy clear, natural-sounding translations anytime, anywhere."
           link="/text-translator"
         />
         <Feature

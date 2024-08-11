@@ -98,6 +98,17 @@ async def websocket_handler(websocket):
             translated_audio_message = ws_messages.create_translated_audio_response(processed_file_base64, log_data)
             await websocket.send(json.dumps(translated_audio_message))
 
+        elif data['type'] == 'translate_text':
+            try:
+                translated_audio, translated_text = audio_processor.translate_text(data['payload'].get('text'))
+            except ValueError as e:
+                print(f"Error during synthesis: {e}")
+                await websocket.send(json.dumps(ws_messages.create_error_response(f"Error during synthesis: {e}")))
+                return
+
+            translated_text_message = ws_messages.create_translated_text_response(translated_audio, translated_text)
+            await websocket.send(json.dumps(translated_text_message))
+
     # Handle disconnection
     for session_id, session in session_manager.sessions.items():
         if session['user1'] == user_id or session['user2'] == user_id:

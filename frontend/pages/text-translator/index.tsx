@@ -5,7 +5,7 @@ import { InitialisationForm } from '../../components/InitialisationForm';
 import { Loading } from '../../components/Loading';
 import { ErrorBlock } from '../../components/ErrorBlock';
 import { useWebSocketContext } from '../../context/WebSocketContext';
-import { TranslatedAudio } from '../../types/receivedMessages';
+import {TranslatedAudio, TranslatedText} from '../../types/receivedMessages';
 import { downloadFile } from '../../helpers/downloadFile';
 import { Metadata } from '../../components/Metadata';
 import { LayoutWithSidebar } from '../../components/LayoutWithSidebar';
@@ -27,8 +27,9 @@ const TextTranslatorContent: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const handleTextProcessed = (data: TranslatedAudio) => {
+    const handleTextProcessed = (data: TranslatedText) => {
       setTranslatedAudio(data.translatedAudio);
+      setTranslatedText(data.translatedText);
       setLoading(false);
     };
 
@@ -114,7 +115,7 @@ const TextTranslatorContent: React.FC = () => {
           <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
             Translated text
           </Typography>
-          <Typography variant="body2" gutterBottom sx={{ mt: 2 }}>
+          <Typography variant="body2" gutterBottom>
             {translatedText}
           </Typography>
           <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
@@ -124,11 +125,10 @@ const TextTranslatorContent: React.FC = () => {
             <audio controls src={translatedAudio}>
               <track kind="captions" />
             </audio>
-            <Button onClick={handleDownload}>Download Translated Audio</Button>
-            <Button color="secondary" onClick={discard}>
-              Restart
-            </Button>
           </Box>
+          <Button color="secondary" onClick={discard} fullWidth>
+            Restart
+          </Button>
         </>
       )}
     </Box>
@@ -149,7 +149,7 @@ const AudioTranslation: React.FC = () => {
         <FeatureArticle
           title="Text-to-Voice Translator"
           descriptions={[
-            'Transform written text into spoken translation in just seconds. Enter any text, choose your target language, and instantly receive a synthesized voice translation. Perfect for quickly generating audio in your desired language for learning, work, or simply for fun. Enjoy clear, natural-sounding translations anytime, anywhere.',
+            'Transform written text into spoken translation in just seconds. Choose your target language, enter any text, and instantly receive a synthesized voice translation. Perfect for quickly generating audio in your desired language for learning, work, or simply for fun. Enjoy clear, natural-sounding translations anytime, anywhere.',
           ]}
           imagePath="/writer.png"
         />
