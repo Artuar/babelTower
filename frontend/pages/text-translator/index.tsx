@@ -89,10 +89,17 @@ const TextTranslatorContent: React.FC = () => {
         rows={4}
         variant="outlined"
         value={text}
-        onChange={(e) => setText(e.target.value)}
+        onChange={(e) => {
+          const newText = e.target.value;
+          if (newText.length <= 1000) {
+            setText(newText);
+          }
+        }}
         fullWidth
         margin="normal"
+        helperText={`${text.length}/1000 characters`}
       />
+
       <Button
         variant="contained"
         color="primary"

@@ -69,16 +69,22 @@ const Home: NextPageWithLayout = () => {
           link="/voice-recorder"
         />
         <Feature
-          imagePath="/audio.png"
-          title="Effortless Audio Translations"
-          description="Easily translate audio files with our intuitive tool. Upload your audio and receive accurate translations in no time. This feature allows users to upload their audio files and translate the conversation within them into any of the supported languages. The background sounds are preserved during the translation process, ensuring the original context and ambiance remain intact."
-          link="/audio-translation"
-        />
-        <Feature
           imagePath="/conversation.png"
           title="Global Conversations Made Easy"
           description="Experience seamless global communication with our real-time audio translation feature. Engage in conversations with people worldwide, regardless of language differences. Enjoy instant translation during your audio calls, connecting effortlessly with anyone, anywhere. Break down language barriers and foster meaningful relationships without delays or misunderstandings."
           link="/global-conversation"
+        />
+        <Feature
+          imagePath="/writer.png"
+          title="Text-to-Voice Translator"
+          description="Transform written text into spoken translation in just seconds. Enter any text, choose your target language, and instantly receive a synthesized voice translation. Perfect for quickly generating audio in your desired language for learning, work, or simply for fun. Enjoy clear, natural-sounding translations anytime, anywhere."
+          link="/text-translator"
+        />
+        <Feature
+          imagePath="/audio.png"
+          title="Effortless Audio Translations"
+          description="Easily translate audio files with our intuitive tool. Upload your audio and receive accurate translations in no time. This feature allows users to upload their audio files and translate the conversation within them into any of the supported languages. The background sounds are preserved during the translation process, ensuring the original context and ambiance remain intact."
+          link="/audio-translation"
         />
       </Grid>
     </div>

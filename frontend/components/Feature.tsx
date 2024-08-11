@@ -8,6 +8,7 @@ import {
   Button,
 } from '@mui/material';
 import Image from 'next/image';
+import {Link} from "./Link";
 
 interface FeatureProps {
   imagePath: string;
@@ -50,9 +51,11 @@ export const Feature = ({
                 </Typography>
                 <CardActions sx={{ paddingX: 0 }}>
                   {link ? (
-                    <Button size="small" href={link}>
-                      Try now
-                    </Button>
+                    <Link href={link} style={{ color: "primary" }}>
+                      <Typography variant="body1" color="primary" fontWeight="bold">
+                        Try now
+                      </Typography>
+                    </Link>
                   ) : (
                     <Typography variant="body2" color="secondary" mt={2}>
                       IN PROGRESS...
