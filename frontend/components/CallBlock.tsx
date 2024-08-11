@@ -33,6 +33,10 @@ export const CallBlock = ({
   useEffect(() => {
     const handleAudioProcessed = (data: ProcessedData) => {
       setProcessedData((current) => [data, ...current]);
+      if (data.audio) {
+        const audio = new Audio(`data:audio/mp3;base64,${data.audio}`);
+        audio.play().catch(error => console.error('Audio playback failed:', error));
+      }
     };
 
     subscribe('conversation_audio', handleAudioProcessed);
