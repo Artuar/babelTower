@@ -1,8 +1,11 @@
-import {useMicrophone} from "../context/MicrophoneContext";
-import {useWebSocketContext} from "../context/WebSocketContext";
-import { useEffect, useState} from "react";
-import { ProcessedData} from "../types/receivedMessages";
-import {Box, Button, Typography} from "@mui/material";
+import { useMicrophone } from "../context/MicrophoneContext";
+import { useWebSocketContext } from "../context/WebSocketContext";
+import { useEffect, useState } from "react";
+import { ProcessedData } from "../types/receivedMessages";
+import { Box, Button, Typography, CircularProgress } from "@mui/material";
+import MicIcon from '@mui/icons-material/Mic';
+import MicOffIcon from '@mui/icons-material/MicOff';
+import {Cancel} from "@mui/icons-material";
 
 interface CallBlockProps {
   currentSession: string;
@@ -56,29 +59,61 @@ export const CallBlock = ({
         <Typography variant="h6" gutterBottom>Current session is</Typography>
         <Typography variant="h6" mx={1} fontWeight="bold" gutterBottom>{currentSession}</Typography>
       </Box>
-      <Box bgcolor="primary.light" p={1} my={1} borderRadius={1}>
-        {
-          waitingForOpponent ?
-            "Send your session to an opponent to they able to join this conversation." :
-            opponentJoined ?
-              "You and opponent are in call. You can unmute and talk.":
-              "Opponent left this call."
-        }
-      </Box>
-      <Box display="flex" flexDirection="column">
-        {processedData.map(data => {
-          if (!data.audio) {
-            return null
+      <Box position="relative" bgcolor="primary.light" p={1} my={1} borderRadius={1} height={200} overflow="auto">
+        <Box display="flex" flexDirection="column">
+          {processedData.map((data) => (
+            data.translated_text ?
+              <Typography key={data.timestamp} variant="body2" color="textSecondary" gutterBottom>
+                {data.original_text}
+              </Typography> : null
+          ))}
+        </Box>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {
+            waitingForOpponent &&
+            <Box textAlign="center">
+              <CircularProgress />
+              <Typography variant="body1" ml={2}>Waiting for opponent.</Typography>
+              <Typography variant="body1" ml={2}>Send your session to an opponent so they can join this conversation.</Typography>
+            </Box>
           }
-          return <div><audio controls key={data.timestamp} src={`data:audio/mp3;base64,${data.audio}`}>
-            <track kind="captions" />
-          </audio>{data.original_text}</div>
-        })}
-      </Box>
-      <Box display="flex" justifyContent="space-between">
-        <Button onClick={isRecording ? stopRecording : startRecording} fullWidth>
-          {isRecording ? 'Mute' : 'Unmute'}
-        </Button>
+          {
+            !waitingForOpponent && !opponentJoined &&
+            <Box textAlign="center">
+              <Cancel color="error" fontSize="large" />
+              <Typography variant="body1">Opponent left this call.</Typography>
+            </Box>
+          }
+          {
+            opponentJoined &&
+            <Box textAlign="center" sx={{
+              opacity: isRecording ? 0.5 : 1,
+              transition: 'opacity 0.3s, color 0.3s',
+              '&:hover': { opacity: 1 }
+            }}>
+              <Button onClick={isRecording ? stopRecording : startRecording}>
+                {
+                  isRecording ?
+                    <MicIcon sx={{ color: 'gray'}} fontSize="large" /> :
+                    <MicOffIcon sx={{ color: 'red'}} fontSize="large" />
+                }
+              </Button>
+              <Typography variant="body2" color="textSecondary" mt={1}>
+                {isRecording ? "You can talk." : "You can unmute and talk."}
+              </Typography>
+            </Box>
+          }
+        </Box>
       </Box>
     </>
   );
