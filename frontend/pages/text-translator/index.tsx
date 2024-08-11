@@ -21,8 +21,8 @@ const TextTranslatorContent: React.FC = () => {
     connect,
   } = useWebSocketContext();
 
-  const [text, setText] = useState("");
-  const [translatedText, setTranslatedText] = useState("");
+  const [text, setText] = useState('');
+  const [translatedText, setTranslatedText] = useState('');
   const [translatedAudio, setTranslatedAudio] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -54,8 +54,8 @@ const TextTranslatorContent: React.FC = () => {
   }, [translatedAudio]);
 
   const discard = () => {
-    setText("");
-    setTranslatedText("");
+    setText('');
+    setTranslatedText('');
     setTranslatedAudio(null);
     setLoading(false);
     disconnect();

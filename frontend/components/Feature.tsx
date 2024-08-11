@@ -5,10 +5,9 @@ import {
   CardContent,
   Grid,
   Typography,
-  Button,
 } from '@mui/material';
 import Image from 'next/image';
-import {Link} from "./Link";
+import { Link } from './Link';
 
 interface FeatureProps {
   imagePath: string;
@@ -51,8 +50,12 @@ export const Feature = ({
                 </Typography>
                 <CardActions sx={{ paddingX: 0 }}>
                   {link ? (
-                    <Link href={link} style={{ color: "primary" }}>
-                      <Typography variant="body1" color="primary" fontWeight="bold">
+                    <Link href={link} style={{ color: 'primary' }}>
+                      <Typography
+                        variant="body1"
+                        color="primary"
+                        fontWeight="bold"
+                      >
                         Try now
                       </Typography>
                     </Link>
