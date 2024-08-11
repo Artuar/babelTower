@@ -44,8 +44,8 @@ const GlobalConversation: React.FC = () => {
           variant="fullWidth"
           sx={{ marginBottom: 2 }}
         >
-          <Tab label="Create Call" />
-          <Tab label="Join Call" />
+          <Tab label="Create Call" sx={{ fontWeight: "bold" }} />
+          <Tab label="Join Call" sx={{ fontWeight: "bold" }} />
         </Tabs>
         <Box>
           {tabValue === 0 && <CreateCall />}

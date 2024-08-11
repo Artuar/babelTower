@@ -89,7 +89,7 @@ export const InitialisationForm = () => {
         />
       </Grid>
       {isConnected ? (
-        <Button onClick={initializeModels} fullWidth>
+        <Button onClick={initializeModels} fullWidth variant="contained">
           Initialize models
         </Button>
       ) : (
