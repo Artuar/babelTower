@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Box, Container, Typography, Button } from '@mui/material';
+import { Box, Container, Typography, Button, TextField } from '@mui/material';
 import { FeatureArticle } from '../../components/FeatureArticle';
 import { InitialisationForm } from '../../components/InitialisationForm';
 import { Loading } from '../../components/Loading';
@@ -40,13 +40,14 @@ const TextTranslatorContent: React.FC = () => {
   }, []);
 
   const translateText = useCallback(() => {
+    setLoading(true);
     sendMessage({
       type: 'translate_text',
       payload: {
         text,
       },
     });
-  }, [text])
+  }, [text]);
 
   const handleDownload = useCallback(() => {
     downloadFile(translatedAudio, 'translated_audio.mp3');
@@ -82,12 +83,26 @@ const TextTranslatorContent: React.FC = () => {
 
   return (
     <Box mt={4} flexDirection="column" display="flex">
+      <TextField
+        label="Enter text to translate"
+        multiline
+        rows={4}
+        variant="outlined"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        fullWidth
+        margin="normal"
+      />
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={translateText}
+        disabled={!text}
+      >
+        Translate Text
+      </Button>
 
-      {/* Textarea */}
-      {/* button Translate text */}
-
-      {
-        translatedText &&
+      {translatedText && (
         <>
           <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
             Translated text
@@ -108,7 +123,7 @@ const TextTranslatorContent: React.FC = () => {
             </Button>
           </Box>
         </>
-      }
+      )}
     </Box>
   );
 };
