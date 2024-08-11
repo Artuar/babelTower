@@ -1,3 +1,3 @@
-import GlobalConversation from "./index";
+import GlobalConversation from './index';
 
 export default GlobalConversation;

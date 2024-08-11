@@ -1,10 +1,9 @@
-import {useWebSocketContext} from "../context/WebSocketContext";
-import { useEffect, useState} from "react";
-import { OpponentAction} from "../types/receivedMessages";
-import {ErrorBlock} from "./ErrorBlock";
-import {InitialisationForm} from "./InitialisationForm";
-import {Box, Button} from "@mui/material";
-import {CallBlock} from "./CallBlock";
+import { useWebSocketContext } from '../context/WebSocketContext';
+import { useEffect, useState } from 'react';
+import { ErrorBlock } from './ErrorBlock';
+import { InitialisationForm } from './InitialisationForm';
+import { Box, Button } from '@mui/material';
+import { CallBlock } from './CallBlock';
 
 export const CreateCall = () => {
   const {
@@ -14,27 +13,26 @@ export const CreateCall = () => {
     unsubscribe,
     disconnect,
     connect,
-    sessionHash
+    sessionHash,
   } = useWebSocketContext();
 
-  const [opponentJoined, setOpponentJoined] = useState(false)
-  const [waitingForOpponent, setWaitingForOpponent] = useState(true)
+  const [opponentJoined, setOpponentJoined] = useState(false);
+  const [waitingForOpponent, setWaitingForOpponent] = useState(true);
 
   const discard = () => {
-    setOpponentJoined(false)
-    setWaitingForOpponent(true)
+    setOpponentJoined(false);
+    setWaitingForOpponent(true);
     disconnect();
     connect();
   };
 
-
   useEffect(() => {
-    const handleOpponentJoined = (data: OpponentAction) => {
-      setOpponentJoined(true)
-      setWaitingForOpponent(false)
+    const handleOpponentJoined = () => {
+      setOpponentJoined(true);
+      setWaitingForOpponent(false);
     };
-    const handleOpponentLeft = (data: OpponentAction) => {
-      setOpponentJoined(false)
+    const handleOpponentLeft = () => {
+      setOpponentJoined(false);
     };
 
     subscribe('opponent_joined', handleOpponentJoined);
@@ -63,7 +61,11 @@ export const CreateCall = () => {
 
   return (
     <>
-      <CallBlock currentSession={sessionHash} opponentJoined={opponentJoined} waitingForOpponent={waitingForOpponent} />
+      <CallBlock
+        currentSession={sessionHash}
+        opponentJoined={opponentJoined}
+        waitingForOpponent={waitingForOpponent}
+      />
       <Box display="flex" justifyContent="space-between">
         <Button onClick={discard} color="secondary" fullWidth>
           Restart

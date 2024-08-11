@@ -1,11 +1,10 @@
-import {Box, Container, Tab, Tabs} from '@mui/material';
+import { Box, Container, Tab, Tabs } from '@mui/material';
 import { FeatureArticle } from '../../components/FeatureArticle';
 import { Metadata } from '../../components/Metadata';
 import { LayoutWithSidebar } from '../../components/LayoutWithSidebar';
-import {useRouter} from "next/router";
-import {JoinCall} from "../../components/JoinCall";
-import {CreateCall} from "../../components/CreateCall";
-
+import { useRouter } from 'next/router';
+import { JoinCall } from '../../components/JoinCall';
+import { CreateCall } from '../../components/CreateCall';
 
 const GlobalConversation: React.FC = () => {
   const router = useRouter();
