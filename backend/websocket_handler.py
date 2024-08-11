@@ -41,6 +41,12 @@ async def websocket_handler(websocket):
                 audio_processor.initialize_processor(language_to, language_from, model_name)
                 success = session_manager.join_session(session_id, user_id, audio_processor, websocket)
                 await websocket.send(json.dumps(ws_messages.create_join_response(success, session_id)))
+
+                opponent_connection = session_manager.get_opponent(session_id, user_id)
+                if opponent_connection:
+                    opponent_message = ws_messages.create_opponent_joined(session_id)
+                    await opponent_connection.send(json.dumps(opponent_message))
+
             else:
                 await websocket.send(json.dumps(ws_messages.create_error_response("Invalid session ID")))
 
@@ -95,5 +101,9 @@ async def websocket_handler(websocket):
     # Handle disconnection
     for session_id, session in session_manager.sessions.items():
         if session['user1'] == user_id or session['user2'] == user_id:
+            opponent_connection = session_manager.get_opponent(session_id, user_id)
             session_manager.remove_session(session_id)
+            if opponent_connection:
+                opponent_message = ws_messages.create_opponent_left(session_id)
+                await opponent_connection.send(json.dumps(opponent_message))
             break

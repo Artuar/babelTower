@@ -30,6 +30,10 @@ export interface JoinedSession {
   session_id: string;
 }
 
+export interface OpponentAction {
+  session_id: string;
+}
+
 export interface ErrorMessage {
   payload: ErrorData;
   type: 'error';
@@ -55,9 +59,21 @@ export interface JoinedSessionMessage {
   type: 'joined_session';
 }
 
+export interface OpponentJoinedMessage {
+  payload: OpponentAction;
+  type: 'opponent_joined';
+}
+
+export interface OpponentLeftMessage {
+  payload: OpponentAction;
+  type: 'opponent_left';
+}
+
 export type WebSocketMessage =
   | ProcessedMessage
   | InitialisedMessage
   | ErrorMessage
   | TranslatedAudioMessage
-  | JoinedSessionMessage;
+  | JoinedSessionMessage
+  | OpponentJoinedMessage
+  | OpponentLeftMessage;

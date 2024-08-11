@@ -62,3 +62,21 @@ def create_opponent_audio_response(base64_audio: str, log_data: Dict[str, Any]) 
             "error": log_data.get('error', "")
         }
     }
+
+
+def create_opponent_joined(session_id: str) -> Dict[str, Any]:
+    return {
+        'type': 'opponent_joined',
+        'payload': {
+            'session_id': session_id,
+        }
+    }
+
+
+def create_opponent_left(session_id: str) -> Dict[str, Any]:
+    return {
+        'type': 'opponent_left',
+        'payload': {
+            'session_id': session_id,
+        }
+    }

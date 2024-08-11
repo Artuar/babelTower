@@ -4,7 +4,7 @@ import { Metadata } from '../../components/Metadata';
 import { LayoutWithSidebar } from '../../components/LayoutWithSidebar';
 import {useWebSocketContext} from "../../context/WebSocketContext";
 import {useCallback, useEffect, useState} from "react";
-import {JoinedSession, ProcessedData} from "../../types/receivedMessages";
+import {JoinedSession, OpponentAction, ProcessedData} from "../../types/receivedMessages";
 import {ErrorBlock} from "../../components/ErrorBlock";
 import {InitialisationForm} from "../../components/InitialisationForm";
 import {Loading} from "../../components/Loading";
@@ -33,6 +33,7 @@ const GlobalConversationContent = () => {
   const [processedData, setProcessedData] = useState<ProcessedData[]>([]);
   const [currentSession, setCurrentSession] = useState(sessionHash)
   const [sessionInputValue, setSessionInputValue] = useState(sessionHash)
+  const [opponentJoined, setOpponentJoined] = useState(false)
 
   const discard = () => {
     disconnect();
@@ -54,17 +55,28 @@ const GlobalConversationContent = () => {
     const handleJoinedSession = (data: JoinedSession) => {
       if (data.success) {
         setCurrentSession(data.session_id);
+        setOpponentJoined(true);
       } else {
         console.log("Session error");
       }
     };
+    const handleOpponentJoined = (data: OpponentAction) => {
+      setOpponentJoined(true)
+    };
+    const handleOpponentLeft = (data: OpponentAction) => {
+      setOpponentJoined(false)
+    };
 
     subscribe('conversation_audio', handleAudioProcessed);
     subscribe('joined_session', handleJoinedSession);
+    subscribe('opponent_joined', handleOpponentJoined);
+    subscribe('opponent_left', handleOpponentLeft);
 
     return () => {
       unsubscribe('conversation_audio', handleAudioProcessed);
       unsubscribe('joined_session', handleJoinedSession);
+      unsubscribe('opponent_joined', handleOpponentJoined);
+      unsubscribe('opponent_left', handleOpponentLeft);
     };
   }, []);
 
@@ -125,6 +137,13 @@ const GlobalConversationContent = () => {
           <Typography>Send your session to an opponent to they able to join this conversation. Or change it if you have session key from an opponent.</Typography> :
           <Typography>You are currently joined to an opponent conversation. Your original session is {sessionHash}</Typography>
       }
+      </Box>
+      <Box bgcolor="primary.light" p={1} my={1} borderRadius={1}>
+        {
+          opponentJoined ?
+            <Typography>Opponent joined to call. You can talk.</Typography> :
+            <Typography>Opponent is not in call</Typography>
+        }
       </Box>
       <Box display="flex" flexDirection="column">
         {processedData.map(data => {
