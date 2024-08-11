@@ -18,11 +18,11 @@ export const CreateCall = () => {
   } = useWebSocketContext();
 
   const [opponentJoined, setOpponentJoined] = useState(false)
-  const [showGuideText, setShowGuideText] = useState(true)
+  const [waitingForOpponent, setWaitingForOpponent] = useState(true)
 
   const discard = () => {
     setOpponentJoined(false)
-    setShowGuideText(true)
+    setWaitingForOpponent(true)
     disconnect();
     connect();
   };
@@ -31,7 +31,7 @@ export const CreateCall = () => {
   useEffect(() => {
     const handleOpponentJoined = (data: OpponentAction) => {
       setOpponentJoined(true)
-      setShowGuideText(false)
+      setWaitingForOpponent(false)
     };
     const handleOpponentLeft = (data: OpponentAction) => {
       setOpponentJoined(false)
@@ -63,11 +63,7 @@ export const CreateCall = () => {
 
   return (
     <>
-      <CallBlock currentSession={sessionHash} opponentJoined={opponentJoined} description={
-        showGuideText ?
-          "Send your session to an opponent to they able to join this conversation." :
-          null
-      } />
+      <CallBlock currentSession={sessionHash} opponentJoined={opponentJoined} waitingForOpponent={waitingForOpponent} />
       <Box display="flex" justifyContent="space-between">
         <Button onClick={discard} color="secondary" fullWidth>
           Restart

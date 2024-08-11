@@ -7,13 +7,13 @@ import {Box, Button, Typography} from "@mui/material";
 interface CallBlockProps {
   currentSession: string;
   opponentJoined: boolean;
-  description?: string;
+  waitingForOpponent?: boolean;
 }
 
 export const CallBlock = ({
   currentSession,
   opponentJoined,
-  description
+  waitingForOpponent
 }: CallBlockProps) => {
   const {
     initializeRecorder,
@@ -57,9 +57,13 @@ export const CallBlock = ({
         <Typography variant="h6" mx={1} fontWeight="bold" gutterBottom>{currentSession}</Typography>
       </Box>
       <Box bgcolor="primary.light" p={1} my={1} borderRadius={1}>
-        {description || (opponentJoined ?
-          "You and opponent are in call. You can unmute and talk.":
-          "Opponent left this call.")}
+        {
+          waitingForOpponent ?
+            "Send your session to an opponent to they able to join this conversation." :
+            opponentJoined ?
+              "You and opponent are in call. You can unmute and talk.":
+              "Opponent left this call."
+        }
       </Box>
       <Box display="flex" flexDirection="column">
         {processedData.map(data => {
