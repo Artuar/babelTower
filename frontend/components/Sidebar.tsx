@@ -1,9 +1,28 @@
 import Link from 'next/link';
-import { Box, List, ListItem, ListItemText } from '@mui/material';
+import {
+  Box,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 
-const Item = ({ link, name }: { link: string; name: string }) => {
+const Item = ({
+  link,
+  name,
+  icon,
+}: {
+  link: string;
+  name: string;
+  icon: string;
+}) => {
   const router = useRouter();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const isActive = router.pathname.includes(link);
   return (
@@ -12,6 +31,8 @@ const Item = ({ link, name }: { link: string; name: string }) => {
       component={Link}
       href={link}
       sx={{
+        display: 'flex',
+        justifyContent: { xs: 'center', sm: 'flex-start' },
         bgcolor: isActive ? 'primary.main' : 'inherit',
         color: isActive ? 'primary.contrastText' : 'inherit',
         ':hover': {
@@ -19,7 +40,13 @@ const Item = ({ link, name }: { link: string; name: string }) => {
         },
       }}
     >
-      <ListItemText primary={name} />
+      {isMobile ? (
+        <ListItemIcon>
+          <Image src={icon} alt={name} width={50} height={50} />
+        </ListItemIcon>
+      ) : (
+        <ListItemText primary={name} />
+      )}
     </ListItem>
   );
 };
@@ -42,9 +69,17 @@ const Sidebar = () => {
           flexDirection: { xs: 'row', md: 'column' },
         }}
       >
-        <Item link="/voice-recorder" name="Voice Recorder" />
-        <Item link="/audio-translation" name="Audio Translation" />
-        <Item link="/global-conversation" name="Global conversation" />
+        <Item link="/voice-recorder" icon="/record.png" name="Voice Recorder" />
+        <Item
+          link="/audio-translation"
+          icon="/audio.png"
+          name="Audio Translation"
+        />
+        <Item
+          link="/global-conversation"
+          icon="/conversation.png"
+          name="Global conversation"
+        />
       </List>
     </Box>
   );
