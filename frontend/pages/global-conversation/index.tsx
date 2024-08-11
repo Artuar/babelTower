@@ -1,165 +1,25 @@
-import {Box, Button, Container, Input, Typography} from '@mui/material';
+import {Box, Container, Tab, Tabs} from '@mui/material';
 import { FeatureArticle } from '../../components/FeatureArticle';
 import { Metadata } from '../../components/Metadata';
 import { LayoutWithSidebar } from '../../components/LayoutWithSidebar';
-import {useWebSocketContext} from "../../context/WebSocketContext";
-import {useCallback, useEffect, useState} from "react";
-import {JoinedSession, OpponentAction, ProcessedData} from "../../types/receivedMessages";
-import {ErrorBlock} from "../../components/ErrorBlock";
-import {InitialisationForm} from "../../components/InitialisationForm";
-import {Loading} from "../../components/Loading";
-import {useMicrophone} from "../../context/MicrophoneContext";
+import {useRouter} from "next/router";
+import {JoinCall} from "../../components/JoinCall";
+import {CreateCall} from "../../components/CreateCall";
 
-const GlobalConversationContent = () => {
-  const {
-    initializeRecorder,
-    startRecording,
-    stopRecording,
-    isRecording,
-    destroyRecorder,
-  } = useMicrophone();
-
-  const {
-    sendMessage,
-    isInitialized,
-    error,
-    subscribe,
-    unsubscribe,
-    disconnect,
-    connect,
-    sessionHash
-  } = useWebSocketContext();
-
-  const [processedData, setProcessedData] = useState<ProcessedData[]>([]);
-  const [currentSession, setCurrentSession] = useState(sessionHash)
-  const [sessionInputValue, setSessionInputValue] = useState(sessionHash)
-  const [opponentJoined, setOpponentJoined] = useState(false)
-
-  const discard = () => {
-    disconnect();
-    connect();
-  };
-
-  const canselSession = useCallback(() => {
-    setSessionInputValue(sessionHash)
-  }, [sessionHash])
-
-  const joinOpponentSession = useCallback(() => {
-    sendMessage({ type: 'join_session', payload: { session_id: sessionInputValue } });
-  },[sessionInputValue])
-
-  useEffect(() => {
-    const handleAudioProcessed = (data: ProcessedData) => {
-      setProcessedData((current) => [data, ...current]);
-    };
-    const handleJoinedSession = (data: JoinedSession) => {
-      if (data.success) {
-        setCurrentSession(data.session_id);
-        setOpponentJoined(true);
-      } else {
-        console.log("Session error");
-      }
-    };
-    const handleOpponentJoined = (data: OpponentAction) => {
-      setOpponentJoined(true)
-    };
-    const handleOpponentLeft = (data: OpponentAction) => {
-      setOpponentJoined(false)
-    };
-
-    subscribe('conversation_audio', handleAudioProcessed);
-    subscribe('joined_session', handleJoinedSession);
-    subscribe('opponent_joined', handleOpponentJoined);
-    subscribe('opponent_left', handleOpponentLeft);
-
-    return () => {
-      unsubscribe('conversation_audio', handleAudioProcessed);
-      unsubscribe('joined_session', handleJoinedSession);
-      unsubscribe('opponent_joined', handleOpponentJoined);
-      unsubscribe('opponent_left', handleOpponentLeft);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (isInitialized) {
-      initializeRecorder((audio: string) => {
-        sendMessage({ type: 'conversation_audio_data', payload: { audio, session_id: currentSession } });
-      });
-    } else {
-      destroyRecorder();
-      setProcessedData([]);
-    }
-  }, [isInitialized, currentSession]);
-
-  useEffect(() => {
-    setCurrentSession(sessionHash)
-    setSessionInputValue(sessionHash)
-  }, [sessionHash])
-
-  if (error) {
-    return (
-      <ErrorBlock
-        title={isInitialized ? 'Processing error' : 'Initializing error'}
-        description={error}
-        button="Restart"
-        onClick={discard}
-      />
-    );
-  }
-
-  if (!isInitialized) {
-    return <InitialisationForm />;
-  }
-
-  return (
-    <>
-      <Box display="flex" justifyContent="space-between">
-        <Button onClick={discard} color="secondary">
-          Restart
-        </Button>
-        <Button onClick={isRecording ? stopRecording : startRecording}>
-          {isRecording ? 'Mute' : 'Unmute'}
-        </Button>
-      </Box>
-      <Box display="flex" alignItems="center">
-        <Typography variant="h6" gutterBottom>Current session is</Typography>
-        <Input sx={{ fontWeight: "bold", flex: 1, padding: 0.5 }} fullWidth value={sessionInputValue} onChange={(event) => setSessionInputValue(event.target.value)} />
-        <Button onClick={joinOpponentSession} color="primary" disabled={sessionInputValue === currentSession}>
-          Join new session
-        </Button>
-        <Button onClick={canselSession} color="secondary" disabled={sessionInputValue === currentSession}>
-          Cancel
-        </Button>
-      </Box>
-      <Box bgcolor="primary.light" p={1} my={1} borderRadius={1}>
-      {
-        currentSession === sessionHash ?
-          <Typography>Send your session to an opponent to they able to join this conversation. Or change it if you have session key from an opponent.</Typography> :
-          <Typography>You are currently joined to an opponent conversation. Your original session is {sessionHash}</Typography>
-      }
-      </Box>
-      <Box bgcolor="primary.light" p={1} my={1} borderRadius={1}>
-        {
-          opponentJoined ?
-            <Typography>Opponent joined to call. You can talk.</Typography> :
-            <Typography>Opponent is not in call</Typography>
-        }
-      </Box>
-      <Box display="flex" flexDirection="column">
-        {processedData.map(data => {
-          if (!data.audio) {
-            return null
-          }
-          return <div><audio controls key={data.timestamp} src={`data:audio/mp3;base64,${data.audio}`}>
-            <track kind="captions" />
-          </audio>{data.original_text}</div>
-        })}
-      </Box>
-    </>
-  );
-};
 
 const GlobalConversation: React.FC = () => {
+  const router = useRouter();
+  const { slug } = router.query;
+  const tabValue = slug === 'join-call' ? 1 : 0;
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    if (newValue === 0) {
+      router.push('/global-conversation');
+    } else {
+      router.push('/global-conversation/join-call');
+    }
+  };
+
   return (
     <LayoutWithSidebar>
       <Metadata
@@ -177,8 +37,21 @@ const GlobalConversation: React.FC = () => {
           ]}
           imagePath="/conversation.png"
         />
-
-        <GlobalConversationContent />
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
+          indicatorColor="primary"
+          textColor="primary"
+          variant="fullWidth"
+          sx={{ marginBottom: 2 }}
+        >
+          <Tab label="Create Call" />
+          <Tab label="Join Call" />
+        </Tabs>
+        <Box>
+          {tabValue === 0 && <CreateCall />}
+          {tabValue === 1 && <JoinCall />}
+        </Box>
       </Container>
     </LayoutWithSidebar>
   );

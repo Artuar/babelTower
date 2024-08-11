@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 const Item = ({ link, name }: { link: string; name: string }) => {
   const router = useRouter();
 
-  const isActive = router.pathname === link;
+  const isActive = router.pathname.includes(link);
   return (
     <ListItem
       button

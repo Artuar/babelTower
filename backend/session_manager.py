@@ -22,10 +22,12 @@ class SessionManager:
 
     def join_session(self, session_id, user_id, processor: AudioProcessorManager, connection):
         session = self.sessions.get(session_id)
-        if session and not session['user2']:
+        if session and not session['user2'] and session['user1'] is not user_id:
             session['user2'] = user_id
             session['processor2'] = processor
             session['connection2'] = connection
+            return True
+        if session and (session['user2'] is user_id or session['user1'] is user_id):
             return True
         return False
 
