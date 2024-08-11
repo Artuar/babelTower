@@ -33,6 +33,7 @@ const Item = ({
       sx={{
         display: 'flex',
         justifyContent: { xs: 'center', sm: 'flex-start' },
+        px: 3,
         bgcolor: isActive ? 'primary.main' : 'inherit',
         color: isActive ? 'primary.contrastText' : 'inherit',
         ':hover': {
@@ -71,14 +72,19 @@ const Sidebar = () => {
       >
         <Item link="/voice-recorder" icon="/record.png" name="Voice Recorder" />
         <Item
-          link="/audio-translation"
-          icon="/audio.png"
-          name="Audio Translation"
-        />
-        <Item
           link="/global-conversation"
           icon="/conversation.png"
           name="Global conversation"
+        />
+        <Item
+          link="/text-translator"
+          icon="/writer.png"
+          name="Text Translator"
+        />
+        <Item
+          link="/audio-translation"
+          icon="/audio.png"
+          name="Audio Translation"
         />
       </List>
     </Box>

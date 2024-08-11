@@ -21,6 +21,10 @@ interface TranslateAudioData {
   file: string;
 }
 
+interface TranslateTextData {
+  text: string;
+}
+
 interface InitializingMessage {
   payload: InitializingData;
   type: 'initialize';
@@ -46,9 +50,15 @@ interface JoinSessionMessage {
   type: 'join_session';
 }
 
+interface TranslateTextMessage {
+  payload: TranslateTextData;
+  type: 'translate_text';
+}
+
 export type UserMessage =
   | InitializingMessage
   | ProcessingMessage
   | TranslateAudioMessage
   | AudioConversationMessage
-  | JoinSessionMessage;
+  | JoinSessionMessage
+  | TranslateTextMessage;

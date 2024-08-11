@@ -29,11 +29,12 @@ export const Footer: React.FC = () => {
             </Typography>
             <Typography variant="body2" display="flex" flexDirection="column">
               <Link href="/voice-recorder">Speak and Translate Instantly</Link>
-              <Link href="/audio-translation">
-                Effortless Audio Translations
-              </Link>
               <Link href="/global-conversation">
                 Global Conversations Made Easy
+              </Link>
+              <Link href="/text-translator">Text-to-Voice Translator</Link>
+              <Link href="/audio-translation">
+                Effortless Audio Translations
               </Link>
             </Typography>
           </Grid>

@@ -54,6 +54,11 @@ export interface TranslatedAudioMessage {
   type: 'translated_audio';
 }
 
+export interface TranslatedTextMessage {
+  payload: ProcessedMessage;
+  type: 'translated_text';
+}
+
 export interface JoinedSessionMessage {
   payload: JoinedSession;
   type: 'joined_session';
@@ -74,6 +79,7 @@ export type WebSocketMessage =
   | InitialisedMessage
   | ErrorMessage
   | TranslatedAudioMessage
+  | TranslatedTextMessage
   | JoinedSessionMessage
   | OpponentJoinedMessage
   | OpponentLeftMessage;
