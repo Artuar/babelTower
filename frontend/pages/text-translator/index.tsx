@@ -5,8 +5,7 @@ import { InitialisationForm } from '../../components/InitialisationForm';
 import { Loading } from '../../components/Loading';
 import { ErrorBlock } from '../../components/ErrorBlock';
 import { useWebSocketContext } from '../../context/WebSocketContext';
-import {TranslatedAudio, TranslatedText} from '../../types/receivedMessages';
-import { downloadFile } from '../../helpers/downloadFile';
+import { TranslatedText } from '../../types/receivedMessages';
 import { Metadata } from '../../components/Metadata';
 import { LayoutWithSidebar } from '../../components/LayoutWithSidebar';
 
@@ -49,10 +48,6 @@ const TextTranslatorContent: React.FC = () => {
       },
     });
   }, [text]);
-
-  const handleDownload = useCallback(() => {
-    downloadFile(translatedAudio, 'translated_audio.mp3');
-  }, [translatedAudio]);
 
   const discard = () => {
     setText('');
