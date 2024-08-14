@@ -62,7 +62,7 @@ const VoiceRecorderContent = () => {
   useEffect(() => {
     return () => {
       if (isRecording) {
-        stopRecording()
+        stopRecording();
       }
     };
   }, []);
