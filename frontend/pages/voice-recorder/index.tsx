@@ -60,7 +60,11 @@ const VoiceRecorderContent = () => {
   }, [isInitialized]);
 
   useEffect(() => {
-    return () => stopRecording();
+    return () => {
+      if (isRecording) {
+        stopRecording()
+      }
+    };
   }, []);
 
   if (error) {
