@@ -131,17 +131,17 @@ export const CallBlock = ({
         <Box
           display="flex"
           flexDirection="column"
-          sx={{ opacity: isRecording ? 1 : 0.3 }}
+          sx={{ opacity: isRecording ? 1 : 0.6 }}
         >
           {processedData.map((data) =>
             data.translated_text ? (
               <Typography
                 key={data.timestamp}
-                variant="body2"
-                color="textSecondary"
+                variant="body1"
+                fontWeight="bold"
                 gutterBottom
               >
-                {data.original_text}
+                {data.translated_text} ({ Number(data.synthesis_delay || 0).toFixed(2) } s)
               </Typography>
             ) : null,
           )}
