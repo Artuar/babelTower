@@ -141,7 +141,8 @@ export const CallBlock = ({
                 fontWeight="bold"
                 gutterBottom
               >
-                {data.translated_text} ({ Number(data.synthesis_delay || 0).toFixed(2) } s)
+                {data.translated_text} (
+                {Number(data.synthesis_delay || 0).toFixed(2)} s)
               </Typography>
             ) : null,
           )}
