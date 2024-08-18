@@ -10,9 +10,13 @@ import { useWebSocketContext } from '../context/WebSocketContext';
 import { useModelInitialization } from '../context/ModelInitializationContext';
 import { Loading } from './Loading';
 import { useCallback, useEffect, useState } from 'react';
+import { getPossibleLanguagePairs } from '../helpers/language';
 
 export const InitialisationForm = () => {
   const [loading, setLoading] = useState(false);
+  const [languageToList, setLanguageToList] = useState<Record<string, string>>(
+    getPossibleLanguagePairs('en'),
+  );
   const { setServerUrl, serverUrl, isConnected, sendMessage, isInitialized } =
     useWebSocketContext();
   const {
@@ -23,6 +27,13 @@ export const InitialisationForm = () => {
     setLanguageFrom,
     setModelName,
   } = useModelInitialization();
+
+  const handleLanguageFromChange = (language: string) => {
+    const possibleList = getPossibleLanguagePairs(language);
+    setLanguageToList(possibleList);
+    setLanguageFrom(language);
+    setLanguageTo(Object.keys(possibleList)[0] || 'en');
+  };
 
   const initializeModels = useCallback(() => {
     sendMessage({
@@ -53,7 +64,7 @@ export const InitialisationForm = () => {
           </Typography>
           <Select
             value={languageFrom}
-            onChange={(e) => setLanguageFrom(e.target.value as string)}
+            onChange={(e) => handleLanguageFromChange(e.target.value as string)}
             options={LANGUAGES}
           />
         </Grid>
@@ -64,7 +75,7 @@ export const InitialisationForm = () => {
           <Select
             value={languageTo}
             onChange={(e) => setLanguageTo(e.target.value as string)}
-            options={LANGUAGES}
+            options={languageToList}
           />
         </Grid>
         <Grid item xs={12} md={4}>
